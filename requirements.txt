@@ -1,2 +1,5 @@
-beautifulsoup4
 nose
+lxml
+# libxslt-dev
+itertools
+unittest

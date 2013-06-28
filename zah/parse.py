@@ -1,78 +1,91 @@
 import re
+import docx
+import subprocess
+from itertools import imap, ifilter, groupby
+
+import sys
 
 from datetime import datetime 
-from bs4 import BeautifulSoup
+from lxml import etree
+from lxml import objectify
 
 class ZAHansardParser(object):
 
-    def parse(self, html):
-        soup = BeautifulSoup(html)
+    def parse(self, document_path):
+        
+        antiword = subprocess.Popen(
+                ['antiword', document_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT)
+        if antiword.returncode:
+            # e.g. not 0 (success) or None (still running) so presumably an error
+            raise Error("antiword failed %d" % antiword.returncode)
 
-        title = soup.find('h1', class_ = 'title').string
-        node = soup.find('div', class_ = 'node')
-        # taxonomy?
-        content = node.find('div', class_ = 'content')
+        E = objectify.ElementMaker(
+                annotate=False,
+                namespace="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03",
+                nsmap={None : "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03"},
+                )
 
-        dt = content.find('div', class_='field-field-meeting-date')
-        date_string = dt.get_text('', strip=True)
-        date = datetime.strptime( dt.find('span', class_ = 'date-display-single').get_text('', strip=True), '%d %b %Y' )
-
-        current_speaker = None
-        current_speech  = None
-        speeches = []
+        akomaNtoso = E.akomaNtoso(
+                E.debate(
+                    E.preface()))
+        current = akomaNtoso.debate.preface
 
         name_regexp = r'((?:[A-Z][a-z]* )?[A-Z ]+):'
 
-        for p in content.find_all('p'):
-            string = p.string
-            if not string:
-                continue
-            if string == u'\xa0':
-                continue
-            matched = re.match(name_regexp, string)
-            if matched:
-                speaker = matched.group(1)
-                current_speaker = self.getCanonicalPerson(speaker)
-                string = string[matched.end():]
-
-                current_speech = ZAHansardSpeech(
-                        speaker = current_speaker,
-                        from_ = speaker,
-                        p = [ string ],
-                        )
-                speeches.append(current_speech)
-                continue
-
-            # FIXME HACK HACK! for now, just append to current speech!
-            if current_speech:
-                current_speech.append_p(string)
-
-        return {
-                'title':       title,
-                'date_string': date_string,
-                'date' :       date,
-                'speeches':    speeches,
+        header = {
+                'date': None,
+                'title': None,
+                'assembled': None,
+                'prayers': False,
                 }
 
-    def getCanonicalPerson(self, name):
-        # TODO, connect to PopIt
-        return name
+        lines = imap(lambda l: l.rstrip(' _\n'), 
+                iter(antiword.stdout.readline, b''))
 
-class ZAHansardSpeech (object):
+        def break_paras(line):
+            return len(line) > 0
 
-    def __init__(self, speaker=None, from_='', p = []):
-        self.speaker = speaker
-        self.from_   = from_
-        self.p       = p
+        fst = lambda(a,_): a
+        snd = lambda(_,b): b
 
-    def __repr__(self):
-        return (
-                '%s(speaker = "%s", from_ = "%s", p = %s)' %
-                   (self.__class__.__name__,
-                    self.speaker,
-                    self.from_,
-                    self.p)
-                )
+        groups = groupby(lines, break_paras)
+        paras = imap(snd, ifilter(fst, groups))
 
-    def append_p(self, string):
-        self.p.append(string)
+        def get_element(p):
+            p = list(p)
+            if len(p) == 1:
+                line = p[0]
+                print >> sys.stderr, line
+                if not header['date']:
+                    try:
+                        date = datetime.strptime(line, '%A, %d %B %Y')
+                        header['date'] = date
+                        elem = E.p(
+                                datetime.strftime(date, '%A, '),
+                                E.docDate(datetime.strftime(date, '%d %B %Y'),
+                                    date=datetime.strftime(date, '%Y-%m-%d')))
+                        return (elem, None)
+                    except:
+                        pass
+            else:
+                line = p[0]
+
+            # not yet handled!
+            # print >> sys.stderr, "EEEEEK! %s" % str(p)
+            return (None, None)
+
+        for p in paras:
+            (elem, where) = get_element(p)
+            if elem is None:
+                continue
+            if where == 'pop':
+                current = current.getparent()
+            parent = current
+
+            current.append(elem)
+            if where == 'push':
+                current = elem
+
+        return akomaNtoso

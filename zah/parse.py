@@ -78,7 +78,21 @@ class ZAHansardParser(object):
 
         def para(f):
             def para_(p, header, akomaNtoso, current):
-                return f(' '.join(p), header, akomaNtoso, current)
+                p = ' '.join(p)
+                # unicode invalid characters  
+                RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
+                                 u'|' + \
+                                 u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
+                                  (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
+                                   unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
+                                   unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
+                                   )  
+                p = re.sub(RE_XML_ILLEGAL, '', p)
+                                  
+                # ascii control characters  
+                p = re.sub(r'[\x01-\x1F\x7F]', '', p)
+
+                return f(p, header, akomaNtoso, current)
             return para_
 
         @singleLine
@@ -153,16 +167,42 @@ class ZAHansardParser(object):
                 current.append(elem)
                 return [current]
 
-        name_regexp = r'((?:[A-Z][a-z]* )?[A-Z ]+):'
+        @para
+        def speech(p, header, akomaNtoso, current):
+            name_regexp = r'^((?:[A-Z][a-z]* )?[A-Z ]+):\d*(.*)'
+            ret = re.search(name_regexp, p)
+            if ret:
+                (name, speech) = ret.groups()
+                id = self.getOrCreateSpeaker(name, akomaNtoso)
+                elem = E.speech(
+                        E.From( name ),
+                        E.p(speech),
+                        by='#%s' % id)
+                
+                if etree.QName(current.tag).localname == 'speech':
+                    current = current.getparent()
+                current.append(elem)
+                return [elem]
+
+        @para
+        def continuation(p, header, akomaNtoso, current):
+            current.append( E.p( "...") )
+            return [current]
 
         funcs = [
                 isDate,
                 isTitle,
                 assembled,
                 prayers,
+                speech,
+                continuation,
                 ]
 
         for f in funcs:
             ret = f(p, header, akomaNtoso, current)
             if ret:
                 return ret
+
+    def getOrCreateSpeaker(self, name, akomaNtoso):
+        id = re.sub('\W+', '-', name.lower())
+        return id

@@ -79,7 +79,10 @@ class ZAHansardParser(object):
         def para(f):
             def para_(p, header, akomaNtoso, current):
                 p = ' '.join(p)
+                p = re.sub(r'\u00a0', '&nbsp;', p)
+
                 # unicode invalid characters  
+
                 RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
                                  u'|' + \
                                  u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
@@ -91,6 +94,9 @@ class ZAHansardParser(object):
                                   
                 # ascii control characters  
                 p = re.sub(r'[\x01-\x1F\x7F]', '', p)
+
+                # TODO: following is stupid, but above doesn't produce a string that lxml accepts...
+                p = re.sub(r'[^ a-zA-Z:,.!?0-9]', '', p)
 
                 return f(p, header, akomaNtoso, current)
             return para_
@@ -186,7 +192,8 @@ class ZAHansardParser(object):
 
         @para
         def continuation(p, header, akomaNtoso, current):
-            current.append( E.p( "...") )
+            print >> sys.stderr, "[%s]" % p
+            current.append( E.p( p ) )
             return [current]
 
         funcs = [

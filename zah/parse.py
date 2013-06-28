@@ -11,6 +11,12 @@ from lxml import objectify
 
 class ZAHansardParser(object):
 
+    E = objectify.ElementMaker(
+            annotate=False,
+            namespace="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03",
+            nsmap={None : "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03"},
+            )
+
     def parse(self, document_path):
         
         antiword = subprocess.Popen(
@@ -21,12 +27,7 @@ class ZAHansardParser(object):
             # e.g. not 0 (success) or None (still running) so presumably an error
             raise Error("antiword failed %d" % antiword.returncode)
 
-        E = objectify.ElementMaker(
-                annotate=False,
-                namespace="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03",
-                nsmap={None : "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03"},
-                )
-
+        E = self.E
         akomaNtoso = E.akomaNtoso(
                 E.debate(
                     E.preface()))
@@ -53,33 +54,11 @@ class ZAHansardParser(object):
         groups = groupby(lines, break_paras)
         paras = imap(snd, ifilter(fst, groups))
 
-        def get_element(p):
-            p = list(p)
-            if len(p) == 1:
-                line = p[0]
-                print >> sys.stderr, line
-                if not header['date']:
-                    try:
-                        date = datetime.strptime(line, '%A, %d %B %Y')
-                        header['date'] = date
-                        elem = E.p(
-                                datetime.strftime(date, '%A, '),
-                                E.docDate(datetime.strftime(date, '%d %B %Y'),
-                                    date=datetime.strftime(date, '%Y-%m-%d')))
-                        return (elem, None)
-                    except:
-                        pass
-            else:
-                line = p[0]
-
-            # not yet handled!
-            # print >> sys.stderr, "EEEEEK! %s" % str(p)
-            return (None, None)
-
         for p in paras:
-            (elem, where) = get_element(p)
-            if elem is None:
+            elem_data = self.get_element( list(p), header.copy() )
+            if not elem_data:
                 continue
+            (elem, where, header) = elem_data
             if where == 'pop':
                 current = current.getparent()
             parent = current
@@ -89,3 +68,39 @@ class ZAHansardParser(object):
                 current = elem
 
         return akomaNtoso
+
+    def get_element(self, p, header):
+
+        E = self.E
+
+        def singleLine(f):
+            def new_f(p, header):
+                if len(p) != 1:
+                    return False
+                return f(p[0], header)
+            return new_f
+
+        @singleLine
+        def isDate(line,header):
+            if header['date']:
+                return False
+            try:
+                date = datetime.strptime(line, '%A, %d %B %Y')
+                header['date'] = date
+                elem = E.p(
+                        datetime.strftime(date, '%A, '),
+                        E.docDate(datetime.strftime(date, '%d %B %Y'),
+                            date=datetime.strftime(date, '%Y-%m-%d')))
+                return (elem, None, header)
+            except Exception as e:
+                print e
+                return False
+
+        funcs = [
+                isDate,
+                ]
+
+        for f in funcs:
+            ret = f(p, header)
+            if ret:
+                return ret

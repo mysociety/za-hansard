@@ -1,10 +1,11 @@
 import re
 import docx
 import subprocess
-from itertools import imap, ifilter, groupby
+import string
 
 import sys
 
+from itertools import imap, ifilter, groupby
 from datetime import datetime 
 from lxml import etree
 from lxml import objectify
@@ -81,22 +82,7 @@ class ZAHansardParser(object):
                 p = ' '.join(p)
                 p = re.sub(r'\u00a0', '&nbsp;', p)
 
-                # unicode invalid characters  
-
-                RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
-                                 u'|' + \
-                                 u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
-                                  (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
-                                   unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
-                                   unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),  
-                                   )  
-                p = re.sub(RE_XML_ILLEGAL, '', p)
-                                  
-                # ascii control characters  
-                p = re.sub(r'[\x01-\x1F\x7F]', '', p)
-
-                # TODO: following is stupid, but above doesn't produce a string that lxml accepts...
-                p = re.sub(r'[^ a-zA-Z:,.!?0-9]', '', p)
+                p = filter(lambda x: x in string.printable, p)
 
                 return f(p, header, akomaNtoso, current)
             return para_

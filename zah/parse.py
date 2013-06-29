@@ -167,7 +167,7 @@ class ZAHansardParser(object):
                 (name, speech) = ret.groups()
                 id = self.getOrCreateSpeaker(name, akomaNtoso)
                 elem = E.speech(
-                        E.From( name ),
+                        E('from',  name ),
                         E.p(speech),
                         by='#%s' % id)
                 

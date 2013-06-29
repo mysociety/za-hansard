@@ -12,9 +12,9 @@ import sys
 class ZAHansardParsingTests(TestCase):
 
     def test_basic_parse(self):
-        parser = ZAHansardParser()
 
         filename = 'zah/fixtures/test_inputs/502914_1.doc'
-        document = parser.parse(filename)
+        obj = ZAHansardParser.parse(filename)
+        document = obj.akomaNtoso
 
         print >> sys.stderr, etree.tostring(document, pretty_print=True)

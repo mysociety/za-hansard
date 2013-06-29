@@ -18,7 +18,19 @@ class ZAHansardParser(object):
             nsmap={None : "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03"},
             )
 
-    def parse(self, document_path):
+    akomaNtoso = E.akomaNtoso(
+            E.debate(
+                E.preface()))
+    current = akomaNtoso.debate.preface
+
+    hasDate = False
+    hasTitle = False
+    hasAssembled = False
+    hasPrayers = False
+    subSectionCount = 0
+
+    @classmethod
+    def parse(cls, document_path):
         
         antiword = subprocess.Popen(
                 ['antiword', document_path],
@@ -27,20 +39,6 @@ class ZAHansardParser(object):
         if antiword.returncode:
             # e.g. not 0 (success) or None (still running) so presumably an error
             raise Error("antiword failed %d" % antiword.returncode)
-
-        E = self.E
-        akomaNtoso = E.akomaNtoso(
-                E.debate(
-                    E.preface()))
-        current = akomaNtoso.debate.preface
-
-        header = {
-                'date': None,
-                'title': None,
-                'subSections': 0,
-                'assembled': None,
-                'prayers': False,
-                }
 
         lines = imap(lambda l: l.rstrip(' _\n'), 
                 iter(antiword.stdout.readline, b''))
@@ -54,82 +52,86 @@ class ZAHansardParser(object):
         groups = groupby(lines, break_paras)
         paras = imap(snd, ifilter(fst, groups))
 
+        obj = ZAHansardParser()
+
         for para in paras:
             p = list(para)
-            ret = self.parseLine( p, header, akomaNtoso, current )
+            ret = obj.parseLine( p )
             if not ret:
                 print >> sys.stderr, "Failed at %s" % p[0]
                 break
                 # continue
-            [current] = ret
 
-        return akomaNtoso
+        return obj
 
-    def parseLine(self, p, header, akomaNtoso, current):
+    def parseLine(self, p):
 
         E = self.E
 
         # DECORATORS
         def singleLine(f):
-            def singleLine_(p, header, akomaNtoso, current):
+            def singleLine_(p):
                 if len(p) != 1:
                     return False
-                return f(p[0], header, akomaNtoso, current)
+                return f(p[0])
             return singleLine_
 
         def para(f):
-            def para_(p, header, akomaNtoso, current):
+            def para_(p):
                 p = ' '.join(p)
                 p = re.sub(r'\u00a0', '&nbsp;', p)
 
                 p = filter(lambda x: x in string.printable, p)
 
-                return f(p, header, akomaNtoso, current)
+                return f(p)
             return para_
 
+        # PARSERS
+
         @singleLine
-        def isDate(line, header, akomaNtoso, current):
-            if header['date']:
+        def isDate(line):
+            if self.hasDate:
                 return False
             try:
                 date = datetime.strptime(line, '%A, %d %B %Y')
-                header['date'] = date
                 elem = E.p(
                         datetime.strftime(date, '%A, '),
                         E.docDate(datetime.strftime(date, '%d %B %Y'),
                             date=datetime.strftime(date, '%Y-%m-%d')))
-                current.append(elem)
-                return [current]
+                self.current.append(elem)
+                self.hasDate = True
+                return True
             except:
                 return False
 
         @singleLine
-        def isTitle(line, header, akomaNtoso, current):
+        def isTitle(line):
             if re.search(r'[a-z]', line):
                 return False
             line = line.lstrip()
-            if header['title']:
+            if self.hasTitle:
                 # we already have a main title, so this is a subsection
-                if header['subSections']:
-                    current = current.getparent()
-                header['subSections'] += 1
+                if self.subSectionCount:
+                    self.current = self.current.getparent()
+                self.subSectionCount += 1
                 elem = E.debateSection(
                     E.narrative(line),
-                    id='dbs%d' % header['subSections'])
-                current.append(elem)
-                return [elem]
+                    id='dbs%d' % self.subSectionCount)
+                self.current.append(elem)
+                self.current = elem
             else:
-                header['title'] = line
                 elem = E.debateBody(
                         E.debateSection(
                             E.heading(line),
                             id='db0'))
-                akomaNtoso.debate.append( elem )
-                return [elem.debateSection]
+                self.akomaNtoso.debate.append( elem )
+                self.current = elem.debateSection
+                self.hasTitle = True
+            return True
 
         @para
-        def assembled(p, header, akomaNtoso, current):
-            if header['assembled']:
+        def assembled(p):
+            if self.hasAssembled:
                 return
             ret = re.search(r'^(.*(?:assembled|met)(?: in .*)? at )(\d+:\d+)\.?$', p)
             if ret:
@@ -137,50 +139,49 @@ class ZAHansardParser(object):
                     groups = ret.groups()
                     time = datetime.strptime(groups[1], '%H:%M').time()
                     assembled = datetime.combine(header['date'], time)
-                    header['assembled'] = assembled
                     elem = E.p(
                             groups[0],
                             E.recordedTime(
                                 groups[1],
                                 time= assembled.isoformat()
                             ))
-                    current.append(elem)
-                    return [current]
+                    self.current.append(elem)
+                    self.hasAssembled = True
+                    return True
                 except:
                     return
 
         @para
-        def prayers(p, header, akomaNtoso, current):
-            if header['prayers']:
+        def prayers(p):
+            if self.hasPrayers:
                 return
             if re.search(r'^(.* prayers or meditation.)$', p):
-                header['prayers'] = True
                 elem = E.prayers(p)
-                current.append(elem)
-                return [current]
+                self.current.append(elem)
+                self.hasPrayers = True
+                return True
 
         @para
-        def speech(p, header, akomaNtoso, current):
+        def speech(p):
             name_regexp = r'^((?:[A-Z][a-z]* )?[A-Z ]+):\d*(.*)'
             ret = re.search(name_regexp, p)
             if ret:
                 (name, speech) = ret.groups()
-                id = self.getOrCreateSpeaker(name, akomaNtoso)
+                id = self.getOrCreateSpeaker(name)
                 elem = E.speech(
                         E('from',  name ),
                         E.p(speech),
                         by='#%s' % id)
                 
-                if etree.QName(current.tag).localname == 'speech':
-                    current = current.getparent()
-                current.append(elem)
-                return [elem]
+                if etree.QName(self.current.tag).localname == 'speech':
+                    self.current = self.current.getparent()
+                self.current.append(elem)
+                return True
 
         @para
-        def continuation(p, header, akomaNtoso, current):
-            print >> sys.stderr, "[%s]" % p
-            current.append( E.p( p ) )
-            return [current]
+        def continuation(p):
+            self.current.append( E.p( p ) )
+            return True
 
         funcs = [
                 isDate,
@@ -192,10 +193,10 @@ class ZAHansardParser(object):
                 ]
 
         for f in funcs:
-            ret = f(p, header, akomaNtoso, current)
+            ret = f(p)
             if ret:
                 return ret
 
-    def getOrCreateSpeaker(self, name, akomaNtoso):
+    def getOrCreateSpeaker(self, name):
         id = re.sub('\W+', '-', name.lower())
         return id

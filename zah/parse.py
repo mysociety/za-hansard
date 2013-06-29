@@ -40,8 +40,13 @@ class ZAHansardParser(object):
             # e.g. not 0 (success) or None (still running) so presumably an error
             raise Error("antiword failed %d" % antiword.returncode)
 
-        lines = imap(lambda l: l.rstrip(' _\n'), 
-                iter(antiword.stdout.readline, b''))
+        def cleanLine(line):
+            line = line.rstrip(' _\n')
+            # NB: string.printable won't filter unicode correctly...
+            line = filter(lambda x: x in string.printable, line)
+            return line
+
+        lines = imap(cleanLine, iter(antiword.stdout.readline, b''))
 
         def break_paras(line):
             return len(line) > 0
@@ -79,9 +84,6 @@ class ZAHansardParser(object):
         def para(f):
             def para_(p):
                 p = ' '.join(p)
-                p = re.sub(r'\u00a0', '&nbsp;', p)
-
-                p = filter(lambda x: x in string.printable, p)
 
                 return f(p)
             return para_

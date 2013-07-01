@@ -1,5 +1,4 @@
 import re
-import docx
 import subprocess
 import string
 

@@ -1,5 +1,5 @@
 <akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03">
-  <debate>
+  <debate name="PROCEEDINGS AT JOINT SITTING">
     <preface>
       <p>Thursday, <docDate date="2013-02-14">14 February 2013</docDate></p>
     </preface>

@@ -32,6 +32,18 @@ class ZAHansardParsingTests(TestCase):
             open( outname, 'w').write(self.xml_string)
             self.assertTrue( self.xml_string == xml_expected, "XML not correct, see %s for output" % outname )
 
+    def test_xsd(self):
+        xsd_path = os.path.join( self._in_fixtures, 'release-23.xsd')
+        xsd_parser = etree.XMLParser(dtd_validation=False)
+        xsd = etree.XMLSchema(
+                etree.parse(xsd_path, xsd_parser))
+        parser = etree.XMLParser(schema = xsd)
+        try:
+            xml = etree.fromstring(self.xml_string, parser)
+            self.assertEqual(xml.tag, '{http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03}akomaNtoso', 'Validated ok')
+        except etree.XMLSyntaxError as e:
+            self.assertTrue(False, e)
+
     def test_properties(self):
         xml = self.xml
 

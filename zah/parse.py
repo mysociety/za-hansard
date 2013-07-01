@@ -127,6 +127,7 @@ class ZAHansardParser(object):
                             E.heading(line),
                             id='db0'))
                 self.akomaNtoso.debate.append( elem )
+                self.akomaNtoso.debate.set('name', line)
                 self.current = elem.debateSection
                 self.hasTitle = True
             return True

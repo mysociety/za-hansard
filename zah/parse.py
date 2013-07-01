@@ -23,8 +23,10 @@ class ZAHansardParser(object):
     current = akomaNtoso.debate.preface
 
     hasDate = False
+    date = None
     hasTitle = False
     hasAssembled = False
+    hasArisen = False
     hasPrayers = False
     subSectionCount = 0
 
@@ -101,6 +103,7 @@ class ZAHansardParser(object):
                             date=datetime.strftime(date, '%Y-%m-%d')))
                 self.current.append(elem)
                 self.hasDate = True
+                self.date = date
                 return True
             except:
                 return False
@@ -112,13 +115,11 @@ class ZAHansardParser(object):
             line = line.lstrip()
             if self.hasTitle:
                 # we already have a main title, so this is a subsection
-                if self.subSectionCount:
-                    self.current = self.current.getparent()
                 self.subSectionCount += 1
                 elem = E.debateSection(
                     E.narrative(line),
                     id='dbs%d' % self.subSectionCount)
-                self.current.append(elem)
+                self.akomaNtoso.debate.debateBody.debateSection.append(elem)
                 self.current = elem
             else:
                 elem = E.debateBody(
@@ -139,7 +140,7 @@ class ZAHansardParser(object):
                 try:
                     groups = ret.groups()
                     time = datetime.strptime(groups[1], '%H:%M').time()
-                    assembled = datetime.combine(header['date'], time)
+                    assembled = datetime.combine(self.date, time)
                     elem = E.p(
                             groups[0],
                             E.recordedTime(
@@ -148,6 +149,29 @@ class ZAHansardParser(object):
                             ))
                     self.current.append(elem)
                     self.hasAssembled = True
+                    return True
+                except:
+                    return
+
+        @para
+        def arose(p):
+            if self.hasArisen:
+                return
+            ret = re.search(r'^(.*(?:rose) at )(\d+:\d+)\.?$', p)
+            if ret:
+                try:
+                    groups = ret.groups()
+                    time = datetime.strptime(groups[1], '%H:%M').time()
+                    assembled = datetime.combine(self.date, time)
+                    elem = E.adjournment(
+                            E.p(
+                                groups[0],
+                                E.recordedTime(
+                                    groups[1],
+                                    time= assembled.isoformat()
+                                )))
+                    self.current.getparent().append(elem)
+                    self.hasArisen = True
                     return True
                 except:
                     return
@@ -171,23 +195,25 @@ class ZAHansardParser(object):
                 id = self.getOrCreateSpeaker(name)
                 elem = E.speech(
                         E('from',  name ),
-                        E.p(speech),
+                        E.p(speech.lstrip()),
                         by='#%s' % id)
                 
                 if etree.QName(self.current.tag).localname == 'speech':
                     self.current = self.current.getparent()
                 self.current.append(elem)
+                self.current = elem
                 return True
 
         @para
         def continuation(p):
-            self.current.append( E.p( p ) )
+            self.current.append( E.p( p.lstrip() ) )
             return True
 
         funcs = [
                 isDate,
                 isTitle,
                 assembled,
+                arose,
                 prayers,
                 speech,
                 continuation,

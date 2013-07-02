@@ -2,7 +2,7 @@ import re
 import subprocess
 import string
 
-import sys
+import sys, os
 
 from itertools import imap, ifilter, groupby
 from datetime import datetime 
@@ -20,28 +20,6 @@ class ZAHansardParser(object):
     akomaNtoso = E.akomaNtoso(
             E.debate(
                 E.meta(
-                    E.identification(
-                        E.FRBRWork(
-                            E.FRBRthis( value='dummy' ),
-                            E.FRBRuri( value='dummy' ),
-                            E.FRBRdate( date='2012-02-01', name='generation' ), # TODO
-                            E.FRBRauthor( href='#za-parliament'), # as='#author' # XXX
-                            E.FRBRcountry( value='za' ),
-                        ),
-                        E.FRBRExpression(
-                            E.FRBRthis( value='dummy' ),
-                            E.FRBRuri( value='dummy' ),
-                            E.FRBRdate( date='2012-02-01', name='markup' ), # TODO
-                            E.FRBRauthor( href='#za-parliament'), # as='#editor' # XXX
-                            E.FRBRlanguage( language='eng' ),
-                        ),
-                        E.FRBRManifestation(
-                            E.FRBRthis( value='dummy' ),
-                            E.FRBRuri( value='dummy' ),
-                            E.FRBRdate( date='2012-02-01', name='markup' ), # TODO
-                            E.FRBRauthor( href='#mysociety'), # as='#editor' # XXX
-                        ),
-                        source='#za-parliament'),
                 ),
                 E.preface()))
     current = akomaNtoso.debate.preface
@@ -84,10 +62,38 @@ class ZAHansardParser(object):
 
         obj = ZAHansardParser()
 
+        E = obj.E
+        ctime = datetime.fromtimestamp(os.path.getctime(document_path)).strftime('%Y-%m-%d')
+        today = datetime.now().date().strftime('%Y-%m-%d')
+
+        obj.akomaNtoso.debate.meta.append(
+            E.identification(
+                E.FRBRWork(
+                    E.FRBRthis(),
+                    E.FRBRuri(),
+                    E.FRBRdate( date=ctime,  name='generation' ),
+                    E.FRBRauthor( href='#za-parliament'), # as='#author' # XXX
+                    E.FRBRcountry( value='za' ),
+                ),
+                E.FRBRExpression(
+                    E.FRBRthis(),
+                    E.FRBRuri(),
+                    E.FRBRdate( date=ctime,  name='markup' ),
+                    E.FRBRauthor( href='#za-parliament'), # as='#editor' # XXX
+                    E.FRBRlanguage( language='eng' ),
+                ),
+                E.FRBRManifestation(
+                    E.FRBRthis(),
+                    E.FRBRuri(),
+                    E.FRBRdate( date=today, name='markup' ),
+                    E.FRBRauthor( href='#mysociety'), # as='#editor' # XXX
+                ),
+                source='#mysociety'),
+            )
+
         for para in paras:
             p = list(para)
-            ret = obj.parseLine( p )
-            if not ret:
+            if not obj.parseLine( p ):
                 print >> sys.stderr, "Failed at %s" % p[0]
                 break
                 # continue
@@ -120,15 +126,26 @@ class ZAHansardParser(object):
                 return False
             try:
                 date = datetime.strptime(line, '%A, %d %B %Y')
+                date_xml = date.strftime('%Y-%m-%d')
                 elem = E.p(
                         datetime.strftime(date, '%A, '),
-                        E.docDate(datetime.strftime(date, '%d %B %Y'),
-                            date=datetime.strftime(date, '%Y-%m-%d')))
+                        E.docDate(date.strftime('%d %B %Y'),
+                            date=date_xml))
                 self.current.append(elem)
                 self.hasDate = True
                 self.date = date
+
+                identification = self.akomaNtoso.debate.meta.identification
+                identification.FRBRWork.FRBRthis.set('value', '/za/debaterecord/%s/main' % date_xml)
+                identification.FRBRWork.FRBRuri.set('value', '/za/debaterecord/%s' % date_xml)
+                identification.FRBRExpression.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main' % date_xml)
+                identification.FRBRExpression.FRBRuri.set('value', '/za/debaterecord/%s/eng@' % date_xml)
+                identification.FRBRManifestation.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main.xml' % date_xml)
+                identification.FRBRManifestation.FRBRuri.set('value', '/za/debaterecord/%s/eng@.akn' % date_xml)
+
                 return True
-            except:
+            except Exception as e:
+                raise e
                 return False
 
         @singleLine

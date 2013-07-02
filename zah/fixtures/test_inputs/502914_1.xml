@@ -1,25 +1,25 @@
 <akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03">
   <debate name="PROCEEDINGS AT JOINT SITTING">
     <meta>
-      <identification source="#za-parliament">
+      <identification source="#mysociety">
         <FRBRWork>
-          <FRBRthis value="dummy"/>
-          <FRBRuri value="dummy"/>
-          <FRBRdate date="2012-02-01" name="generation"/>
+          <FRBRthis value="/za/debaterecord/2013-02-14/main"/>
+          <FRBRuri value="/za/debaterecord/2013-02-14"/>
+          <FRBRdate date="2013-06-26" name="generation"/>
           <FRBRauthor href="#za-parliament"/>
           <FRBRcountry value="za"/>
         </FRBRWork>
         <FRBRExpression>
-          <FRBRthis value="dummy"/>
-          <FRBRuri value="dummy"/>
-          <FRBRdate date="2012-02-01" name="markup"/>
+          <FRBRthis value="/za/debaterecord/2013-02-14/eng@/main"/>
+          <FRBRuri value="/za/debaterecord/2013-02-14/eng@"/>
+          <FRBRdate date="2013-06-26" name="markup"/>
           <FRBRauthor href="#za-parliament"/>
           <FRBRlanguage language="eng"/>
         </FRBRExpression>
         <FRBRManifestation>
-          <FRBRthis value="dummy"/>
-          <FRBRuri value="dummy"/>
-          <FRBRdate date="2012-02-01" name="markup"/>
+          <FRBRthis value="/za/debaterecord/2013-02-14/eng@/main.xml"/>
+          <FRBRuri value="/za/debaterecord/2013-02-14/eng@.akn"/>
+          <FRBRdate date="2013-07-02" name="markup"/>
           <FRBRauthor href="#mysociety"/>
         </FRBRManifestation>
       </identification>

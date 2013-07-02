@@ -28,20 +28,20 @@
       <p>Thursday, <docDate date="2013-02-14">14 February 2013</docDate></p>
     </preface>
     <debateBody>
-      <debateSection id="db0" name="PROCEEDINGS AT JOINT SITTING">
+      <debateSection id="db0" name="proceedings-at-joint-sitting">
         <heading id="dbh0">PROCEEDINGS AT JOINT SITTING</heading>
         <p>Members of the National Assembly and the National Council of Provinces assembled in the Chamber of the National Assembly at <recordedTime time="19:01:00">19:01</recordedTime></p>
         <prayers id="prayers">
           <p>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <debateSection id="dbs1" name="CALLING OF JOINT SITTING">
+        <debateSection id="dbs1" name="calling-of-joint-sitting">
           <heading id="dbsh1">CALLING OF JOINT SITTING</heading>
           <speech by="#the-speaker">
             <from>The SPEAKER</from>
             <p>Hon members, the President has called this Joint Sitting of the National Assembly and the National Council of Provinces in terms of section 84(2)(d) of the Constitution of the Republic of South Africa, read with Joint Rule 7(1)(a), to enable him to deliver his state of the nation address to Parliament. I now invite the honourable the President to address the Joint Sitting. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs2" name="ADDRESS BY PRESIDENT OF THE REPUBLIC">
+        <debateSection id="dbs2" name="address-by-president-of-the-republic">
           <heading id="dbsh2">ADDRESS BY PRESIDENT OF THE REPUBLIC</heading>
           <speech by="#the-president-of-the-republic">
             <from>The PRESIDENT OF THE REPUBLIC</from>
@@ -188,7 +188,7 @@
             <p>Happy Valentines Day to you all! I thank you. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs3" name="VOTE OF THANKS TO PRESIDENT FOR ADDRESS">
+        <debateSection id="dbs3" name="vote-of-thanks-to-president-for-address">
           <heading id="dbsh3">VOTE OF THANKS TO PRESIDENT FOR ADDRESS</heading>
           <speech by="#the-speaker">
             <from>The SPEAKER</from>

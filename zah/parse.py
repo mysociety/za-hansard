@@ -143,7 +143,7 @@ class ZAHansardParser(object):
                     E.heading(line,
                         id='dbsh%d'% self.subSectionCount),
                     id='dbs%d' % self.subSectionCount,
-                    name=line)
+                    name=self.slug(line))
                 self.akomaNtoso.debate.debateBody.debateSection.append(elem)
                 self.current = elem
             else:
@@ -151,7 +151,7 @@ class ZAHansardParser(object):
                         E.debateSection(
                             E.heading(line, id='dbh0'),
                             id='db0',
-                            name=line))
+                            name=self.slug(line)))
                 self.akomaNtoso.debate.append( elem )
                 self.akomaNtoso.debate.set('name', line)
                 self.current = elem.debateSection
@@ -258,5 +258,8 @@ class ZAHansardParser(object):
                 return ret
 
     def getOrCreateSpeaker(self, name):
-        id = re.sub('\W+', '-', name.lower())
-        return id
+        return self.slug(name)
+
+    def slug(self, line):
+        return re.sub('\W+', '-', line.lower())
+

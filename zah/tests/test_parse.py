@@ -58,6 +58,7 @@ class ZAHansardParsingTests(TestCase):
         debateBody = xml.debate.debateBody
         mainSection = debateBody.debateSection
         self.assertEqual(mainSection.get('id'), 'db0')
+        self.assertEqual(mainSection.get('name'), 'proceedings-at-joint-sitting')
         self.assertEqual(mainSection.heading.text, 'PROCEEDINGS AT JOINT SITTING')
         self.assertEqual(mainSection.p.text, 'Members of the National Assembly and the National Council of Provinces assembled in the Chamber of the National Assembly at ')
         recordedTime = mainSection.p.recordedTime

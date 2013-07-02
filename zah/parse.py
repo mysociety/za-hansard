@@ -19,8 +19,7 @@ class ZAHansardParser(object):
 
     akomaNtoso = E.akomaNtoso(
             E.debate(
-                E.meta(
-                ),
+                E.meta(),
                 E.preface()))
     current = akomaNtoso.debate.preface
 
@@ -31,6 +30,7 @@ class ZAHansardParser(object):
     hasArisen = False
     hasPrayers = False
     subSectionCount = 0
+    speakers = {}
 
     @classmethod
     def parse(cls, document_path):
@@ -90,6 +90,19 @@ class ZAHansardParser(object):
                 ),
                 source='#mysociety'),
             )
+        obj.akomaNtoso.debate.meta.append( 
+                E.references(
+                    E.TLCOrganization(
+                        id='za-parliament',
+                        showAs='ZA Parliament',
+                        href='http://www.parliament.gov.za/',
+                        ),
+                    E.TLCOrganization(
+                        id='mysociety',
+                        showAs='MySociety',
+                        href='http://www.mysociety.org/',
+                        ),
+                    source='#mysociety'))
 
         for para in paras:
             p = list(para)
@@ -275,7 +288,18 @@ class ZAHansardParser(object):
                 return ret
 
     def getOrCreateSpeaker(self, name):
-        return self.slug(name)
+        speaker = self.speakers.get(name)
+        if speaker:
+            return speaker
+        slug = self.slug(name)
+        self.speakers[name] = slug
+        E = self.E
+        self.akomaNtoso.debate.meta.references.append(
+                E.TLCPerson(
+                    id=slug,
+                    showAs=name,
+                    href='http://dummy/popit/path/%s' % slug ))
+        return slug
 
     def slug(self, line):
         return re.sub('\W+', '-', line.lower())

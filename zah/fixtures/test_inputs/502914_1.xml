@@ -23,6 +23,13 @@
           <FRBRauthor href="#mysociety"/>
         </FRBRManifestation>
       </identification>
+      <references source="#mysociety">
+        <TLCOrganization href="http://www.parliament.gov.za/" id="za-parliament" showAs="ZA Parliament"/>
+        <TLCOrganization href="http://www.mysociety.org/" id="mysociety" showAs="MySociety"/>
+        <TLCPerson href="http://dummy/popit/path/the-speaker" id="the-speaker" showAs="The SPEAKER"/>
+        <TLCPerson href="http://dummy/popit/path/the-president-of-the-republic" id="the-president-of-the-republic" showAs="The PRESIDENT OF THE REPUBLIC"/>
+        <TLCPerson href="http://dummy/popit/path/the-chairperson-of-the-ncop" id="the-chairperson-of-the-ncop" showAs="The CHAIRPERSON OF THE NCOP"/>
+      </references>
     </meta>
     <preface>
       <p>Thursday, <docDate date="2013-02-14">14 February 2013</docDate></p>

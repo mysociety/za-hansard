@@ -62,15 +62,15 @@ class ZAHansardParsingTests(TestCase):
         self.assertEqual(mainSection.p.text, 'Members of the National Assembly and the National Council of Provinces assembled in the Chamber of the National Assembly at ')
         recordedTime = mainSection.p.recordedTime
         self.assertEqual(recordedTime.text, '19:01')
-        self.assertEqual(recordedTime.get('time'), '2013-02-14T19:01:00')
-        self.assertEqual(mainSection.prayers.text, 'The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.')
+        self.assertEqual(recordedTime.get('time'), '19:01:00')
+        self.assertEqual(mainSection.prayers.p.text, 'The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.')
         
         subSections = mainSection.findall('{*}debateSection')
         self.assertEqual(len(subSections), 3)
 
         dbs1 = subSections[0]
         self.assertEqual(dbs1.get('id'), 'dbs1')
-        self.assertEqual(dbs1.narrative.text, 'CALLING OF JOINT SITTING')
+        self.assertEqual(dbs1.heading.text, 'CALLING OF JOINT SITTING')
         speech = dbs1.speech
         self.assertEqual(speech.get('by'), '#the-speaker')
         self.assertEqual(speech['from'].text, 'The SPEAKER')
@@ -78,7 +78,7 @@ class ZAHansardParsingTests(TestCase):
 
         dbs2 = subSections[1]
         self.assertEqual(dbs2.get('id'), 'dbs2')
-        self.assertEqual(dbs2.narrative.text, 'ADDRESS BY PRESIDENT OF THE REPUBLIC')
+        self.assertEqual(dbs2.heading.text, 'ADDRESS BY PRESIDENT OF THE REPUBLIC')
         speech = dbs2.speech
         self.assertEqual(speech.get('by'), '#the-president-of-the-republic')
         self.assertEqual(speech['from'].text, 'The PRESIDENT OF THE REPUBLIC')
@@ -97,7 +97,7 @@ class ZAHansardParsingTests(TestCase):
         self.assertEqual(adjournment.p.text, 'The Joint Sitting rose at ')
         recordedTime = adjournment.p.recordedTime
         self.assertEqual(recordedTime.text, '20:28')
-        self.assertEqual(recordedTime.get('time'), '2013-02-14T20:28:00')
+        self.assertEqual(recordedTime.get('time'), '20:28:00')
 
 
 

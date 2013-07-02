@@ -1,22 +1,48 @@
 <akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03">
   <debate name="PROCEEDINGS AT JOINT SITTING">
+    <meta>
+      <identification source="#za-parliament">
+        <FRBRWork>
+          <FRBRthis value="dummy"/>
+          <FRBRuri value="dummy"/>
+          <FRBRdate date="2012-02-01" name="generation"/>
+          <FRBRauthor href="#za-parliament"/>
+          <FRBRcountry value="za"/>
+        </FRBRWork>
+        <FRBRExpression>
+          <FRBRthis value="dummy"/>
+          <FRBRuri value="dummy"/>
+          <FRBRdate date="2012-02-01" name="markup"/>
+          <FRBRauthor href="#za-parliament"/>
+          <FRBRlanguage language="eng"/>
+        </FRBRExpression>
+        <FRBRManifestation>
+          <FRBRthis value="dummy"/>
+          <FRBRuri value="dummy"/>
+          <FRBRdate date="2012-02-01" name="markup"/>
+          <FRBRauthor href="#mysociety"/>
+        </FRBRManifestation>
+      </identification>
+    </meta>
     <preface>
       <p>Thursday, <docDate date="2013-02-14">14 February 2013</docDate></p>
     </preface>
     <debateBody>
-      <debateSection id="db0">
-        <heading>PROCEEDINGS AT JOINT SITTING</heading>
-        <p>Members of the National Assembly and the National Council of Provinces assembled in the Chamber of the National Assembly at <recordedTime time="2013-02-14T19:01:00">19:01</recordedTime></p>
-        <prayers>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</prayers>
-        <debateSection id="dbs1">
-          <narrative>CALLING OF JOINT SITTING</narrative>
+      <debateSection id="db0" name="PROCEEDINGS AT JOINT SITTING">
+        <heading id="dbh0">PROCEEDINGS AT JOINT SITTING</heading>
+        <p>Members of the National Assembly and the National Council of Provinces assembled in the Chamber of the National Assembly at <recordedTime time="19:01:00">19:01</recordedTime></p>
+        <prayers id="prayers">
+          <p>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
+        </prayers>
+        <debateSection id="dbs1" name="CALLING OF JOINT SITTING">
+          <heading id="dbsh1">CALLING OF JOINT SITTING</heading>
           <speech by="#the-speaker">
             <from>The SPEAKER</from>
             <p>Hon members, the President has called this Joint Sitting of the National Assembly and the National Council of Provinces in terms of section 84(2)(d) of the Constitution of the Republic of South Africa, read with Joint Rule 7(1)(a), to enable him to deliver his state of the nation address to Parliament. I now invite the honourable the President to address the Joint Sitting. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs2">
-          <narrative>ADDRESS BY PRESIDENT OF THE REPUBLIC</narrative>
+        <debateSection id="dbs2" name="ADDRESS BY PRESIDENT OF THE REPUBLIC">
+          <heading id="dbsh2">ADDRESS BY PRESIDENT OF THE REPUBLIC</heading>
           <speech by="#the-president-of-the-republic">
             <from>The PRESIDENT OF THE REPUBLIC</from>
             <p>Hon Speaker, let me apologise in advance. I have the flu. One cannot control the flu. If it wants me to cough or sneeze, I will, because I cannot ask it to wait for me. I hope, hon Speaker, that you ...</p>
@@ -162,8 +188,8 @@
             <p>Happy Valentines Day to you all! I thank you. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs3">
-          <narrative>VOTE OF THANKS TO PRESIDENT FOR ADDRESS</narrative>
+        <debateSection id="dbs3" name="VOTE OF THANKS TO PRESIDENT FOR ADDRESS">
+          <heading id="dbsh3">VOTE OF THANKS TO PRESIDENT FOR ADDRESS</heading>
           <speech by="#the-speaker">
             <from>The SPEAKER</from>
             <p>I thank the President for his state of the nation address.</p>
@@ -173,8 +199,8 @@
             <p>Order! Hon members, please take your seats. After I adjourn this Joint Sitting, members and guests should please remain in their places until the procession has left the Chamber.</p>
             <p>The procession, which will be led by the Serjeant-at-arms and the Usher of the Black Rod, will leave the Chamber in the following order: the Speaker of the National Assembly, the Chairperson of the NCOP, the President, the Deputy Speaker of the National Assembly, the Deputy Chairperson of the NCOP, the Deputy President, followed by the Secretary to Parliament.</p>
           </speech>
-          <adjournment>
-            <p>The Joint Sitting rose at <recordedTime time="2013-02-14T20:28:00">20:28</recordedTime></p>
+          <adjournment id="adjournment">
+            <p>The Joint Sitting rose at <recordedTime time="20:28:00">20:28</recordedTime></p>
           </adjournment>
         </debateSection>
       </debateSection>

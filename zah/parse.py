@@ -19,6 +19,30 @@ class ZAHansardParser(object):
 
     akomaNtoso = E.akomaNtoso(
             E.debate(
+                E.meta(
+                    E.identification(
+                        E.FRBRWork(
+                            E.FRBRthis( value='dummy' ),
+                            E.FRBRuri( value='dummy' ),
+                            E.FRBRdate( date='2012-02-01', name='generation' ), # TODO
+                            E.FRBRauthor( href='#za-parliament'), # as='#author' # XXX
+                            E.FRBRcountry( value='za' ),
+                        ),
+                        E.FRBRExpression(
+                            E.FRBRthis( value='dummy' ),
+                            E.FRBRuri( value='dummy' ),
+                            E.FRBRdate( date='2012-02-01', name='markup' ), # TODO
+                            E.FRBRauthor( href='#za-parliament'), # as='#editor' # XXX
+                            E.FRBRlanguage( language='eng' ),
+                        ),
+                        E.FRBRManifestation(
+                            E.FRBRthis( value='dummy' ),
+                            E.FRBRuri( value='dummy' ),
+                            E.FRBRdate( date='2012-02-01', name='markup' ), # TODO
+                            E.FRBRauthor( href='#mysociety'), # as='#editor' # XXX
+                        ),
+                        source='#za-parliament'),
+                ),
                 E.preface()))
     current = akomaNtoso.debate.preface
 
@@ -71,7 +95,6 @@ class ZAHansardParser(object):
         return obj
 
     def parseLine(self, p):
-
         E = self.E
 
         # DECORATORS
@@ -117,15 +140,18 @@ class ZAHansardParser(object):
                 # we already have a main title, so this is a subsection
                 self.subSectionCount += 1
                 elem = E.debateSection(
-                    E.narrative(line),
-                    id='dbs%d' % self.subSectionCount)
+                    E.heading(line,
+                        id='dbsh%d'% self.subSectionCount),
+                    id='dbs%d' % self.subSectionCount,
+                    name=line)
                 self.akomaNtoso.debate.debateBody.debateSection.append(elem)
                 self.current = elem
             else:
                 elem = E.debateBody(
                         E.debateSection(
-                            E.heading(line),
-                            id='db0'))
+                            E.heading(line, id='dbh0'),
+                            id='db0',
+                            name=line))
                 self.akomaNtoso.debate.append( elem )
                 self.akomaNtoso.debate.set('name', line)
                 self.current = elem.debateSection
@@ -141,17 +167,19 @@ class ZAHansardParser(object):
                 try:
                     groups = ret.groups()
                     time = datetime.strptime(groups[1], '%H:%M').time()
-                    assembled = datetime.combine(self.date, time)
+                    # assembled = datetime.combine(self.date, time).replace(tzinfo=self.tz)
+                    assembled = time
                     elem = E.p(
                             groups[0],
                             E.recordedTime(
                                 groups[1],
-                                time= assembled.isoformat()
+                                time= assembled.isoformat() 
                             ))
                     self.current.append(elem)
                     self.hasAssembled = True
                     return True
-                except:
+                except Exception as e:
+                    raise e
                     return
 
         @para
@@ -163,14 +191,16 @@ class ZAHansardParser(object):
                 try:
                     groups = ret.groups()
                     time = datetime.strptime(groups[1], '%H:%M').time()
-                    assembled = datetime.combine(self.date, time)
+                    # arose = datetime.combine(self.date, time).replace(tzinfo = self.tz)
+                    arose = time
                     elem = E.adjournment(
                             E.p(
                                 groups[0],
                                 E.recordedTime(
                                     groups[1],
-                                    time= assembled.isoformat()
-                                )))
+                                    time= arose.isoformat()
+                                )),
+                            id='adjournment')
                     self.current.getparent().append(elem)
                     self.hasArisen = True
                     return True
@@ -182,7 +212,9 @@ class ZAHansardParser(object):
             if self.hasPrayers:
                 return
             if re.search(r'^(.* prayers or meditation.)$', p):
-                elem = E.prayers(p)
+                elem = E.prayers(
+                        E.p(p), 
+                        id='prayers')
                 self.current.append(elem)
                 self.hasPrayers = True
                 return True

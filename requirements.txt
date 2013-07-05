@@ -4,3 +4,9 @@ lxml
 itertools
 unittest
 pytz
+django
+South
+psycopg2
+
+httplib2
+bs4

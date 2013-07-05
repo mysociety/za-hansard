@@ -2,8 +2,8 @@ from __future__ import with_statement
 
 from datetime import datetime
 
-from unittest import TestCase
-from parse import ZAHansardParser
+from django.test import TestCase
+from zah.parse import ZAHansardParser
 from lxml import etree
 
 import itertools

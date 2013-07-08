@@ -9,6 +9,7 @@ import pprint
 import httplib2
 import re
 import datetime
+import time
 import sys
 
 from bs4 import BeautifulSoup
@@ -16,11 +17,15 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from zah.models import Source
 
-class Command(NoArgsCommand):
+class FailedToRetrieveSourceException (Exception):
+    pass
+
+class Command(BaseCommand):
+    args = '<start end>'
     help = 'Check for new sources'
 
     # http://www.parliament.go.ke
@@ -28,17 +33,19 @@ class Command(NoArgsCommand):
     # ?name=Hansard%20National%20Assembly%2028.03.2013P.pdf
 
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
+        (start, end) = [int(x) for x in args]
+        self.retrieve_sources(start, end)
 
+    def retrieve_sources(self, start, end):
 
-        if False:
-            url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119'
-            h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
-            response, content = h.request(url)
-            # print content
-        else:
-            url = './test.html'
-            content = open(url).read()
+        url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119&DocumentStart=%d' % (start or 0)
+        self.stdout.write("Retrieving %s" % url)
+        h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
+        response, content = h.request(url)
+        assert response.status == 200
+        self.stdout.write("OK")
+        # content = open('test.html').read()
 
         # parse content
         soup = BeautifulSoup(
@@ -46,19 +53,48 @@ class Command(NoArgsCommand):
             'xml',
         )
 
+        rx = re.compile(r'Displaying (\d+)  (\d+) of the most recent (\d+)')
+
+        pager = soup.find('td', text=rx)
+        match = rx.search(pager.text)
+        (pstart, pend, ptotal) = [int(p) for p in match.groups()]
+
+        self.stdout.write( "Processing %d to %d" % (pstart, pend) )
+
         nodes = soup.findAll( 'a', text="View Document" )
         for node in nodes:
-            print node['href']
+            url = node['href']
             table = node.find_parent('table')
-            # print node.find_parent('table')['onMouseOver'] # parses wrong thing due to dodgy HTML
-            title = table.find('b').text
-            print title
             rx = re.compile(r'>([^:<]*) : ([^<]*)<')
-            dict = {}
+            data = { 'Title': table.find('b').text }
             for match in re.finditer(rx, str(table)):
                 groups = match.groups()
-                dict[groups[0]] = groups[1]
-            print dict
+                data[groups[0]] = groups[1]
+
+            try:
+                document_date = datetime.datetime.strptime(data['Date Published'], '%d %B %Y').date()
+            except Exception as e:
+                raise CommandError( "Date could not be parsed\n%s" % str(e) )
+                # document_date = datetime.date.today()
+
+            (obj, created) = Source.objects.get_or_create(
+                document_name = data['Document Name'],
+                document_number = data['Document Number'],
+                defaults = {
+                    'url': url,
+                    'title':    data.get('Title', '(unknown)'),
+                    'language': data.get('Language', 'English'),
+                    'house':    data.get('House', '(unknown)'),
+                    'date':     document_date,
+                }
+            )
+
+        end = end or ptotal
+
+        if pend < end:
+            time.sleep(1)
+            self.retrieve_sources(pend, end)
+
 
     def __FOR_LATER__():
         # I don't trust that we can accurately create the download link url with the
@@ -69,13 +105,5 @@ class Command(NoArgsCommand):
             'xml',
         )
         download_url = download_soup.find( id="archetypes-fieldname-item_files" ).a['href']
-        # print download_url
         
         # create/update the source entry
-        Source.objects.get_or_create(
-            name = name,
-            defaults = dict(
-                url = download_url,
-                date = source_date,
-            )
-        )

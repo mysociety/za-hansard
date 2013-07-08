@@ -28,14 +28,14 @@ class SourceCouldNotParseTimeString(Exception):
 
 
 
-#class SourceQuerySet(models.query.QuerySet):
-#    def requires_processing(self):
-#        return self.filter( last_processing_attempt=None )
+class SourceQuerySet(models.query.QuerySet):
+    def requires_processing(self):
+        return self.filter( last_processing_attempt=None )
 
 
-#class SourceManager(models.Manager):
-#    def get_query_set(self):
-#        return SourceQuerySet(self.model)
+class SourceManager(models.Manager):
+    def get_query_set(self):
+        return SourceQuerySet(self.model)
 
 
 class Source(models.Model):
@@ -45,9 +45,13 @@ class Source(models.Model):
     For example a Word transcript.
     """
 
-    name           = models.CharField(max_length=200, unique=True)
-    date           = models.DateField()
-    url            = models.URLField(max_length=1000)
+    title           = models.CharField(max_length=200)
+    document_name   = models.CharField(max_length=200) # bah, SHOULD be unique, but apparently isn't
+    document_number = models.IntegerField(unique=True)
+    date            = models.DateField()
+    url             = models.URLField(max_length=1000)
+    house           = models.CharField(max_length=200)
+    language        = models.CharField(max_length=200)
 
     last_processing_attempt = models.DateTimeField(blank=True, null=True)
     last_processing_success = models.DateTimeField(blank=True, null=True)
@@ -56,12 +60,11 @@ class Source(models.Model):
 
 
     class Meta:
-        app_label = 'za-hansard'
-        ordering = [ '-date', 'name' ]
+        ordering = [ '-date', 'document_name' ]
 
 
     def __unicode__(self):
-        return self.name
+        return self.document_name
 
 
     def delete(self):

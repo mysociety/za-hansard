@@ -5,6 +5,7 @@ itertools
 unittest
 pytz
 django
+django-nose
 South
 psycopg2
 

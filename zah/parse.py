@@ -9,6 +9,9 @@ from datetime import datetime
 from lxml import etree
 from lxml import objectify
 
+class DateParseException(Exception):
+    pass
+
 class ZAHansardParser(object):
 
     E = objectify.ElementMaker(
@@ -17,20 +20,22 @@ class ZAHansardParser(object):
             nsmap={None : "http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03"},
             )
 
-    akomaNtoso = E.akomaNtoso(
-            E.debate(
-                E.meta(),
-                E.preface()))
-    current = akomaNtoso.debate.preface
+    def __init__(self):
+        E = self.E
+        self.akomaNtoso = E.akomaNtoso(
+                E.debate(
+                    E.meta(),
+                    E.preface()))
+        self.current = self.akomaNtoso.debate.preface
 
-    hasDate = False
-    date = None
-    hasTitle = False
-    hasAssembled = False
-    hasArisen = False
-    hasPrayers = False
-    subSectionCount = 0
-    speakers = {}
+        self.hasDate = False
+        self.date = None
+        self.hasTitle = False
+        self.hasAssembled = False
+        self.hasArisen = False
+        self.hasPrayers = False
+        self.subSectionCount = 0
+        self.speakers = {}
 
     @classmethod
     def parse(cls, document_path):
@@ -107,8 +112,8 @@ class ZAHansardParser(object):
         for para in paras:
             p = list(para)
             if not obj.parseLine( p ):
-                print >> sys.stderr, "Failed at %s" % p[0]
-                break
+                raise Exception("Parsing failed at %s" % p[0])
+                # break
                 # continue
 
         return obj
@@ -138,7 +143,11 @@ class ZAHansardParser(object):
             if self.hasDate:
                 return False
             try:
-                date = datetime.strptime(line, '%A, %d %B %Y')
+                match = re.compile(r'(\d+)\s+(\w+)\s+(\d+)$').search(line)
+                if not match:
+                    raise DateParseException("Couldn't match date in %s" % line)
+                date = datetime.strptime(' '.join(match.groups()), '%d %B %Y')
+
                 date_xml = date.strftime('%Y-%m-%d')
                 elem = E.p(
                         datetime.strftime(date, '%A, '),

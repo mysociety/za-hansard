@@ -11,21 +11,26 @@ import sys, os
 
 class ZAHansardParsingTests(TestCase):
 
+    docname = '502914_1'
+    xml = None
+
     @classmethod
     def setUpClass(cls):
         cls._in_fixtures = os.path.join('zah', 'fixtures', 'test_inputs')
-
-        cls.docname = '502914_1'
-
-        filename = os.path.join( cls._in_fixtures, '%s.%s' % (cls.docname, 'doc') )
-        obj = ZAHansardParser.parse(filename)
-
+        obj = cls.do_parse(cls.docname)
         cls.xml = obj.akomaNtoso
         cls.xml_string = etree.tostring(obj.akomaNtoso, pretty_print=True)
+
+    @classmethod
+    def do_parse(cls, docname):
+        filename = os.path.join( cls._in_fixtures, '%s.%s' % (docname, 'doc') )
+        return ZAHansardParser.parse(filename)
 
     def test_basic_parse(self):
         xml_path = os.path.join( self._in_fixtures, '%s.%s' % (self.docname, 'xml') )
         xml_expected = open( xml_path ).read()
+
+        xml_expected = xml_expected.replace('YYYY-MM-DD', datetime.now().strftime('%Y-%m-%d'))
 
         if self.xml_string != xml_expected:
             outname = './%s.%s' % (self.docname, 'xml')
@@ -67,6 +72,8 @@ class ZAHansardParsingTests(TestCase):
         self.assertEqual(mainSection.prayers.p.text, 'The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.')
         
         subSections = mainSection.findall('{*}debateSection')
+        #for s in subSections:
+            # print >> sys.stderr, s.get('id')
         self.assertEqual(len(subSections), 3)
 
         dbs1 = subSections[0]
@@ -109,3 +116,12 @@ class ZAHansardParsingTests(TestCase):
         self.assertEqual( len(speeches_by_speaker), 2 )
         for speech in speeches_by_speaker:
             self.assertEqual( speech['from'].text, 'The SPEAKER' )
+
+    def test_second_parse(self):
+        obj = self.do_parse('NA290307')
+        xml = obj.akomaNtoso
+        self.assertTrue(xml is not None)
+        debateBody = xml.debate.debateBody
+        mainSection = debateBody.debateSection 
+        subSections = mainSection.findall('{*}debateSection')
+        self.assertEqual(len(subSections), 13)

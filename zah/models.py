@@ -1,4 +1,4 @@
-import os
+import os, sys
 import re
 import httplib2
 
@@ -26,11 +26,12 @@ class SourceCouldNotParseTimeString(Exception):
     pass
 
 
-
-
 class SourceQuerySet(models.query.QuerySet):
     def requires_processing(self):
         return self.filter( last_processing_attempt=None )
+
+    def requires_complete_processing(self):
+        return self.filter( last_processing_success=None )
 
 
 class SourceManager(models.Manager):
@@ -56,8 +57,9 @@ class Source(models.Model):
     last_processing_attempt = models.DateTimeField(blank=True, null=True)
     last_processing_success = models.DateTimeField(blank=True, null=True)
 
-    # objects = SourceManager()
+    xml = models.TextField(null=True)
 
+    objects = SourceManager()
 
     class Meta:
         ordering = [ '-date', 'document_name' ]
@@ -87,26 +89,39 @@ class Source(models.Model):
         retrieved.
         """
         cache_file_path = self.cache_file_path()
+
+        print >> sys.stderr, cache_file_path
         
         # If the file exists open it, read it and return it
-        try:
-            return open(cache_file_path, 'r')
-        except IOError:
-            pass # ignore
+        if os.path.isfile(cache_file_path):
+            return cache_file_path
         
         # If not fetch the file, save to cache and then return fh
         h = httplib2.Http()
-        response, content = h.request(self.url)
+        url = 'http://www.parliament.gov.za/live/' + self.url
 
-        # Crude handling of response - is there an is_success method?
-        if response.status != 200:
-            raise SourceUrlCouldNotBeRetrieved("status code: %s, url: %s" % (response.status, self.url) )
+        def request_url(url):
+            print >> sys.stderr, 'Requesting %s' % url
+            response, content = h.request(url)
+            if response.status != 200:
+                raise SourceUrlCouldNotBeRetrieved("status code: %s, url: %s" % (response.status, self.url) )
+            return (response, content)
+
+        try:
+            (response, content) = request_url(url)
+        except SourceUrlCouldNotBeRetrieved as e:
+            try:
+                if not re.compile(r'\.doc$').match(url):
+                    (response, content) = request_url(url + '.doc')
+                    self.url = self.url + '.doc'
+                    self.save()
+            except:
+                raise e
 
         with open(cache_file_path, "w") as new_cache_file:
             new_cache_file.write(content)        
         
-        return open(cache_file_path, 'r')
-            
+        return cache_file_path
 
     def cache_file_path(self):
         """Absolute path to the cache file for this source"""
@@ -124,5 +139,5 @@ class Source(models.Model):
             os.makedirs( cache_dir )
         
         # create the path to the file
-        cache_file_path = os.path.join(cache_dir, id_str)
+        cache_file_path = os.path.join(cache_dir, '-'.join([id_str, self.document_name]))
         return cache_file_path

@@ -1,2 +1,17 @@
 og:title etc. from Open Graph protocol, http://ogp.me/
 also link rel="canonical"
+
+CommandError: Failed to run parsing: time data '20 SEPTEMBER 2011' does not match format '%A, %d %B %Y'
+(FIXED)
+
+hansard_cache/0/3/00130-NA170811
+CommandError: Failed to run parsing: status code: 404, url: commonrepository/Processed/20130507/417451_1.doc
+
+hansard_cache/2/3/00132-NA230611
+CommandError: Failed to run parsing: status code: 404, url: commonrepository/Processed/20130507/398739_1
+
+
+hansard_cache/9/6/00269-EPD060510
+Requesting http://www.parliament.gov.za/live/commonrepository/Processed/20130507/355425_1.doc
+WARN: Failed to run parsing: time data 'THURSDAY, O6 MAY 2010' does not match format '%d %B %Y'
+

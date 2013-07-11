@@ -12,6 +12,9 @@ from lxml import objectify
 class DateParseException(Exception):
     pass
 
+class ConversionException(Exception):
+    pass
+
 class ZAHansardParser(object):
 
     E = objectify.ElementMaker(
@@ -44,9 +47,10 @@ class ZAHansardParser(object):
                 ['antiword', document_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
+        (stdoutdata, stderrdata) = antiword.communicate()
         if antiword.returncode:
             # e.g. not 0 (success) or None (still running) so presumably an error
-            raise Error("antiword failed %d" % antiword.returncode)
+            raise ConversionException("Could not convert %s (%s)" % (document_path, stdoutdata.rstrip()))
 
         def cleanLine(line):
             line = line.rstrip(' _\n')
@@ -54,7 +58,8 @@ class ZAHansardParser(object):
             line = filter(lambda x: x in string.printable, line)
             return line
 
-        lines = imap(cleanLine, iter(antiword.stdout.readline, b''))
+        # lines = imap(cleanLine, iter(antiword.stdout.readline, b''))
+        lines = imap(cleanLine, iter(stdoutdata.split('\n')))
 
         def break_paras(line):
             return len(line) > 0

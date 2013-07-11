@@ -19,7 +19,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
-from zah.models import Source
+from zah.models import Source, SourceUrlCouldNotBeRetrieved
 from zah.parse import ZAHansardParser
 
 class FailedToRetrieveSourceException (Exception):
@@ -28,10 +28,20 @@ class FailedToRetrieveSourceException (Exception):
 class Command(BaseCommand):
     help = 'Parse unparsed'
     option_list = BaseCommand.option_list + (
-        make_option('--force',
+        make_option('--redo',
             default=False,
             action='store_true',
-            help='Refresh even successfully parsed documents'
+            help='Redo already completed parses',
+        ),
+        make_option('--retry',
+            default=False,
+            action='store_true',
+            help='Retry attempted (but not completed) parses',
+        ),
+        make_option('--retry-download',
+            default=False,
+            action='store_true',
+            help='Retry download of previously 404\'d documents',
         ),
         make_option('--limit',
             default=10,
@@ -43,14 +53,31 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         limit = options['limit']
 
-        for s in Source.objects.all().requires_processing()[:limit]:
+        if options['redo']:
+            if options['retry_download']:
+                sources = Source.objects.all()
+            else:
+                sources = Source.objects.filter(is404 = False)
+        elif options['retry']:
+            sources = Source.objects.all().requires_completion( options['retry_download'] )
+        else:
+            sources = Source.objects.all().requires_processing()
+
+        sources.defer('xml')
+        for s in sources[:limit]:
+        # for s in sources[:limit].iterator():
             if s.language != 'English':
                 self.stdout.write("Skipping non-English for now...") # fails date parsing, hehehe
                 continue
             s.last_processing_attempt = datetime.datetime.now().date()
             s.save()
             try:
-                filename = s.file()
+                try:
+                    filename = s.file()
+                except SourceUrlCouldNotBeRetrieved as e:
+                    s.is404 = True
+                    s.save()
+                    raise e
                 obj = ZAHansardParser.parse(filename)
                 s.xml = etree.tostring(obj.akomaNtoso)
                 s.last_processing_success = datetime.datetime.now().date()

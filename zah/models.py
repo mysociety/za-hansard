@@ -30,8 +30,11 @@ class SourceQuerySet(models.query.QuerySet):
     def requires_processing(self):
         return self.filter( last_processing_attempt=None )
 
-    def requires_complete_processing(self):
-        return self.filter( last_processing_success=None )
+    def requires_completion(self, retry_download=False):
+        objects = self.filter( last_processing_success=None )
+        if not retry_download:
+            objects = objects.filter( is404=False )
+        return objects
 
 
 class SourceManager(models.Manager):
@@ -51,6 +54,7 @@ class Source(models.Model):
     document_number = models.IntegerField(unique=True)
     date            = models.DateField()
     url             = models.URLField(max_length=1000)
+    is404           = models.BooleanField( default=False )
     house           = models.CharField(max_length=200)
     language        = models.CharField(max_length=200)
 
@@ -78,7 +82,7 @@ class Source(models.Model):
             os.remove( cache_file_path )
         
         
-    def file(self):
+    def file(self, debug=True):
         """
         Return as a file object the resource that the url is pointing to.
         
@@ -90,10 +94,13 @@ class Source(models.Model):
         """
         cache_file_path = self.cache_file_path()
 
-        print >> sys.stderr, cache_file_path
+        found = os.path.isfile(cache_file_path)
+
+        if debug:
+            print >> sys.stderr, "%s (%s)" % (cache_file_path, found)
         
         # If the file exists open it, read it and return it
-        if os.path.isfile(cache_file_path):
+        if found:
             return cache_file_path
         
         # If not fetch the file, save to cache and then return fh
@@ -101,23 +108,30 @@ class Source(models.Model):
         url = 'http://www.parliament.gov.za/live/' + self.url
 
         def request_url(url):
-            print >> sys.stderr, 'Requesting %s' % url
-            response, content = h.request(url)
+            if debug:
+                print >> sys.stderr, 'Requesting %s' % url
+            (response, content) = h.request(url)
             if response.status != 200:
                 raise SourceUrlCouldNotBeRetrieved("status code: %s, url: %s" % (response.status, self.url) )
+            self.is404 = False
+            self.save()
             return (response, content)
 
         try:
             (response, content) = request_url(url)
         except SourceUrlCouldNotBeRetrieved as e:
             try:
-                if not re.compile(r'\.doc$').match(url):
+                if not url[-4:] == '.doc':
                     (response, content) = request_url(url + '.doc')
                     self.url = self.url + '.doc'
                     self.save()
+                else:
+                    raise e
             except:
                 raise e
 
+        if not content:
+            raise SourceUrlCouldNotBeRetrieved("WTF?")
         with open(cache_file_path, "w") as new_cache_file:
             new_cache_file.write(content)        
         

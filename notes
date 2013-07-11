@@ -15,3 +15,10 @@ hansard_cache/9/6/00269-EPD060510
 Requesting http://www.parliament.gov.za/live/commonrepository/Processed/20130507/355425_1.doc
 WARN: Failed to run parsing: time data 'THURSDAY, O6 MAY 2010' does not match format '%d %B %Y'
 
+hansard_cache/4/6/00964-NA211004
+Requesting http://www.parliament.gov.za/live/commonrepository/Processed/20130507/50719_1.doc
+WARN: Failed to run parsing: Couldn't match date in START OF DAY
+
+Requesting http://www.parliament.gov.za/live/commonrepository/Processed/20130507/91327_1.doc
+WARN: Failed to run parsing: Couldn't match date in MONDAY, 10 MAY2004
+

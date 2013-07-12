@@ -1,13 +1,11 @@
-nose
 lxml
 # libxslt-dev
-itertools
-unittest
 pytz
 django
-django-nose
+nose
+-e git://github.com/jbalogh/django-nose.git#egg=django-nose
 South
 psycopg2
 
 httplib2
-bs4
+beautifulsoup4

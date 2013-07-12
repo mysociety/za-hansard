@@ -19,7 +19,7 @@
         <FRBRManifestation>
           <FRBRthis value="/za/debaterecord/2013-02-14/eng@/main.xml"/>
           <FRBRuri value="/za/debaterecord/2013-02-14/eng@.akn"/>
-          <FRBRdate date="YYYY-MM-DD" name="markup"/>
+          <FRBRdate date="3000-01-01" name="markup"/>
           <FRBRauthor href="#mysociety"/>
         </FRBRManifestation>
       </identification>

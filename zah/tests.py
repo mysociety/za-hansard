@@ -11,46 +11,55 @@ import sys, os
 
 class ZAHansardParsingTests(TestCase):
 
-    docname = '502914_1'
-    xml = None
+    docnames = ['502914_1', 'NA290307']
+    xml = {} 
 
     @classmethod
     def setUpClass(cls):
         cls._in_fixtures = os.path.join('zah', 'fixtures', 'test_inputs')
-        obj = cls.do_parse(cls.docname)
-        cls.xml = obj.akomaNtoso
-        cls.xml_string = etree.tostring(obj.akomaNtoso, pretty_print=True)
 
-    @classmethod
-    def do_parse(cls, docname):
-        filename = os.path.join( cls._in_fixtures, '%s.%s' % (docname, 'doc') )
-        return ZAHansardParser.parse(filename)
+        def process(docname):
+            filename = os.path.join( cls._in_fixtures, '%s.%s' % (docname, 'doc') )
+            obj = ZAHansardParser.parse(filename)
+            xml = obj.akomaNtoso
+            xml_string = etree.tostring(xml, pretty_print=True)
+            today = datetime.now().strftime('%Y-%m-%d')
+            xml_string = xml_string.replace('"%s"' % today, '"3000-01-01"')
+            return (docname, (xml, xml_string))
+
+        cls.xml = dict([process(dn) for dn in cls.docnames])
 
     def test_basic_parse(self):
-        xml_path = os.path.join( self._in_fixtures, '%s.%s' % (self.docname, 'xml') )
-        xml_expected = open( xml_path ).read()
+        for docname in iter(self.xml):
+            (xml, xml_string) = self.xml.get(docname)
 
-        xml_expected = xml_expected.replace('YYYY-MM-DD', datetime.now().strftime('%Y-%m-%d'))
+            xml_path = os.path.join( self._in_fixtures, '%s.%s' % (docname, 'xml') )
+            xml_expected = open( xml_path ).read()
 
-        if self.xml_string != xml_expected:
-            outname = './%s.%s' % (self.docname, 'xml')
-            open( outname, 'w').write(self.xml_string)
-            self.assertTrue( self.xml_string == xml_expected, "XML not correct, see %s for output" % outname )
+            if xml_string != xml_expected:
+                outname = './%s.%s' % (docname, 'xml')
+                open( outname, 'w').write(xml_string)
+                self.assertTrue( xml_string == xml_expected, "XML not correct, see %s for output" % outname )
 
     def test_xsd(self):
         xsd_path = os.path.join( self._in_fixtures, 'release-23.xsd')
         xsd_parser = etree.XMLParser(dtd_validation=False)
+
         xsd = etree.XMLSchema(
                 etree.parse(xsd_path, xsd_parser))
-        parser = etree.XMLParser(schema = xsd)
-        try:
-            xml = etree.fromstring(self.xml_string, parser)
-            self.assertEqual(xml.tag, '{http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03}akomaNtoso', 'Validated ok')
-        except etree.XMLSyntaxError as e:
-            self.assertTrue(False, e)
+
+        for docname in iter(self.xml):
+            (xml, xml_string) = self.xml.get(docname)
+
+            parser = etree.XMLParser(schema = xsd)
+            try:
+                xml = etree.fromstring(xml_string, parser)
+                self.assertEqual(xml.tag, '{http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03}akomaNtoso', 'Validated ok')
+            except etree.XMLSyntaxError as e:
+                self.assertTrue(False, e)
 
     def test_properties(self):
-        xml = self.xml
+        (xml, _) = self.xml.get('502914_1')
 
         self.assertEqual(xml.tag, '{http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03}akomaNtoso')
 
@@ -118,8 +127,7 @@ class ZAHansardParsingTests(TestCase):
             self.assertEqual( speech['from'].text, 'The SPEAKER' )
 
     def test_second_parse(self):
-        obj = self.do_parse('NA290307')
-        xml = obj.akomaNtoso
+        (xml, _) = self.xml.get('NA290307')
         self.assertTrue(xml is not None)
         debateBody = xml.debate.debateBody
         mainSection = debateBody.debateSection 

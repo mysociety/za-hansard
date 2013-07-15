@@ -132,4 +132,4 @@ class ZAHansardParsingTests(TestCase):
         debateBody = xml.debate.debateBody
         mainSection = debateBody.debateSection 
         subSections = mainSection.findall('{*}debateSection')
-        self.assertEqual(len(subSections), 13)
+        self.assertEqual(len(subSections), 15)

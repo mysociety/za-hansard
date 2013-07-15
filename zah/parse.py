@@ -137,7 +137,7 @@ class ZAHansardParser(object):
         def para(f):
             def para_(p):
                 p = ' '.join(p)
-
+                p = re.compile(r'\s+').sub(' ', p)
                 return f(p)
             return para_
 
@@ -148,7 +148,7 @@ class ZAHansardParser(object):
             if self.hasDate:
                 return False
             try:
-                match = re.compile(r'(\d+)\s+(\w+)\s+(\d+)$').search(line)
+                match = re.compile(r'(\d+)[ ,]+(\w+)[ ,]+(\d+)$').search(line)
                 if not match:
                     raise DateParseException("Couldn't match date in %s" % line)
                 date = datetime.strptime(' '.join(match.groups()), '%d %B %Y')
@@ -175,11 +175,12 @@ class ZAHansardParser(object):
                 raise e
                 return False
 
-        @singleLine
+        @para
         def isTitle(line):
             if re.search(r'[a-z]', line):
                 return False
             line = line.lstrip()
+            line = line.replace('\n', '')
             if self.hasTitle:
                 # we already have a main title, so this is a subsection
                 self.subSectionCount += 1
@@ -283,7 +284,9 @@ class ZAHansardParser(object):
 
         @para
         def continuation(p):
-            self.current.append( E.p( p.lstrip() ) )
+            # TODO: this needs some more thought to emit subheadings if appropriate
+            tag = 'p'
+            self.current.append( E(tag, p.lstrip() ) )
             return True
 
         funcs = [

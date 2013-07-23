@@ -266,7 +266,7 @@ class ZAHansardParser(object):
 
         @para
         def speech(p):
-            name_regexp = r'^((?:[A-Z][a-z]* )?[A-Z ]+):\d*(.*)'
+            name_regexp = r'^((?:[A-Z][a-z]* )?[A-Z() ]+):\d*(.*)'
             ret = re.search(name_regexp, p)
             if ret:
                 (name, speech) = ret.groups()

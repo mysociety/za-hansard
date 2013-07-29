@@ -62,8 +62,17 @@ class ZAHansardParser(object):
         lines = imap(cleanLine, iter(stdoutdata.split('\n')))
 
         def break_paras(line):
-            if re.match( r'\s*\(Member\'?s? [sS]tatement\)', line ):
+            # FIRST we handle exceptions:
+            # NB: these lines should probably actually be included with their respective heading
+            if re.match( r'\s*\((Member\'?s? [sS]tatement|Minister\'s? [Rr]esponse\))', line ):
                 return line # distinct from True or False, but a True value
+
+            # An ALL CAPS heading might be on the first line of a new page and therefore not be separated
+            # by blank lines
+            if re.match(r'\s\s', line) and re.search( r'[A-Z]+', line ) and not re.search( r'[a-z]', line ):
+                return "TITLE"
+
+            # FINALLY we just swap between True and False for full and blank lines, to chunk into paragraphs
             return len(line) > 0
 
         fst = lambda(a,_): a
@@ -268,10 +277,11 @@ class ZAHansardParser(object):
 
         @para
         def speech(p):
-            name_regexp = r'^((?:[A-Z][a-z]* )?[A-Z() ]+):\d*(.*)'
-            ret = re.search(name_regexp, p)
+            name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \(\w+\))?):\s*(.*)'
+            ret = re.match(name_regexp, p)
             if ret:
                 (name, speech) = ret.groups()
+                print >> sys.stderr, name
                 id = self.getOrCreateSpeaker(name)
                 elem = E.speech(
                         E('from',  name ),

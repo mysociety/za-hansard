@@ -33,6 +33,10 @@ class Command(BaseCommand):
             action='store_true',
             help='Redo already completed parses',
         ),
+        make_option('--id',
+            type='str',
+            help='Parse a given id',
+        ),
         make_option('--retry',
             default=False,
             action='store_true',
@@ -53,7 +57,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         limit = options['limit']
 
-        if options['redo']:
+        if options['id']:
+            sources = Source.objects.filter(id = options['id'])
+        elif options['redo']:
             if options['retry_download']:
                 sources = Source.objects.all()
             else:

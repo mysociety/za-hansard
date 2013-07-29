@@ -62,6 +62,8 @@ class ZAHansardParser(object):
         lines = imap(cleanLine, iter(stdoutdata.split('\n')))
 
         def break_paras(line):
+            if re.match( r'\s*\(Member\'?s? [sS]tatement\)', line ):
+                return line # distinct from True or False, but a True value
             return len(line) > 0
 
         fst = lambda(a,_): a

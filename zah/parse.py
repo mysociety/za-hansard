@@ -190,8 +190,9 @@ class ZAHansardParser(object):
         def isTitle(line):
             if re.search(r'[a-z]', line):
                 return False
-            line = line.lstrip()
-            line = line.replace('\n', '')
+            line = ( line
+                    .lstrip()
+                    .replace( '\n', ''))
             if self.hasTitle:
                 # we already have a main title, so this is a subsection
                 self.subSectionCount += 1
@@ -213,6 +214,16 @@ class ZAHansardParser(object):
                 self.current = elem.debateSection
                 self.hasTitle = True
             return True
+
+        @singleLine
+        def isTitleParenthesis(line):
+            if re.match(r'\s*\(.*\)\.?$', line):
+                if etree.QName(self.current.tag).localname == 'debateSection':
+                    # munging existing text in Objectify seems to be frowned upon.  Ideally refactor
+                    # this to be more functionl to avoid having to do call private _setText method...
+                    self.current.heading._setText( '%s %s' % (self.current.heading.text, line.lstrip() ))
+                    return True
+            return False
 
         @para
         def assembled(p):
@@ -304,6 +315,7 @@ class ZAHansardParser(object):
         funcs = [
                 isDate,
                 isTitle,
+                isTitleParenthesis,
                 assembled,
                 arose,
                 prayers,

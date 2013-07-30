@@ -39,7 +39,7 @@ class ZAHansardParsingTests(TestCase):
             if xml_string != xml_expected:
                 outname = './%s.%s' % (docname, 'xml')
                 open( outname, 'w').write(xml_string)
-                self.assertTrue( xml_string == xml_expected, "XML not correct, see %s for output" % outname )
+                self.assertTrue( xml_string == xml_expected, "XML not correct.  Please compare %s with expected %s (and update latter if required!)" % (outname, xml_path) )
 
     def test_xsd(self):
         xsd_path = os.path.join( self._in_fixtures, 'release-23.xsd')

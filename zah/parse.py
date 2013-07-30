@@ -69,7 +69,7 @@ class ZAHansardParser(object):
 
             # An ALL CAPS heading might be on the first line of a new page and therefore not be separated
             # by blank lines
-            if re.match(r'\s\s', line) and re.search( r'[A-Z]+', line ) and not re.search( r'[a-z]', line ):
+            if re.match( r'\s*[A-Z]+', line ) and not re.search( r'[a-z]', line ):
                 return "TITLE"
 
             # FINALLY we just swap between True and False for full and blank lines, to chunk into paragraphs
@@ -79,7 +79,8 @@ class ZAHansardParser(object):
         snd = lambda(_,b): b
 
         groups = groupby(lines, break_paras)
-        paras = imap(snd, ifilter(fst, groups))
+        nonEmpty = ifilter(fst, groups)
+        paras = imap(snd, nonEmpty)
 
         obj = ZAHansardParser()
 

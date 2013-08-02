@@ -66,9 +66,11 @@
         <prayers id="prayers">
           <p>The Deputy Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <p>ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS see col 000.</p>
-        <debateSection id="dbs1" name="motion-of-condolence">
-          <heading id="dbsh1">MOTION OF CONDOLENCE (The late Dr I M Phillips)</heading>
+        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000-">
+          <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS see col 000.</heading>
+        </debateSection>
+        <debateSection id="dbs2" name="motion-of-condolence">
+          <heading id="dbsh2">MOTION OF CONDOLENCE (The late Dr I M Phillips)</heading>
           <speech by="#the-acting-chief-whip-of-the-majority-party">
             <from>The ACTING CHIEF WHIP OF THE MAJORITY PARTY</from>
             <p>Deputy Speaker, I move:</p>
@@ -149,8 +151,8 @@
             <p>Motion agreed to.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs2" name="reprimand-by-the-speaker-about-abuse-of-travel-benefits">
-          <heading id="dbsh2">REPRIMAND BY THE SPEAKER ABOUT ABUSE OF TRAVEL BENEFITS</heading>
+        <debateSection id="dbs3" name="reprimand-by-the-speaker-about-abuse-of-travel-benefits">
+          <heading id="dbsh3">REPRIMAND BY THE SPEAKER ABOUT ABUSE OF TRAVEL BENEFITS</heading>
           <speech by="#the-speaker">
             <from>The SPEAKER</from>
             <p>I now wish to turn to the issue of the reprimand to certain members of the National Assembly. Am I assured by the Whips that the hon members are in the House?</p>
@@ -168,8 +170,8 @@
             <p>That concludes the matter of the disciplinary committee.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs3" name="government-immovable-asset-management-bill">
-          <heading id="dbsh3">GOVERNMENT IMMOVABLE ASSET MANAGEMENT BILL (Consideration of Report of Portfolio Committee thereon)</heading>
+        <debateSection id="dbs4" name="government-immovable-asset-management-bill">
+          <heading id="dbsh4">GOVERNMENT IMMOVABLE ASSET MANAGEMENT BILL (Consideration of Report of Portfolio Committee thereon)</heading>
           <p>Order disposed of without debate.</p>
           <speech by="#the-acting-chief-whip-of-the-majority-party">
             <from>The ACTING CHIEF WHIP OF THE MAJORITY PARTY</from>
@@ -179,8 +181,8 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs4" name="government-immovable-asset-management-bill">
-          <heading id="dbsh4">GOVERNMENT IMMOVABLE ASSET MANAGEMENT BILL (Second Reading debate)</heading>
+        <debateSection id="dbs5" name="government-immovable-asset-management-bill">
+          <heading id="dbsh5">GOVERNMENT IMMOVABLE ASSET MANAGEMENT BILL (Second Reading debate)</heading>
           <speech by="#the-minister-of-public-works">
             <from>The MINISTER OF PUBLIC WORKS</from>
             <p>Madam Speaker, hon members, senior officials of the Department of Public Works, ladies and gentlemen, as public servants we occupy privileged positions in society. The country and its people have entrusted us with the ultimate responsibility to change the lives of South Africans for the better. We have at our disposal resources, not least our passion and patriotism to transform the social make-up of our country by eradicating both poverty and hopelessness inherited from apartheid.</p>
@@ -377,8 +379,8 @@
             <p>Bill read a second time.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs5" name="tobacco-products-control-amendment-bill">
-          <heading id="dbsh5">TOBACCO PRODUCTS CONTROL AMENDMENT BILL (Second Reading debate)</heading>
+        <debateSection id="dbs6" name="tobacco-products-control-amendment-bill">
+          <heading id="dbsh6">TOBACCO PRODUCTS CONTROL AMENDMENT BILL (Second Reading debate)</heading>
           <speech by="#the-deputy-minister-of-health">
             <from>The DEPUTY MINISTER OF HEALTH</from>
             <p>Madam Deputy Speaker, hon members, the Tobacco Products Control Amendment Bill seeks to further deepen this government's commitment to protect our people from the effects of tobacco smoke.</p>
@@ -543,8 +545,8 @@
             <p>Bill read a second time.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs6" name="governance-model-for-parliament">
-          <heading id="dbsh6">GOVERNANCE MODEL FOR PARLIAMENT (Consideration of First Report of Joint Rules Committee, 2007)</heading>
+        <debateSection id="dbs7" name="governance-model-for-parliament">
+          <heading id="dbsh7">GOVERNANCE MODEL FOR PARLIAMENT (Consideration of First Report of Joint Rules Committee, 2007)</heading>
           <p>Order disposed of without debate.</p>
           <speech by="#the-acting-chief-whip-of-the-majority-party">
             <from>The ACTING CHIEF WHIP OF THE MAJORITY PARTY</from>
@@ -553,8 +555,8 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs7" name="international-labour-conference">
-          <heading id="dbsh7">INTERNATIONAL LABOUR CONFERENCE (Consideration of Report of Portfolio Committee)</heading>
+        <debateSection id="dbs8" name="international-labour-conference">
+          <heading id="dbsh8">INTERNATIONAL LABOUR CONFERENCE (Consideration of Report of Portfolio Committee)</heading>
           <speech by="#mr-t-g-anthony">
             <from>Mr T G ANTHONY</from>
             <p>Madam Deputy Chairperson, hon members, distinguished guests, the International Labour Organisations conference is held in Geneva, Switzerland every year. Member states are represented by delegations consisting of two government delegates, an employer delegate and a worker delegate, and their respective advisors. Employer and worker delegates are nominated in agreement with the most representative national organisations of employers and workers.</p>
@@ -574,8 +576,8 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs8" name="second-quarter-national-expenditure-2006-07-financial-year">
-          <heading id="dbsh8">SECOND QUARTER NATIONAL EXPENDITURE 2006-07 FINANCIAL YEAR (Consideration of Report of Joint Budget Committee)</heading>
+        <debateSection id="dbs9" name="second-quarter-national-expenditure-2006-07-financial-year">
+          <heading id="dbsh9">SECOND QUARTER NATIONAL EXPENDITURE 2006-07 FINANCIAL YEAR (Consideration of Report of Joint Budget Committee)</heading>
           <speech by="#ms-j-l-fubbs">
             <from>Ms J L FUBBS</from>
             <p>Madam Chairperson, hon members of the House, normally, this sort of thing is really a formality and yet it should not be. I think that the Joint Budget Committee would certainly like to express a couple of salient points in the hope that the executive and their departments would take the section 32 reports, which deal with expenditure, more seriously and link them to their strategic planning process more effectively, so that we achieve what we intend to achieve, and that is stated outcomes to transform the country and deliver to the people of South Africa.</p>
@@ -592,8 +594,8 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs9" name="instrument-for-the-amendment-of-the-constitution-of-the-international-labour-organisation-ilo-">
-          <heading id="dbsh9">INSTRUMENT FOR THE AMENDMENT OF THE CONSTITUTION OF THE INTERNATIONAL LABOUR ORGANISATION (ILO) (Consideration of Request for Approval)</heading>
+        <debateSection id="dbs10" name="instrument-for-the-amendment-of-the-constitution-of-the-international-labour-organisation-ilo-">
+          <heading id="dbsh10">INSTRUMENT FOR THE AMENDMENT OF THE CONSTITUTION OF THE INTERNATIONAL LABOUR ORGANISATION (ILO) (Consideration of Request for Approval)</heading>
           <speech by="#mr-b-m-mkongi">
             <from>Mr B M MKONGI</from>
             <p>Madam Chair, the Portfolio Committee on Labour would like to request the Parliament of the Republic to approve the instrument for the amendment of the constitution of the ILO. This instrument provides for a new paragraph to article 19 of the constitution. It gives the governing body and the conference powers to remove obsolete conventions and eliminate all legal effects that arise out of the convention between the organisation and its members. Member states that have ratified the convention would no longer be obliged to submit reports under article 22 of the constitution. These member states would no longer be subject to the representatives and complaints of nonobservance of the convention.</p>
@@ -604,8 +606,8 @@
             <p>Instrument for the Amendment of the Constitution of the International Labour Organisation (ILO) approved.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs10" name="convention-on-physical-protection-of-nuclear-material">
-          <heading id="dbsh10">CONVENTION ON PHYSICAL PROTECTION OF NUCLEAR MATERIAL (Consideration of Request for Approval)</heading>
+        <debateSection id="dbs11" name="convention-on-physical-protection-of-nuclear-material">
+          <heading id="dbsh11">CONVENTION ON PHYSICAL PROTECTION OF NUCLEAR MATERIAL (Consideration of Request for Approval)</heading>
           <speech by="#mnu-e-n-mthethwa">
             <from>Mnu E N MTHETHWA</from>
             <p>Phini likaSihlalo naMalungu ahloniphekile ePhalamende, ngizwe nje malungu nginidabukela ukuthi kade nihlezi phansi. Asizukuchitha sikhathi ngoba kuleli komiti lethu nizoyithemba into esiyivumile. Lesi sivumelwano esingaso namhlanje siyisivumelwano sokuzibophezela esivumelwaneni sokuvikela izinto eziphathelene nenuzi.</p>
@@ -619,8 +621,8 @@
             <p>Convention on the Physical Protection of Nuclear Material approved.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs11" name="convention-on-the-rights-of-people-with-disabilities-and-its-optional-protocol">
-          <heading id="dbsh11">CONVENTION ON THE RIGHTS OF PEOPLE WITH DISABILITIES AND ITS OPTIONAL PROTOCOL (Draft Resolution)</heading>
+        <debateSection id="dbs12" name="convention-on-the-rights-of-people-with-disabilities-and-its-optional-protocol">
+          <heading id="dbsh12">CONVENTION ON THE RIGHTS OF PEOPLE WITH DISABILITIES AND ITS OPTIONAL PROTOCOL (Draft Resolution)</heading>
           <speech by="#the-acting-chief-whip-of-the-majority-party">
             <from>The ACTING CHIEF WHIP OF THE MAJORITY PARTY</from>
             <p>Chairperson, I move, with leave, the following motion without notice:</p>
@@ -634,11 +636,11 @@
             <p>The House adjourned at 16:48.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs12" name="announcements-tablings-and-committee-reports">
-          <heading id="dbsh12">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS</heading>
+        <debateSection id="dbs13" name="announcements-tablings-and-committee-reports">
+          <heading id="dbsh13">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS</heading>
         </debateSection>
-        <debateSection id="dbs13" name="announcements">
-          <heading id="dbsh13">ANNOUNCEMENTS (b)      Finance Bill [B 5  2007] (National Assembly  sec 77).</heading>
+        <debateSection id="dbs14" name="announcements">
+          <heading id="dbsh14">ANNOUNCEMENTS (b)      Finance Bill [B 5  2007] (National Assembly  sec 77).</heading>
           <p>National Assembly and National Council of Provinces</p>
           <p>The Speaker and the Chairperson</p>
           <p>1. Draft Bill submitted in terms of Joint Rule 159</p>
@@ -652,8 +654,8 @@
           <p>1. I have received a copy of an Executive Summary of the Recommendations on the Remuneration of Public Office Bearers from the Independent Commission for the Remuneration of Public Office Bearers, under the chairpersonship of Justice Dikgang Moseneke, addressed to Mr T M Mbeki, the President of the Republic of South Africa.</p>
           <p>Copies will be made available to Members.</p>
         </debateSection>
-        <debateSection id="dbs14" name="tablings">
-          <heading id="dbsh14">TABLINGS</heading>
+        <debateSection id="dbs15" name="tablings">
+          <heading id="dbsh15">TABLINGS</heading>
           <p>National Assembly and National Council of Provinces 1. The Minister of Safety and Security</p>
           <p>(a) Proclamation No R.24 published in Government Gazette No 28885 dated 29 May 2006: Notification by President in respect of entities identified by the United Nations Security Council in terms of section 25 of the Protection of Constitutional Democracy against Terrorist and Related Activities Act, 2004 (Act No 33 of 2004).</p>
           <p>(b) Proclamation No R.38 published in Government Gazette No 29222 dated 19 September 2006: Notification by President in respect of entities identified by the United Nations Security Council in terms of section 25 of the Protection of Constitutional Democracy against Terrorist and Related Activities Act, 2004 (Act No 33 of 2004).</p>
@@ -661,8 +663,8 @@
           <p>(d) Proclamation No R.51 published in Government Gazette No 29500 dated 22 December 2006: Notification by President in respect of entities identified by the United Nations Security Council in terms of section 25 of the Protection of Constitutional Democracy against Terrorist and Related Activities Act, 2004 (Act No 33 of 2004).</p>
           <p>(e) Proclamation No R.2 published in Government Gazette No 29598 dated 7 February 2007: Notification by President in respect of entities identified by the United Nations Security Council in terms of section 25 of the Protection of Constitutional Democracy against Terrorist and Related Activities Act, 2004 (Act No 33 of 2004).</p>
         </debateSection>
-        <debateSection id="dbs15" name="committee-reports">
-          <heading id="dbsh15">COMMITTEE REPORTS</heading>
+        <debateSection id="dbs16" name="committee-reports">
+          <heading id="dbsh16">COMMITTEE REPORTS</heading>
           <p>National Assembly and National Council of Provinces</p>
           <p>CREDA INSERT REPORT - Insert T070329A insert 1 PAGES 561-580</p>
         </debateSection>

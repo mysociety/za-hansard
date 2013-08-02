@@ -151,7 +151,9 @@ class Source(models.Model):
         # check that the dir exists
         if not os.path.exists( cache_dir ):
             os.makedirs( cache_dir )
+
+        d = self.date.strftime('%Y-%m-%d')
         
         # create the path to the file
-        cache_file_path = os.path.join(cache_dir, '-'.join([id_str, self.document_name]))
+        cache_file_path = os.path.join(cache_dir, '-'.join([d, id_str, self.document_name]))
         return cache_file_path

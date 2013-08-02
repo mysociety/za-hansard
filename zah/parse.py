@@ -135,6 +135,31 @@ class ZAHansardParser(object):
 
         return obj
 
+    def setTitle(self, line):
+        E = self.E
+        line = line.lstrip().replace( '\n', '')
+        elem = E.debateBody(
+                E.debateSection(
+                    E.heading(line, id='dbh0'),
+                    id='db0',
+                    name=self.slug(line)))
+        self.akomaNtoso.debate.append( elem )
+        self.akomaNtoso.debate.set('name', line)
+        self.current = elem.debateSection
+        self.hasTitle = True
+
+    def createSubsection(self, line):
+        E = self.E
+        line = line.lstrip().replace( '\n', '')
+        self.subSectionCount += 1
+        elem = E.debateSection(
+            E.heading(line,
+                id='dbsh%d'% self.subSectionCount),
+            id='dbs%d' % self.subSectionCount,
+            name=self.slug(line))
+        self.akomaNtoso.debate.debateBody.debateSection.append(elem)
+        self.current = elem
+
     def parseLine(self, p):
         E = self.E
 
@@ -189,31 +214,15 @@ class ZAHansardParser(object):
 
         @para
         def isTitle(line):
-            if re.search(r'[a-z]', line):
+            if re.search(r'[a-z]', line.replace('see col', '')):
                 return False
             line = ( line
                     .lstrip()
                     .replace( '\n', ''))
             if self.hasTitle:
-                # we already have a main title, so this is a subsection
-                self.subSectionCount += 1
-                elem = E.debateSection(
-                    E.heading(line,
-                        id='dbsh%d'% self.subSectionCount),
-                    id='dbs%d' % self.subSectionCount,
-                    name=self.slug(line))
-                self.akomaNtoso.debate.debateBody.debateSection.append(elem)
-                self.current = elem
+                self.createSubsection(line)
             else:
-                elem = E.debateBody(
-                        E.debateSection(
-                            E.heading(line, id='dbh0'),
-                            id='db0',
-                            name=self.slug(line)))
-                self.akomaNtoso.debate.append( elem )
-                self.akomaNtoso.debate.set('name', line)
-                self.current = elem.debateSection
-                self.hasTitle = True
+                self.setTitle(line)
             return True
 
         @singleLine
@@ -293,7 +302,7 @@ class ZAHansardParser(object):
             ret = re.match(name_regexp, p)
             if ret:
                 (name, speech) = ret.groups()
-                print >> sys.stderr, name
+                # print >> sys.stderr, name
                 id = self.getOrCreateSpeaker(name)
                 elem = E.speech(
                         E('from',  name ),
@@ -308,9 +317,14 @@ class ZAHansardParser(object):
 
         @para
         def continuation(p):
-            # TODO: this needs some more thought to emit subheadings if appropriate
-            tag = 'p'
-            self.current.append( E(tag, p.lstrip() ) )
+            if not self.hasTitle:
+                self.setTitle(p.upper())
+            elif not self.subSectionCount:
+                self.createSubsection(p.upper())
+            else:
+                # TODO: this needs some more thought to emit subheadings if appropriate
+                tag = 'p'
+                self.current.append( E(tag, p.lstrip() ) )
             return True
 
         funcs = [

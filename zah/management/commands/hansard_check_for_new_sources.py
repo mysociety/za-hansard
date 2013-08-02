@@ -1,10 +1,3 @@
-
-# This script changed extensively when the Kenyan Parliament website changed after the 2013 Election.
-#
-# The previous version can be seen at:
-#
-#    https://github.com/mysociety/mzalendo/blob/7181e30519b140229e3817786e4a7440ac08288d/mzalendo/hansard/management/commands/hansard_check_for_new_sources.py
-
 import pprint
 import httplib2
 import re
@@ -27,10 +20,6 @@ class FailedToRetrieveSourceException (Exception):
 class Command(BaseCommand):
     args = '<start end>'
     help = 'Check for new sources'
-
-    # http://www.parliament.go.ke
-    # /plone/national-assembly/business/hansard/copy_of_official-report-28-march-2013-pm/at_multi_download/item_files
-    # ?name=Hansard%20National%20Assembly%2028.03.2013P.pdf
 
 
     def handle(self, *args, **options):
@@ -94,16 +83,3 @@ class Command(BaseCommand):
         if pend < end:
             time.sleep(1)
             self.retrieve_sources(pend, end)
-
-
-    def __FOR_LATER__():
-        # I don't trust that we can accurately create the download link url with the
-        # details that we have. Instead fetche the page and extract the url.
-        download_response, download_content = h.request(href)
-        download_soup = BeautifulSoup(
-            download_content,
-            'xml',
-        )
-        download_url = download_soup.find( id="archetypes-fieldname-item_files" ).a['href']
-        
-        # create/update the source entry

@@ -11,7 +11,7 @@ import sys, os
 
 class ZAHansardParsingTests(TestCase):
 
-    docnames = ['502914_1', 'NA290307']
+    docnames = ['502914_1', 'NA290307', 'EPC110512']
     xml = {} 
 
     @classmethod
@@ -56,7 +56,7 @@ class ZAHansardParsingTests(TestCase):
                 xml = etree.fromstring(xml_string, parser)
                 self.assertEqual(xml.tag, '{http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD03}akomaNtoso', 'Validated ok')
             except etree.XMLSyntaxError as e:
-                self.assertTrue(False, e)
+                self.assertTrue(False, 'Document %s failed: %s' % (docname, str(e)) )
 
     def test_properties(self):
         (xml, _) = self.xml.get('502914_1')
@@ -132,4 +132,4 @@ class ZAHansardParsingTests(TestCase):
         debateBody = xml.debate.debateBody
         mainSection = debateBody.debateSection 
         subSections = mainSection.findall('{*}debateSection')
-        self.assertEqual(len(subSections), 15)
+        self.assertEqual(len(subSections), 16)

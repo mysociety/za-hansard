@@ -85,9 +85,11 @@ class Command(BaseCommand):
                     s.save()
                     raise e
                 obj = ZAHansardParser.parse(filename)
-                s.xml = etree.tostring(obj.akomaNtoso)
+                xml = etree.tostring(obj.akomaNtoso) 
+                # s.xml = xml # we really don't need this
                 s.last_processing_success = datetime.datetime.now().date()
-                open('%s.xml' % filename, 'w').write(s.xml)
+
+                open('%s.xml' % filename, 'w').write(xml)
                 s.save()
                 self.stdout.write( "Processed %s (%d)" % (s.document_name, s.document_number) )
             except Exception as e:

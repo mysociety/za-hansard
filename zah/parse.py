@@ -15,6 +15,276 @@ class DateParseException(Exception):
 class ConversionException(Exception):
     pass
 
+# The mini-parser classes that workon lines/paras
+class Parslet(object):
+    text = None
+
+    def __init__(self, **kwargs):
+        self.text  = kwargs.pop('text')
+        if len(kwargs):
+            raise Exception("Unknown parameters %s" % str(kwargs.keys()))
+
+    @classmethod
+    def handle_match(cls, parser, p):
+        ret = cls._handle_match(parser, p)
+        if ret:
+            return cls(**ret)
+
+class SingleLineParslet(Parslet):
+    @classmethod
+    def _handle_match(cls, parser, p):
+        if len(p) != 1:
+            return None
+        return cls.match(parser, p[0])
+
+class ParaParslet(Parslet):
+    @classmethod
+    def _handle_match(cls, parser, p):
+        jp = re.sub(
+                r'\s+', 
+                ' ', 
+                ' '.join(p))
+        return cls.match(parser, jp)
+
+class DateParslet(SingleLineParslet):
+    date = None
+    date_xml = None
+
+    def __init__(self, **kwargs):
+        self.date     = kwargs.pop('date')
+        self.date_xml = kwargs.pop('date_xml')
+
+    @classmethod
+    def match(cls, parser, line):
+        if parser.hasDate:
+            return None
+
+        match = re.compile(r'(\d+)[ ,]+(\w+)[ ,]+(\d+)$').search(line)
+        if not match:
+            # we are assuming that *every* document has a date as first
+            # thing, and throw an exception instead of simply returning
+            # None.  This assumption seems good for now.  (Note that
+            # later steps require the presence of a date)
+            raise DateParseException("Couldn't match date in %s" % line)
+
+        date = datetime.strptime(' '.join(match.groups()), '%d %B %Y')
+        date_xml = date.strftime('%Y-%m-%d')
+
+        parser.hasDate = True
+
+        return {
+                'text': line,
+                'date': date,
+                'date_xml': date_xml,
+                }
+
+    def output(self, parser, E):
+
+        date = self.date
+        date_xml = self.date_xml
+
+        elem = E.p(
+                    datetime.strftime(date, '%A, '),
+                    E.docDate(date.strftime('%d %B %Y'),
+                        date=date_xml))
+        parser.current.append(elem)
+        parser.date = date
+
+        identification = parser.akomaNtoso.debate.meta.identification
+        identification.FRBRWork.FRBRthis.set('value', '/za/debaterecord/%s/main' % date_xml)
+        identification.FRBRWork.FRBRuri.set('value', '/za/debaterecord/%s' % date_xml)
+        identification.FRBRExpression.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main' % date_xml)
+        identification.FRBRExpression.FRBRuri.set('value', '/za/debaterecord/%s/eng@' % date_xml)
+        identification.FRBRManifestation.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main.xml' % date_xml)
+        identification.FRBRManifestation.FRBRuri.set('value', '/za/debaterecord/%s/eng@.akn' % date_xml)
+
+class TitleParslet(ParaParslet):
+
+    @classmethod
+    def match(cls, parser, p):
+        line = re.sub('\s+', ' ', ' '.join(p))
+        mline = line.replace('see col', '')
+        if re.search(r'[a-z]', mline):
+            return None
+        return { 'text': line }
+    
+    def output(self, parser, E):
+        line = self.text
+        if parser.hasTitle:
+            parser.createSubsection(line)
+        else:
+            parser.setTitle(line)
+
+# Line parslet, because only sufficiently short lines are candidates for adding to a header,
+# (we assume)
+class ParensParslet(SingleLineParslet):
+
+    @classmethod
+    def match(cls, parser, line):
+        if re.match(r'\s*\(.*\)\.?$', line):
+            return { 'text': line.lstrip() }
+        return None
+
+    def output(self, parser, E):
+        if etree.QName(parser.current.tag).localname == 'debateSection':
+            # munging existing text in Objectify seems to be frowned upon.  Ideally refactor
+            # this to be more functionl to avoid having to do call private _setText method...
+            parser.current.heading._setText( '%s %s' % 
+                    (parser.current.heading.text, self.text ))
+
+class AssembledParslet(ParaParslet):
+
+    assembled = None
+    time = None
+    time_iso = None
+
+    def __init__(self, **kwargs):
+        self.assembled = kwargs.pop('assembled')
+        self.time = kwargs.pop('time')
+        self.time_iso = kwargs.pop('time_iso')
+
+    @classmethod
+    def match(cls, parser, p):
+        if parser.hasAssembled:
+            return None
+
+        ret = re.search(r'^(.*(?:assembled|met)(?: in .*)? at )(\d+:\d+)\.?$', p)
+        if ret:
+            groups = ret.groups()
+            time = datetime.strptime(groups[1], '%H:%M').time()
+            # time = datetime.combine(self.date, time).replace(tzinfo=self.tz)
+
+            return {
+                    'text': p,
+                    'assembled': groups[0],
+                    'time': groups[1],
+                    'time_iso': time.isoformat(),
+                    }
+        else:
+            return None
+
+    def output(self, parser, E):
+        elem = E.p(
+                self.assembled,
+                E.recordedTime(
+                    self.time,
+                    time= self.time_iso,
+                ))
+        parser.current.append(elem)
+        parser.hasAssembled = True
+
+# TODO refactor this with AssembledParslet
+class AroseParslet(ParaParslet):
+
+    assembled = None
+    time = None
+    time_iso = None
+
+    def __init__(self, **kwargs):
+        self.arose = kwargs.pop('arose')
+        self.time = kwargs.pop('time')
+        self.time_iso = kwargs.pop('time_iso')
+
+    @classmethod
+    def match(cls, parser, p):
+        if parser.hasArisen:
+            return None
+
+        ret = re.search(r'^(.*(?:rose) at )(\d+:\d+)\.?$', p)
+        if ret:
+            groups = ret.groups()
+            time = datetime.strptime(groups[1], '%H:%M').time()
+            # arose = datetime.combine(self.date, time).replace(tzinfo = self.tz)
+
+            return {
+                    'text': p,
+                    'arose': groups[0],
+                    'time': groups[1],
+                    'time_iso': time.isoformat(),
+                    }
+
+    def output(self, parser, E):
+        elem = E.adjournment(
+                E.p(
+                    self.arose,
+                    E.recordedTime(
+                        self.time,
+                        time= self.time_iso,
+                    )),
+                id='adjournment')
+        parser.current.getparent().append(elem)
+        parser.hasArisen = True
+
+class PrayersParslet(ParaParslet):
+
+    @classmethod
+    def match(cls, parser, p):
+        if parser.hasPrayers:
+            return None
+
+        if re.search(r'^(.* prayers or meditation.)$', p):
+            return { 'text': p }
+
+    def output(self, parser, E):
+        elem = E.prayers(
+            E.p(self.text), 
+            id='prayers')
+        parser.current.append(elem)
+        parser.hasPrayers = True
+
+class SpeechParslet(ParaParslet):
+
+    name = None
+    speech = None
+    id = None
+
+    def __init__(self, **kwargs):
+        self.name = kwargs.pop('name')
+        self.speech = kwargs.pop('speech')
+        self.id = kwargs.pop('id')
+
+    @classmethod
+    def match(cls, parser, p):
+        name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \(\w+\))?):\s*(.*)'
+        ret = re.match(name_regexp, p)
+        if ret:
+            (name, speech) = ret.groups()
+            id = parser.getOrCreateSpeaker(name) # TODO match with popit here
+
+            return {
+                    'text': p,
+                    'name': name,
+                    'speech': speech.lstrip(),
+                    'id': id,
+                    }
+
+    def output(self, parser, E):
+        elem = E.speech(
+                    E('from',  self.name ),
+                    E.p(self.speech),
+                    by='#%s' % self.id)
+            
+        if etree.QName(parser.current.tag).localname == 'speech':
+            parser.current = parser.current.getparent()
+        parser.current.append(elem)
+        parser.current = elem
+
+class ContinuationParslet(ParaParslet):
+
+    @classmethod
+    def match(cls, parser, p):
+        return { 'text': p }
+
+    def output(self, parser, E):
+        if not parser.hasTitle:
+            parser.setTitle(self.text.upper())
+        elif not parser.subSectionCount:
+            parser.createSubsection(self.text.upper())
+        else:
+            # TODO: this needs some more thought to emit subheadings if appropriate
+            tag = 'p'
+            parser.current.append( E(tag, self.text.lstrip() ) )
+
 class ZAHansardParser(object):
 
     E = objectify.ElementMaker(
@@ -127,12 +397,36 @@ class ZAHansardParser(object):
                         ),
                     source='#mysociety'))
 
-        for para in paras:
-            p = list(para)
-            if not obj.parseLine( p ):
-                raise Exception("Parsing failed at %s" % p[0])
-                # break
-                # continue
+        classes = [
+                DateParslet,
+                TitleParslet,
+                ParensParslet,
+                AssembledParslet,
+                AroseParslet,
+                PrayersParslet,
+                SpeechParslet,
+                ContinuationParslet,
+                ]
+
+        def match(p):
+            #try:
+                m = ifilter(
+                        lambda x: x != None, 
+                        imap(
+                            lambda cls: cls.handle_match(obj, p),
+                            classes)
+                        ).next()
+                return m
+            #except Exception as e:
+                #raise e
+                #raise Exception("Parsing failed at '%s'" % p[:50])
+
+        nodes = [match(list(p)) for p in paras]
+
+        # TODO transformation step here! (i.e. the whole point of this refactor)
+
+        for n in nodes:
+            n.output(obj, obj.E)
 
         return obj
 
@@ -161,188 +455,6 @@ class ZAHansardParser(object):
         self.akomaNtoso.debate.debateBody.debateSection.append(elem)
         self.current = elem
 
-    def parseLine(self, p):
-        E = self.E
-
-        # DECORATORS
-        def singleLine(f):
-            def singleLine_(p):
-                if len(p) != 1:
-                    return False
-                return f(p[0])
-            return singleLine_
-
-        def para(f):
-            def para_(p):
-                p = ' '.join(p)
-                p = re.compile(r'\s+').sub(' ', p)
-                return f(p)
-            return para_
-
-        # PARSERS
-
-        @singleLine
-        def isDate(line):
-            if self.hasDate:
-                return False
-            try:
-                match = re.compile(r'(\d+)[ ,]+(\w+)[ ,]+(\d+)$').search(line)
-                if not match:
-                    raise DateParseException("Couldn't match date in %s" % line)
-                date = datetime.strptime(' '.join(match.groups()), '%d %B %Y')
-
-                date_xml = date.strftime('%Y-%m-%d')
-                elem = E.p(
-                        datetime.strftime(date, '%A, '),
-                        E.docDate(date.strftime('%d %B %Y'),
-                            date=date_xml))
-                self.current.append(elem)
-                self.hasDate = True
-                self.date = date
-
-                identification = self.akomaNtoso.debate.meta.identification
-                identification.FRBRWork.FRBRthis.set('value', '/za/debaterecord/%s/main' % date_xml)
-                identification.FRBRWork.FRBRuri.set('value', '/za/debaterecord/%s' % date_xml)
-                identification.FRBRExpression.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main' % date_xml)
-                identification.FRBRExpression.FRBRuri.set('value', '/za/debaterecord/%s/eng@' % date_xml)
-                identification.FRBRManifestation.FRBRthis.set('value', '/za/debaterecord/%s/eng@/main.xml' % date_xml)
-                identification.FRBRManifestation.FRBRuri.set('value', '/za/debaterecord/%s/eng@.akn' % date_xml)
-
-                return True
-            except Exception as e:
-                raise e
-                return False
-
-        @para
-        def isTitle(line):
-            if re.search(r'[a-z]', line.replace('see col', '')):
-                return False
-            line = ( line
-                    .lstrip()
-                    .replace( '\n', ''))
-            if self.hasTitle:
-                self.createSubsection(line)
-            else:
-                self.setTitle(line)
-            return True
-
-        @singleLine
-        def isTitleParenthesis(line):
-            if re.match(r'\s*\(.*\)\.?$', line):
-                if etree.QName(self.current.tag).localname == 'debateSection':
-                    # munging existing text in Objectify seems to be frowned upon.  Ideally refactor
-                    # this to be more functionl to avoid having to do call private _setText method...
-                    self.current.heading._setText( '%s %s' % (self.current.heading.text, line.lstrip() ))
-                    return True
-            return False
-
-        @para
-        def assembled(p):
-            if self.hasAssembled:
-                return
-            ret = re.search(r'^(.*(?:assembled|met)(?: in .*)? at )(\d+:\d+)\.?$', p)
-            if ret:
-                try:
-                    groups = ret.groups()
-                    time = datetime.strptime(groups[1], '%H:%M').time()
-                    # assembled = datetime.combine(self.date, time).replace(tzinfo=self.tz)
-                    assembled = time
-                    elem = E.p(
-                            groups[0],
-                            E.recordedTime(
-                                groups[1],
-                                time= assembled.isoformat() 
-                            ))
-                    self.current.append(elem)
-                    self.hasAssembled = True
-                    return True
-                except Exception as e:
-                    raise e
-                    return
-
-        @para
-        def arose(p):
-            if self.hasArisen:
-                return
-            ret = re.search(r'^(.*(?:rose) at )(\d+:\d+)\.?$', p)
-            if ret:
-                try:
-                    groups = ret.groups()
-                    time = datetime.strptime(groups[1], '%H:%M').time()
-                    # arose = datetime.combine(self.date, time).replace(tzinfo = self.tz)
-                    arose = time
-                    elem = E.adjournment(
-                            E.p(
-                                groups[0],
-                                E.recordedTime(
-                                    groups[1],
-                                    time= arose.isoformat()
-                                )),
-                            id='adjournment')
-                    self.current.getparent().append(elem)
-                    self.hasArisen = True
-                    return True
-                except:
-                    return
-
-        @para
-        def prayers(p):
-            if self.hasPrayers:
-                return
-            if re.search(r'^(.* prayers or meditation.)$', p):
-                elem = E.prayers(
-                        E.p(p), 
-                        id='prayers')
-                self.current.append(elem)
-                self.hasPrayers = True
-                return True
-
-        @para
-        def speech(p):
-            name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \(\w+\))?):\s*(.*)'
-            ret = re.match(name_regexp, p)
-            if ret:
-                (name, speech) = ret.groups()
-                # print >> sys.stderr, name
-                id = self.getOrCreateSpeaker(name)
-                elem = E.speech(
-                        E('from',  name ),
-                        E.p(speech.lstrip()),
-                        by='#%s' % id)
-                
-                if etree.QName(self.current.tag).localname == 'speech':
-                    self.current = self.current.getparent()
-                self.current.append(elem)
-                self.current = elem
-                return True
-
-        @para
-        def continuation(p):
-            if not self.hasTitle:
-                self.setTitle(p.upper())
-            elif not self.subSectionCount:
-                self.createSubsection(p.upper())
-            else:
-                # TODO: this needs some more thought to emit subheadings if appropriate
-                tag = 'p'
-                self.current.append( E(tag, p.lstrip() ) )
-            return True
-
-        funcs = [
-                isDate,
-                isTitle,
-                isTitleParenthesis,
-                assembled,
-                arose,
-                prayers,
-                speech,
-                continuation,
-                ]
-
-        for f in funcs:
-            ret = f(p)
-            if ret:
-                return ret
 
     def getOrCreateSpeaker(self, name):
         speaker = self.speakers.get(name)

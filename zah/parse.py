@@ -85,7 +85,8 @@ class ZAHansardParser(object):
         obj = ZAHansardParser()
 
         E = obj.E
-        ctime = datetime.fromtimestamp(os.path.getctime(document_path)).strftime('%Y-%m-%d')
+        # TODO: instead of ctime use other metadata from source document?
+        # ctime = datetime.fromtimestamp(os.path.getctime(document_path)).strftime('%Y-%m-%d')
         today = datetime.now().date().strftime('%Y-%m-%d')
 
         obj.akomaNtoso.debate.meta.append(
@@ -93,14 +94,14 @@ class ZAHansardParser(object):
                 E.FRBRWork(
                     E.FRBRthis(),
                     E.FRBRuri(),
-                    E.FRBRdate( date=ctime,  name='generation' ),
+                    E.FRBRdate( date=today,  name='generation' ),
                     E.FRBRauthor( href='#za-parliament'), # as='#author' # XXX
                     E.FRBRcountry( value='za' ),
                 ),
                 E.FRBRExpression(
                     E.FRBRthis(),
                     E.FRBRuri(),
-                    E.FRBRdate( date=ctime,  name='markup' ),
+                    E.FRBRdate( date=today,  name='markup' ),
                     E.FRBRauthor( href='#za-parliament'), # as='#editor' # XXX
                     E.FRBRlanguage( language='eng' ),
                 ),

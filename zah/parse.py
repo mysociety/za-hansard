@@ -134,7 +134,10 @@ class ParensParslet(SingleLineParslet):
         else:
             # as continuation
             tag = 'p'
-            parser.current.append( E(tag, self.text.lstrip() ) )
+            text = self.text.lstrip()
+            parser.current.append( E(tag, text) )
+            # This is quite possibly not a Good Thing, so outputting for info
+            print >> sys.stderr, '  ! %s' % text
 
 class AssembledParslet(ParaParslet):
 
@@ -441,6 +444,7 @@ class ZAHansardParser(object):
                         print >> sys.stderr
                     result.append( TitleParslet(text=a.text) )
                 else:
+                    # TODO: perhaps should also rewrite the Parens into a ContinuationParslet?
                     result.append( a )
                 a = b
             result.append(b)

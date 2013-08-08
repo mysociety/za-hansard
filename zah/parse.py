@@ -334,7 +334,8 @@ class ZAHansardParser(object):
         def break_paras(line):
             # FIRST we handle exceptions:
             # NB: these lines should probably actually be included with their respective heading
-            if re.match( r'\s*\((Member\'?s? [sS]tatement|Minister\'s? [Rr]esponse\))', line ):
+            # if re.match( r'\s*\((Member\'?s? [sS]tatement|Minister\'s? [Rr]esponse\))', line ):
+            if re.match( r'\s*\([^)]+\)$', line ) and not re.match( r'\s*\([Tt]ranslation', line ):
                 return line # distinct from True or False, but a True value
 
             # An ALL CAPS heading might be on the first line of a new page and therefore not be separated

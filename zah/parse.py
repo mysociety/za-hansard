@@ -102,7 +102,7 @@ class TitleParslet(ParaParslet):
 
     @classmethod
     def match(cls, parser, p):
-        line = re.sub('\s+', ' ', ' '.join(p))
+        line = re.sub('\s+', ' ', p)
         mline = line.replace('see col', '')
         if re.search(r'[a-z]', mline):
             return None

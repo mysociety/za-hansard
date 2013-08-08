@@ -11,7 +11,7 @@ import sys, os
 
 class ZAHansardParsingTests(TestCase):
 
-    docnames = ['502914_1', 'NA290307', 'EPC110512', 'NA210212']
+    docnames = ['502914_1', 'NA290307', 'EPC110512', 'NA210212', 'NA200912']
     xml = {} 
 
     @classmethod

@@ -4,7 +4,7 @@ import string
 
 import sys, os
 
-from itertools import imap, ifilter, groupby
+from itertools import imap, ifilter, groupby, chain
 from datetime import datetime 
 from lxml import etree
 from lxml import objectify
@@ -121,7 +121,7 @@ class ParensParslet(SingleLineParslet):
 
     @classmethod
     def match(cls, parser, line):
-        if re.match(r'\s*\(.*\)\.?$', line):
+        if re.match(r'\s*\([^()]+\)\.?$', line):
             return { 'text': line.lstrip() }
         return None
 
@@ -131,6 +131,10 @@ class ParensParslet(SingleLineParslet):
             # this to be more functionl to avoid having to do call private _setText method...
             parser.current.heading._setText( '%s %s' % 
                     (parser.current.heading.text, self.text ))
+        else:
+            # as continuation
+            tag = 'p'
+            parser.current.append( E(tag, self.text.lstrip() ) )
 
 class AssembledParslet(ParaParslet):
 
@@ -424,6 +428,25 @@ class ZAHansardParser(object):
 
         nodes = [match(list(p)) for p in paras]
 
+        def transformParens(nodes):
+            result = []
+            a = nodes[0]
+            for b in nodes[1:]:
+                if ((type(b).__name__ == 'ParensParslet') and 
+                    (type(a).__name__ == 'ContinuationParslet') and
+                    (not re.compile('^\s*\d+\.').match(a.text))):
+                    if False:
+                        print >> sys.stderr, '   A %s' % a.text
+                        print >> sys.stderr, '   B %s' % b.text
+                        print >> sys.stderr
+                    result.append( TitleParslet(text=a.text) )
+                else:
+                    result.append( a )
+                a = b
+            result.append(b)
+            return result
+
+        nodes = transformParens(nodes)
         # TODO transformation step here! (i.e. the whole point of this refactor)
 
         for n in nodes:

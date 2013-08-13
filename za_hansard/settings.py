@@ -1,5 +1,12 @@
 # Django settings for za_hansard project.
 
+import os
+import yaml
+
+config_file = os.path.join(PROJECT_ROOT, 'conf', 'general.yml')
+with open(config_file) as f:
+        config = yaml.load(f)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -17,10 +24,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'za_hansard',
         # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'USER': config.get('ZAH_DB_USER', ''),
+        'PASSWORD': config.get('ZAH_DB_PASS', ''),
+        'HOST': config.get('ZAH_DB_HOST', ''), # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': config.get('ZAH_DB_PORT', ''), # Set to empty string for default.
     }
 }
 

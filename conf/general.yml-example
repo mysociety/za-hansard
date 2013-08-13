@@ -1,0 +1,25 @@
+# general-example:
+# Example values for the "general" config file.
+#
+# Configuration parameters, in YAML syntax.
+#
+# Copy this file to one called "general.yml" in the same directory.  Or
+# have multiple config files and use a symlink to change between them.
+#
+# Copyright (c) 2011 UK Citizens Online Democracy. All rights reserved.
+
+ZAH_DB_HOST: 'localhost'
+ZAH_DB_PORT: '5432'
+ZAH_DB_USER: ''
+ZAH_DB_NAME: ''
+ZAH_DB_PASS: ''
+
+STAGING: '1'
+
+TIME_ZONE: 'Europe/London'
+DJANGO_SECRET_KEY: ''
+
+# For local development, a good choice here is to set BASE_HOST
+# to '127.0.0.1.xip.io' and BASE_PORT to 8000
+BASE_HOST: ''
+BASE_PORT: ''

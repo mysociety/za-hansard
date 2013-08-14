@@ -9,3 +9,5 @@ psycopg2
 
 httplib2
 beautifulsoup4
+
+PyYAML

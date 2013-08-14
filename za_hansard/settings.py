@@ -28,7 +28,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'za_hansard',
+        'NAME': config.get('ZAH_DB_NAME', ''),
         # The following settings are not used with sqlite3:
         'USER': config.get('ZAH_DB_USER', ''),
         'PASSWORD': config.get('ZAH_DB_PASS', ''),

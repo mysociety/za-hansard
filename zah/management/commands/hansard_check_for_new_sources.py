@@ -26,14 +26,19 @@ class Command(BaseCommand):
             action='store_true',
             help='Stop when get as far back as first seen item',
         ),
+        make_option('--start-offset',
+            default=0,
+            type='int',
+            help='Offset to start checking from',
+        ),
         make_option('--limit',
             default=0,
             type='int',
-            help='Limit number of entries checked'),
+            help='Limit last entry to check'),
         )
 
     def handle(self, *args, **options):
-        sources = self.retrieve_sources(0, options)
+        sources = self.retrieve_sources(options['start_offset'], options)
         sources.reverse()
         sources_db = [Source.objects.get_or_create(**source) for source in sources]
         sources_count = len(sources)
@@ -113,8 +118,9 @@ class Command(BaseCommand):
                     scraped.append(s)
                     
             if pend < (options['limit'] or ptotal):
-                time.sleep(1)
-                scraped.append( self.retrieve_sources(pend, options) )
+                # NB following isn't phrased as a tail call, could rewrite if
+                # that becomes important
+                scraped = scraped + self.retrieve_sources(pend, options)
             return scraped
 
         except Exception as e:

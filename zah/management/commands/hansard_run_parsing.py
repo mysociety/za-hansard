@@ -48,9 +48,9 @@ class Command(BaseCommand):
             help='Retry download of previously 404\'d documents',
         ),
         make_option('--limit',
-            default=10,
+            default=0,
             type='int',
-            help='limit query (default 10)',
+            help='limit query (default 0 for none)',
         ),
     )
 
@@ -70,7 +70,7 @@ class Command(BaseCommand):
             sources = Source.objects.all().requires_processing()
 
         sources.defer('xml')
-        for s in sources[:limit]:
+        for s in (sources[:limit] if limit else sources):
         # for s in sources[:limit].iterator():
             if s.language != 'English':
                 self.stdout.write("Skipping non-English for now...") # fails date parsing, hehehe

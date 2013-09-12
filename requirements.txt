@@ -1,5 +1,4 @@
 lxml
-# libxslt-dev
 pytz
 django
 nose
@@ -11,3 +10,9 @@ httplib2
 beautifulsoup4
 
 PyYAML
+
+# mySoc modules
+-e git://github.com/mysociety/sayit#egg=sayit
+django-subdomain-instances
+popit-django
+-e git+https://github.com/mysociety/popit-resolver#egg=popit-resolver

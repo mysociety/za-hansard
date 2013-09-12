@@ -5,6 +5,7 @@ import httplib2
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from speeches.models import Section
 
 # NOTE: cargo culting from https://github.com/mysociety/mzalendo/blob/master/mzalendo/hansard/models/source.py
 
@@ -61,7 +62,9 @@ class Source(models.Model):
     last_processing_attempt = models.DateTimeField(blank=True, null=True)
     last_processing_success = models.DateTimeField(blank=True, null=True)
 
-    xml = models.TextField(null=True)
+    last_sayit_import = models.DateTimeField(blank=True, null=True)
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+        help_text='Associated Sayit section object, if imported')
 
     objects = SourceManager()
 

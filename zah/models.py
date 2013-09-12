@@ -160,3 +160,9 @@ class Source(models.Model):
         # create the path to the file
         cache_file_path = os.path.join(cache_dir, '-'.join([d, id_str, self.document_name]))
         return cache_file_path
+
+    def xml_file_path(self):
+        xml_file_path = '%s.xml' % self.cache_file_path()
+        if os.path.isfile(xml_file_path):
+            return xml_file_path
+        return None

@@ -320,10 +320,16 @@ class ZAHansardParser(object):
     @classmethod
     def parse(cls, document_path):
         
+        # oddly, antiword gives better results (punctuation, spaces around
+        # dates/numbers) under a C locale, but we will be running under utf8.
+        my_env = os.environ.copy()
+        my_env['LC_ALL'] = 'C'
+
         antiword = subprocess.Popen(
                 ['antiword', document_path],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT,
+                env=my_env)
         (stdoutdata, stderrdata) = antiword.communicate()
         if antiword.returncode:
             # e.g. not 0 (success) or None (still running) so presumably an error

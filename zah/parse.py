@@ -9,6 +9,12 @@ from datetime import datetime
 from lxml import etree
 from lxml import objectify
 
+def cleanLine(line):
+    line = line.rstrip(' _\n')
+    # NB: string.printable won't filter unicode correctly...
+    line = filter(lambda x: x in string.printable, line)
+    return line
+
 class DateParseException(Exception):
     pass
 
@@ -334,12 +340,6 @@ class ZAHansardParser(object):
         if antiword.returncode:
             # e.g. not 0 (success) or None (still running) so presumably an error
             raise ConversionException("Could not convert %s (%s)" % (document_path, stdoutdata.rstrip()))
-
-        def cleanLine(line):
-            line = line.rstrip(' _\n')
-            # NB: string.printable won't filter unicode correctly...
-            line = filter(lambda x: x in string.printable, line)
-            return line
 
         # lines = imap(cleanLine, iter(antiword.stdout.readline, b''))
         lines = imap(cleanLine, iter(stdoutdata.split('\n')))

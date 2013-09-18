@@ -13,6 +13,9 @@ config_file = os.path.join(PROJECT_ROOT, 'conf', 'general.yml')
 with open(config_file) as f:
         config = yaml.load(f)
 
+PMG_COMMITTEE_USER = config.get('PMG_COMMITTEE_USER')
+PMG_COMMITTEE_PASS = config.get('PMG_COMMITTEE_PASS')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -178,3 +181,4 @@ LOGGING = {
         },
     }
 }
+

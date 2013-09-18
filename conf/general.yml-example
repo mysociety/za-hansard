@@ -23,3 +23,7 @@ DJANGO_SECRET_KEY: ''
 # to '127.0.0.1.xip.io' and BASE_PORT to 8000
 BASE_HOST: ''
 BASE_PORT: ''
+
+# Username and password for pmg_scraper command
+PMG_COMMITTEE_USER: ''
+PMG_COMMITTEE_PASS: ''

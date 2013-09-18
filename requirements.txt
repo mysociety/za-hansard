@@ -16,3 +16,6 @@ PyYAML
 django-subdomain-instances
 popit-django
 -e git+https://github.com/mysociety/popit-resolver#egg=popit-resolver
+
+# For committee minutes parser
+parslepy

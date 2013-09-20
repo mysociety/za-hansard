@@ -6,16 +6,18 @@ import csv
 import json
 from bs4 import BeautifulSoup
 import sys
-import sqlite3
 import time
 import cookielib
 import urllib
+
+from datetime import datetime
 
 from optparse import make_option
 
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
+from zah.models import PMGCommitteeReport, PMGCommitteeAppearance
 
 class Command(BaseCommand):
 
@@ -27,15 +29,16 @@ class Command(BaseCommand):
     reportschecked=0
     reportsprocessed=0
     appearancesadded=0
+    totalappearances=0 # seems to be reset later, not really a good global
     c = None
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
 
     help = 'Check for new sources'
     option_list = BaseCommand.option_list + (
-        make_option('--foo',
+        make_option('--json',
             default=False,
             action='store_true',
-            help='etc.',
+            help='Whether to write JSON or not',
         ),
     )
 
@@ -65,7 +68,6 @@ class Command(BaseCommand):
             'name': settings.PMG_COMMITTEE_USER,
             'pass': settings.PMG_COMMITTEE_PASS,
             }
-        print >> sys.stderr, str(data)
         encodedata = urllib.urlencode(data)
         req = urllib2.Request('http://www.pmg.org.za/user/login', encodedata)
         resp = urllib2.urlopen(req)
@@ -89,13 +91,10 @@ class Command(BaseCommand):
         p = parslepy.Parselet(committees_rules)
         parsedcommittees = p.parse_fromstring(contents)
 
-        print 'Started'
+        self.stdout.write('Started')
         for ctype in parsedcommittees['committee_types']: 
             for committee in ctype['committees']:
                 self.numcommittees = self.numcommittees + 1
-                
-                conn = sqlite3.connect('pmg.sqlite')
-                self.c = conn.cursor()
                 
                 try:
                     self.processCommittee(
@@ -103,7 +102,7 @@ class Command(BaseCommand):
                         committee['name'])
                 except urllib2.HTTPError: 
                     #if there is an http error, just ignore this committee this time
-                    print 'HTTPERROR '+committee['name']
+                    self.stderr.write('HTTPERROR '+committee['name'])
                     pass
                 self.updateprocess()
                 self.committees.append({
@@ -112,30 +111,28 @@ class Command(BaseCommand):
                     "type": ctype['type']
                     })
                 
-                conn.commit()
-                conn.close()
-                #break
-            #break
+        if options['json']:
+            with open('committees_json.json', 'w') as outfile:
+              json.dump(self.committees, outfile)
+              
+            with open('members_json.json', 'w') as outfile:
+              json.dump(self.allmembers, outfile)
 
-        with open('committees_json.json', 'w') as outfile:
-          json.dump(self.committees,outfile)
-          
-        with open('members_json.json', 'w') as outfile:
-          json.dump(self.allmembers,outfile)
-
-        with open('reports_json.json', 'w') as outfile:
-          json.dump(self.allreports,outfile)
-          
-        with open('appearances_json.json', 'w') as outfile:
-          json.dump(self.allappearances,outfile)
+            with open('reports_json.json', 'w') as outfile:
+              json.dump(self.allreports, outfile)
+              
+            with open('appearances_json.json', 'w') as outfile:
+              json.dump(self.allappearances, outfile)
 
     def updateprocess(self):
-        print ('\rCommittee %d, Checked %d Reports, Processed %d, %d Appearances' 
+        self.stdout.write('\rCommittee %d, Checked %d Reports, Processed %d, %d Appearances' 
             % (self.numcommittees, self.reportschecked, self.reportsprocessed, self.appearancesadded))
-        #sys.stdout.flush()
 
     def processReport(self, url,committeeName,committeeURL,meetingDate): 
         #get the appearances in the report
+
+        meetingDate = datetime.strptime(meetingDate, '%d %b %Y').strftime('%Y-%m-%d')
+
         self.reportsprocessed = self.reportsprocessed + 1
         self.updateprocess()
         report_rules = {
@@ -147,7 +144,7 @@ class Command(BaseCommand):
         contents = page.read()
         p = parslepy.Parselet(report_rules)
         report = p.parse_fromstring(contents)
-        totalappearances=0
+        self.totalappearances=0
         
         soup = BeautifulSoup(contents) 
         #use BeautifulSoup due to issues with <br/> divisions when using Parslepy
@@ -165,8 +162,7 @@ class Command(BaseCommand):
         if len(paragraphs)<3 and len(report['paragraphs'])>1:
             paragraphs = report['paragraphs']
             
-        t = (url,)
-        self.c.execute('DELETE FROM appearances WHERE meeting_url=?', t)
+        PMGCommitteeAppearance.objects.filter(meeting_url = url).delete()
         
         if 'chairperson' not in report:
             report['chairperson']=""
@@ -178,35 +174,23 @@ class Command(BaseCommand):
         if len(chairs)>1:
             for chair in chairs:
                 save={
-                    'meetingdate': meetingDate,
-                    'committeeurl': committeeURL,
-                    'committeename': committeeName,
-                    'report': report['heading'],
-                    'party': chair[2],
-                    'personname': chair[1],
-                    'reporturl': url,
+                    'meeting_date': meetingDate,
+                    'committee_url': committeeURL,
+                    'committee': committeeName,
+                    'meeting': report['heading'],
+                    'party':  chair[2],
+                    'person': chair[1],
+                    'meeting_url': url,
                     'text': re.sub('<[^>]*>', '', 
                         '%s %s (%s) chaired the meeting.' % (
                             chair[0], chair[1], chair[2]))
                     }
-                t = (
-                    None, 
-                    save['meetingdate'], 
-                    save['committeeurl'],
-                    save['committeename'],
-                    save['report'],
-                    save['party'],
-                    save['personname'],
-                    save['reporturl'],
-                    save['text'],
-                    )
-                self.c.execute(
-                    'INSERT INTO appearances VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', t)
+                PMGCommitteeAppearance.objects.create(**save)
 
                 self.appearancesadded = self.appearancesadded + 1
 
                 self.allappearances.append(save)
-                self.totalappearances=self.totalappearances + 1
+                self.totalappearances = self.totalappearances + 1
                 
         if len(chairs) is 1:
             findchair=True
@@ -222,84 +206,58 @@ class Command(BaseCommand):
                     name=found[1]
                     party=found[2]
                     
-                    t = (name, url)
-                    self.c.execute(
-                        "SELECT * FROM appearances WHERE person=? and meeting_url=?",
-                        t)
-                    check=self.c.fetchone()
-                    if check:
-                        break
                     save={
-                        'meetingdate': meetingDate,
-                        'committeeurl': committeeURL,
-                        'committeename': committeeName,
-                        'report': report['heading'],
+                        'meeting_date': meetingDate,
+                        'committee_url': committeeURL,
+                        'committee': committeeName,
+                        'meeting': report['heading'],
                         'party': party,
-                        'personname': name,
-                        'reporturl': url,
+                        'person': name,
+                        'meeting_url': url,
                         'text': re.sub('<[^>]*>', '', paragraph)
                             .replace("Discussion\n",'')
                             .replace("Apologies\n",'')
                             .replace("Minutes:\n",'')
                             .replace("\n",''),
                          }
-                    
-                    t = (
-                        None, 
-                        save['meetingdate'], 
-                        save['committeeurl'],
-                        save['committeename'],
-                        save['report'],
-                        save['party'],
-                        save['personname'],
-                        save['reporturl'],
-                        save['text'],
+
+                    (obj, created) = PMGCommitteeAppearance.objects.get_or_create(
+                        person = name,
+                        meeting_url = url,
+                        defaults = save,
                         )
-                    self.c.execute(
-                        'INSERT INTO appearances VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        t)
+                    
+                    if created:
+                        self.appearancesadded = self.appearancesadded + 1
 
-                    self.appearancesadded = appearancesadded + 1
-
-                    self.allappearances.append(save)
-                    self.totalappearances = self.totalappearances + 1
+                        self.allappearances.append(save)
+                        self.totalappearances = self.totalappearances + 1
             
             if findchair:
                 if "The Chairperson" in paragraph:
                     findchair=False
+
                     save={
-                        'meetingdate': meetingDate,
-                        'committeeurl': committeeURL, 
-                        'committeename': committeeName, 
-                        'report': report['heading'],
+                        'meeting_date': meetingDate,
+                        'committee_url': committeeURL, 
+                        'committee': committeeName, 
+                        'meeting': report['heading'],
                         'party': chairs[0][2],
-                        'personname': chairs[0][1],
-                        'reporturl': url,
+                        'person': chairs[0][1],
+                        'meeting_url': url,
                         'text': re.sub('<[^>]*>', '', paragraph)
                             .replace("Apologies\n",'')
                             .replace("Minutes:\n",'')
                             .replace("\n",' '),
                         }
-                    t = (
-                        None, 
-                        save['meetingdate'], 
-                        save['committeeurl'],
-                        save['committeename'],
-                        save['report'],
-                        save['party'],
-                        save['personname'],
-                        save['reporturl'],
-                        save['text'],
-                        )
-                    self.c.execute('INSERT INTO appearances VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',t)
+
+                    obj = PMGCommitteeAppearance.objects.create(**save)
                     self.appearancesadded = self.appearancesadded + 1
                     self.allappearances.append(save)
                     self.totalappearances = self.totalappearances + 1
                 
-        t = (1,url,)
-        if totalappearances>0:
-            self.c.execute("UPDATE reports SET processed=? WHERE meeting_url=?",t)
-        
+        if self.totalappearances > 0:
+            PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
     def processReports(self, url,processingcommitteeName,processingcommitteeURL): 
         #get reports on this page, process them, proceed to next page
@@ -324,7 +282,6 @@ class Command(BaseCommand):
             self.updateprocess()
             if "date" in report:
                 self.reportschecked = self.reportschecked + 1
-                #print report['date']
                 if report['date'] != '' and report['date'] != '':
                     if (len(report)>0 and "date" in report 
                         and "meeting" in report and "url" in report 
@@ -335,31 +292,37 @@ class Command(BaseCommand):
                             "meeting": report['meeting'],
                             "url": report['url'],
                             "committee": processingcommitteeName})
-                        t = ('http://www.pmg.org.za'+report['url'],)
-                        self.c.execute(
-                            "SELECT processed FROM reports WHERE meeting_url=?", t)
-                        row=self.c.fetchone()
+
+                        meeting_url = 'http://www.pmg.org.za'+report['url']
+                        try:
+                            row = PMGCommitteeReport.objects.filter(
+                                meeting_url = meeting_url)[0]
+                        except IndexError:
+                            row = None
+
                         if not row:
+
                             if not 'image' in report:
                                 report['image']=''
+
                             if 'tick.png' in report['image']:
                                 ispremium=0
                             else:
                                 ispremium=1
-                            t = (
-                                ispremium,
-                                # None,
-                                0,
-                                'http://www.pmg.org.za'+report['url']
-                                )
-                            self.c.execute(
-                                "INSERT INTO reports (premium, processed, meeting_url) VALUES (?,?, ?)", t)
+
+                            PMGCommitteeReport.objects.create(
+                                premium = ispremium,
+                                processed = False,
+                                meeting_url = meeting_url)
+
                             self.processReport(
                                 'http://www.pmg.org.za'+report['url'],
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
-                        elif row[0] is 0:
+
+                        elif not row.processed:
+
                             self.processReport(
                                 'http://www.pmg.org.za'+report['url'],
                                 processingcommitteeName,

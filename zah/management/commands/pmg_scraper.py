@@ -10,7 +10,7 @@ import time
 import cookielib
 import urllib
 
-from datetime import datetime
+from datetime import datetime, date
 
 from optparse import make_option
 
@@ -21,6 +21,30 @@ from zah.models import PMGCommitteeReport, PMGCommitteeAppearance
 
 class Command(BaseCommand):
 
+    help = 'Check for new sources'
+    option_list = BaseCommand.option_list + (
+        make_option('--scrape',
+            default=False,
+            action='store_true',
+            help='Scrape committee minutes',
+        ),
+        make_option('--scrape-with-json',
+            default=False,
+            action='store_true',
+            help='Write JSON summaries (implies --scrape)',
+        ),
+        make_option('--save-json',
+            default=False,
+            action='store_true',
+            help='Save JSON from already scraped ',
+        ),
+        make_option('--import-new-to-sayit',
+            default=False,
+            action='store_true',
+            help='Import newly processed documents to ',
+        ),
+    )
+
     committees = []
     allmembers = []
     allreports = []
@@ -30,20 +54,23 @@ class Command(BaseCommand):
     reportsprocessed=0
     appearancesadded=0
     totalappearances=0 # seems to be reset later, not really a good global
-    c = None
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
-
-    help = 'Check for new sources'
-    option_list = BaseCommand.option_list + (
-        make_option('--json',
-            default=False,
-            action='store_true',
-            help='Whether to write JSON or not',
-        ),
-    )
 
     def handle(self, *args, **options):
 
+        if options['scrape_with_json']:
+            options['scrape'] = True
+        if options['import_new_to_sayit']:
+            options['save_json'] = True
+
+        if options['scrape']:
+            self.scrape(*args, **options)
+        elif options['save_json']:
+            self.save_json(*args, **options)
+        else:
+            raise CommandError('Supply either --scrape or --save-json')
+
+    def scrape(self, *args, **options):
         #before anything starts - login so that we can access premium content
         login_rules = {
             "heading": "h1.title",
@@ -111,7 +138,7 @@ class Command(BaseCommand):
                     "type": ctype['type']
                     })
                 
-        if options['json']:
+        if options['scrape_with_json']:
             with open('committees_json.json', 'w') as outfile:
               json.dump(self.committees, outfile)
               
@@ -128,10 +155,10 @@ class Command(BaseCommand):
         self.stdout.write('\rCommittee %d, Checked %d Reports, Processed %d, %d Appearances' 
             % (self.numcommittees, self.reportschecked, self.reportsprocessed, self.appearancesadded))
 
-    def processReport(self, url,committeeName,committeeURL,meetingDate): 
+    def processReport(self, row, url,committeeName,committeeURL,meetingDate): 
         #get the appearances in the report
 
-        meetingDate = datetime.strptime(meetingDate, '%d %b %Y').strftime('%Y-%m-%d')
+        meetingDate = datetime.strptime(meetingDate, '%d %b %Y').strftime('%Y-%m-%d').date()
 
         self.reportsprocessed = self.reportsprocessed + 1
         self.updateprocess()
@@ -162,7 +189,7 @@ class Command(BaseCommand):
         if len(paragraphs)<3 and len(report['paragraphs'])>1:
             paragraphs = report['paragraphs']
             
-        PMGCommitteeAppearance.objects.filter(meeting_url = url).delete()
+        PMGCommitteeAppearance.objects.filter(report = row).delete()
         
         if 'chairperson' not in report:
             report['chairperson']=""
@@ -174,6 +201,7 @@ class Command(BaseCommand):
         if len(chairs)>1:
             for chair in chairs:
                 save={
+                    'report': row,
                     'meeting_date': meetingDate,
                     'committee_url': committeeURL,
                     'committee': committeeName,
@@ -207,6 +235,7 @@ class Command(BaseCommand):
                     party=found[2]
                     
                     save={
+                        'report': row,
                         'meeting_date': meetingDate,
                         'committee_url': committeeURL,
                         'committee': committeeName,
@@ -238,6 +267,7 @@ class Command(BaseCommand):
                     findchair=False
 
                     save={
+                        'report': row,
                         'meeting_date': meetingDate,
                         'committee_url': committeeURL, 
                         'committee': committeeName, 
@@ -310,12 +340,13 @@ class Command(BaseCommand):
                             else:
                                 ispremium=1
 
-                            PMGCommitteeReport.objects.create(
+                            row = PMGCommitteeReport.objects.create(
                                 premium = ispremium,
                                 processed = False,
                                 meeting_url = meeting_url)
 
                             self.processReport(
+                                row,
                                 'http://www.pmg.org.za'+report['url'],
                                 processingcommitteeName,
                                 processingcommitteeURL,
@@ -324,6 +355,7 @@ class Command(BaseCommand):
                         elif not row.processed:
 
                             self.processReport(
+                                row,
                                 'http://www.pmg.org.za'+report['url'],
                                 processingcommitteeName,
                                 processingcommitteeURL,
@@ -371,3 +403,60 @@ class Command(BaseCommand):
             self.allmembers.append(member)
         
         self.processReports( url, processingcommitteeName, url )
+
+    def save_json(self, *args, **options):
+
+        reports = PMGCommitteeReport.objects.all()
+
+        for report in reports:
+            tosave={
+                    'committee_url': '',
+                    'committee': '',
+                    'meeting': '',
+                    'meeting_url': '',
+                    'meeting_date': '',
+                    'premium':''
+                    }
+
+            speeches = []
+            for row in report.appearances.all():
+
+                if (tosave['committee_url'] not in ['', row.committee_url] or 
+                    tosave['committee'] not in ['', row.committee] or 
+                    tosave['meeting'] not in ['', row.meeting] or 
+                    tosave['meeting_url'] not in ['', row.meeting_url] or  
+                    tosave['meeting_date'] not in ['', row.meeting_date]):
+
+                    self.stderr.write('ERROR: unexpected data')
+
+                # slightly odd logic, we're updating this every time..., will rewrite
+                tosave={
+                        'committee_url': row.committee_url,
+                        'committee': row.committee,
+                        'meeting': row.meeting,
+                        'meeting_url': row.meeting_url,
+                        'meeting_date': row.meeting_date,
+                        'premium': report.premium,
+                        }
+
+                speech = {
+                        'party': row.party,
+                        'person': row.person,
+                        'text': row.text,
+                        }
+                speeches.append(speech)
+
+            filename= 'data/%d.json' % row.id
+            tosave['speeches'] = speeches
+
+            with open(filename, 'w') as outfile:
+                json.dump(tosave, outfile, indent=1, cls=DateEncoder)
+
+class DateEncoder (json.JSONEncoder):
+
+    def default (self, obj):
+
+        if isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+
+        return json.JSONEncoder.default(self, obj)

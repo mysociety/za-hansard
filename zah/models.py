@@ -17,6 +17,13 @@ try:
 except AttributeError:
     raise ImproperlyConfigured("Could not find HANSARD_CACHE setting - please set it")
 
+try:
+    COMMITTEE_CACHE = settings.COMMITTEE_CACHE
+    if not os.path.exists( COMMITTEE_CACHE ):
+        os.makedirs( COMMITTEE_CACHE )
+except AttributeError:
+    raise ImproperlyConfigured("Could not find COMMITTEE_CACHE setting - please set it")
+
 
 # EXCEPTIONS
 
@@ -167,6 +174,16 @@ class Source(models.Model):
             return xml_file_path
         return None
 
+class PMGCommitteeReport(models.Model):
+    """
+    Committe reports, scraped from PMG site
+    """
+    # CREATE TABLE reports (id integer primary key autoincrement, premium BOOL,
+    # processed NUMERIC, meeting_url TEXT);
+    premium         = models.BooleanField()
+    processed       = models.BooleanField()
+    meeting_url     = models.TextField()
+
 class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site
@@ -181,15 +198,9 @@ class PMGCommitteeAppearance(models.Model):
     party           = models.TextField()
     person          = models.TextField()
     meeting_url     = models.TextField()
-    text            = models.TextField()
-    
+    report = models.ForeignKey(PMGCommitteeReport, 
+        null=True,
+        on_delete=models.CASCADE, 
+        related_name='appearances')
 
-class PMGCommitteeReport(models.Model):
-    """
-    Committe reports, scraped from PMG site
-    """
-    # CREATE TABLE reports (id integer primary key autoincrement, premium BOOL,
-    # processed NUMERIC, meeting_url TEXT);
-    premium         = models.BooleanField()
-    processed       = models.BooleanField()
-    meeting_url     = models.TextField()
+    text            = models.TextField()

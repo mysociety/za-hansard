@@ -18,6 +18,7 @@ from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
 from zah.models import PMGCommitteeReport, PMGCommitteeAppearance
+from speeches.importers.import_json import ImportJson
 
 class Command(BaseCommand):
 
@@ -38,10 +39,10 @@ class Command(BaseCommand):
             action='store_true',
             help='Save JSON from already scraped ',
         ),
-        make_option('--import-new-to-sayit',
+        make_option('--import-to-sayit',
             default=False,
             action='store_true',
-            help='Import newly processed documents to ',
+            help='Import documents to sayit',
         ),
     )
 
@@ -60,15 +61,18 @@ class Command(BaseCommand):
 
         if options['scrape_with_json']:
             options['scrape'] = True
-        if options['import_new_to_sayit']:
-            options['save_json'] = True
+
+        if not len([ i for i in ['scrape', 'save_json', 'import_to_sayit'] if i]):
+            raise CommandError('Supply --scrape, --save-json, or --import-to-sayit')
 
         if options['scrape']:
             self.scrape(*args, **options)
-        elif options['save_json']:
+
+        if options['save_json']:
             self.save_json(*args, **options)
-        else:
-            raise CommandError('Supply either --scrape or --save-json')
+
+        if options['import_to_sayit']:
+            options['import_to_sayit']
 
     def scrape(self, *args, **options):
         #before anything starts - login so that we can access premium content
@@ -446,11 +450,41 @@ class Command(BaseCommand):
                         }
                 speeches.append(speech)
 
-            filename= 'data/%d.json' % row.id
             tosave['speeches'] = speeches
 
+            filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
             with open(filename, 'w') as outfile:
                 json.dump(tosave, outfile, indent=1, cls=DateEncoder)
+
+    def import_to_sayit(self, *args, **options):
+
+        sections = []
+        sources = PMGCommitteeReport.objects.filter(sayit_section = None)
+
+        for row in sources:
+            filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
+            if not os.path.exists(filename):
+                continue
+
+            importer = ImportJson
+            try:
+                self.stderr.write("TRYING %d\n" % row.id)
+                section = importer.import_document(filename)
+                sections.append(section)
+                s.sayit_section = section
+                s.last_sayit_import = datetime.datetime.now().date()
+                s.save()
+
+            except Exception as e:
+                self.stderr.write('WARN: failed to import %d: %s' % 
+                    (s.id, str(e)))
+
+            self.stdout.write( str( [s.id for s in sections] ) )
+            self.stdout.write( '\n' )
+
+            self.stdout.write('Imported %d / %d sections\n' %
+                (len(sections), len(sources)))
+
 
 class DateEncoder (json.JSONEncoder):
 

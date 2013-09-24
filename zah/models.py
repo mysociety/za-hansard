@@ -184,6 +184,10 @@ class PMGCommitteeReport(models.Model):
     processed       = models.BooleanField()
     meeting_url     = models.TextField()
 
+    last_sayit_import = models.DateTimeField(blank=True, null=True)
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+        help_text='Associated Sayit section object, if imported')
+
 class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site

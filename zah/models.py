@@ -206,5 +206,40 @@ class PMGCommitteeAppearance(models.Model):
         null=True,
         on_delete=models.CASCADE, 
         related_name='appearances')
-
     text            = models.TextField()
+
+class Answer (models.Model):
+    number_oral = models.IntegerField()
+    text = models.TextField()
+    processed = models.BooleanField()
+    name = models.TextField()
+    language = models.TextField()
+    url = models.TextField()
+    house = models.TextField()
+    number_written = models.IntegerField()
+    date = models.DateField()
+    type = models.TextField()
+
+class Question (models.Model):
+    answer = models.ForeignKey(Answer,
+        null=True,
+        on_delete=models.CASCADE, 
+        related_name='question')
+    house = models.TextField()
+    session = models.TextField()
+    number1 = models.TextField()
+    number2 = models.TextField()
+    date = models.DateField()
+    title = models.TextField()
+    question = models.TextField()
+    questionto = models.TextField()
+    source = models.TextField()
+    translated = models.IntegerField()
+    document = models.TextField()
+    type = models.TextField()
+    intro = models.TextField()
+    parliament = models.TextField()
+    askedby = models.TextField()
+
+
+#CREATE TABLE completed_documents (`url` string);

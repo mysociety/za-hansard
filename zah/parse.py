@@ -9,6 +9,8 @@ from datetime import datetime
 from lxml import etree
 from lxml import objectify
 
+from django.template.defaultfilters import slugify
+
 def cleanLine(line):
     line = line.rstrip(' _\n')
     # NB: string.printable won't filter unicode correctly...
@@ -471,7 +473,7 @@ class ZAHansardParser(object):
                 E.debateSection(
                     E.heading(line, id='dbh0'),
                     id='db0',
-                    name=self.slug(line)))
+                    name=slugify(line)))
         self.akomaNtoso.debate.append( elem )
         self.akomaNtoso.debate.set('name', line)
         self.current = elem.debateSection
@@ -485,7 +487,7 @@ class ZAHansardParser(object):
             E.heading(line,
                 id='dbsh%d'% self.subSectionCount),
             id='dbs%d' % self.subSectionCount,
-            name=self.slug(line))
+            name=slugify(line))
         self.akomaNtoso.debate.debateBody.debateSection.append(elem)
         self.current = elem
 
@@ -494,7 +496,7 @@ class ZAHansardParser(object):
         speaker = self.speakers.get(name)
         if speaker:
             return speaker
-        slug = self.slug(name)
+        slug = slugify(name)
         self.speakers[name] = slug
         E = self.E
         self.akomaNtoso.debate.meta.references.append(
@@ -503,7 +505,3 @@ class ZAHansardParser(object):
                     showAs=name,
                     href='http://dummy/popit/path/%s' % slug ))
         return slug
-
-    def slug(self, line):
-        return re.sub('\W+', '-', line.lower())
-

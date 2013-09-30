@@ -56,23 +56,23 @@
         <TLCPerson href="http://dummy/popit/path/mr-k-j-dikobo" id="mr-k-j-dikobo" showAs="Mr K J DIKOBO"/>
         <TLCPerson href="http://dummy/popit/path/mr-n-t-godi" id="mr-n-t-godi" showAs="Mr N T GODI"/>
         <TLCPerson href="http://dummy/popit/path/mr-i-s-mfundisi" id="mr-i-s-mfundisi" showAs="Mr I S MFUNDISI"/>
-        <TLCPerson href="http://dummy/popit/path/mr-l-suka-anc-" id="mr-l-suka-anc-" showAs="Mr L SUKA (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/the-leader-of-the-opposition-da-" id="the-leader-of-the-opposition-da-" showAs="The LEADER OF THE OPPOSITION (DA)"/>
-        <TLCPerson href="http://dummy/popit/path/mrs-j-d-kilian-cope-" id="mrs-j-d-kilian-cope-" showAs="Mrs J D KILIAN (Cope)"/>
-        <TLCPerson href="http://dummy/popit/path/ms-n-n-p-mkhulusi-anc-" id="ms-n-n-p-mkhulusi-anc-" showAs="Ms N N P MKHULUSI (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/mrs-c-n-z-zikalala-ifp-" id="mrs-c-n-z-zikalala-ifp-" showAs="Mrs C N Z ZIKALALA (IFP)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-l-w-greyling-id-" id="mr-l-w-greyling-id-" showAs="Mr L W GREYLING (ID)"/>
-        <TLCPerson href="http://dummy/popit/path/ms-b-t-ngcobo-anc-" id="ms-b-t-ngcobo-anc-" showAs="Ms B T NGCOBO (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/rev-k-r-j-meshoe-acdp-" id="rev-k-r-j-meshoe-acdp-" showAs="Rev K R J MESHOE (ACDP)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-l-suka-anc" id="mr-l-suka-anc" showAs="Mr L SUKA (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/the-leader-of-the-opposition-da" id="the-leader-of-the-opposition-da" showAs="The LEADER OF THE OPPOSITION (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/mrs-j-d-kilian-cope" id="mrs-j-d-kilian-cope" showAs="Mrs J D KILIAN (Cope)"/>
+        <TLCPerson href="http://dummy/popit/path/ms-n-n-p-mkhulusi-anc" id="ms-n-n-p-mkhulusi-anc" showAs="Ms N N P MKHULUSI (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mrs-c-n-z-zikalala-ifp" id="mrs-c-n-z-zikalala-ifp" showAs="Mrs C N Z ZIKALALA (IFP)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-l-w-greyling-id" id="mr-l-w-greyling-id" showAs="Mr L W GREYLING (ID)"/>
+        <TLCPerson href="http://dummy/popit/path/ms-b-t-ngcobo-anc" id="ms-b-t-ngcobo-anc" showAs="Ms B T NGCOBO (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/rev-k-r-j-meshoe-acdp" id="rev-k-r-j-meshoe-acdp" showAs="Rev K R J MESHOE (ACDP)"/>
         <TLCPerson href="http://dummy/popit/path/the-deputy-speaker" id="the-deputy-speaker" showAs="The DEPUTY SPEAKER"/>
-        <TLCPerson href="http://dummy/popit/path/dr-w-g-james-da-" id="dr-w-g-james-da-" showAs="Dr W G JAMES (DA)"/>
-        <TLCPerson href="http://dummy/popit/path/mrs-s-t-williams-de-bruyn-anc-" id="mrs-s-t-williams-de-bruyn-anc-" showAs="Mrs S T WILLIAMS-DE BRUYN (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-a-m-mpontshane-ifp-" id="mr-a-m-mpontshane-ifp-" showAs="Mr A M MPONTSHANE (IFP)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-g-b-d-mc-intosh-cope-" id="mr-g-b-d-mc-intosh-cope-" showAs="Mr G B D MC INTOSH (Cope)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-m-i-malale-anc-" id="mr-m-i-malale-anc-" showAs="Mr M I MALALE (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/dr-d-t-george-da-" id="dr-d-t-george-da-" showAs="Dr D T GEORGE (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/dr-w-g-james-da" id="dr-w-g-james-da" showAs="Dr W G JAMES (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/mrs-s-t-williams-de-bruyn-anc" id="mrs-s-t-williams-de-bruyn-anc" showAs="Mrs S T WILLIAMS-DE BRUYN (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-a-m-mpontshane-ifp" id="mr-a-m-mpontshane-ifp" showAs="Mr A M MPONTSHANE (IFP)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-g-b-d-mc-intosh-cope" id="mr-g-b-d-mc-intosh-cope" showAs="Mr G B D MC INTOSH (Cope)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-m-i-malale-anc" id="mr-m-i-malale-anc" showAs="Mr M I MALALE (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/dr-d-t-george-da" id="dr-d-t-george-da" showAs="Dr D T GEORGE (DA)"/>
         <TLCPerson href="http://dummy/popit/path/dr-d-t-george" id="dr-d-t-george" showAs="Dr D T GEORGE"/>
-        <TLCPerson href="http://dummy/popit/path/mrs-l-s-makhubela-mashele-anc-" id="mrs-l-s-makhubela-mashele-anc-" showAs="Mrs L S MAKHUBELA-MASHELE (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mrs-l-s-makhubela-mashele-anc" id="mrs-l-s-makhubela-mashele-anc" showAs="Mrs L S MAKHUBELA-MASHELE (ANC)"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-trade-and-industry" id="the-minister-of-trade-and-industry" showAs="The MINISTER OF TRADE AND INDUSTRY"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-higher-education-and-training" id="the-minister-of-higher-education-and-training" showAs="The MINISTER OF HIGHER EDUCATION AND TRAINING"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-science-and-technology" id="the-minister-of-science-and-technology" showAs="The MINISTER OF SCIENCE AND TECHNOLOGY"/>
@@ -105,7 +105,7 @@
         <prayers id="prayers">
           <p>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000-">
+        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000">
           <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS - see col 000.</heading>
         </debateSection>
         <debateSection id="dbs2" name="new-members">
@@ -199,7 +199,7 @@
             <p>That the House debates the shortage of staff and infrastructural and capacity problems experienced at Home Affairs and solutions to resolve this situation.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs5" name="image-of-nelson-mandela-to-appear-on-south-africa-s-new-currency-notes">
+        <debateSection id="dbs5" name="image-of-nelson-mandela-to-appear-on-south-africas-new-currency-notes">
           <heading id="dbsh5">IMAGE OF NELSON MANDELA TO APPEAR ON SOUTH AFRICA'S NEW CURRENCY NOTES (Draft Resolution)</heading>
           <speech by="#the-chief-whip-of-the-majority-party">
             <from>The CHIEF WHIP OF THE MAJORITY PARTY</from>
@@ -279,7 +279,7 @@
             <p>Agreed to.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs11" name="south-africa-s-constitution-celebrates-its-15th-birthday-this-year">
+        <debateSection id="dbs11" name="south-africas-constitution-celebrates-its-15th-birthday-this-year">
           <heading id="dbsh11">SOUTH AFRICA'S CONSTITUTION CELEBRATES ITS 15TH BIRTHDAY THIS YEAR (Draft Resolution)</heading>
           <speech by="#the-chief-whip-of-the-majority-party">
             <from>The CHIEF WHIP OF THE MAJORITY PARTY</from>
@@ -474,7 +474,7 @@
         </debateSection>
         <debateSection id="dbs16" name="attitude-displayed-by-da-at-information-bill-hearings">
           <heading id="dbsh16">ATTITUDE DISPLAYED BY DA AT INFORMATION BILL HEARINGS (Member's Statement)</heading>
-          <speech by="#mr-l-suka-anc-">
+          <speech by="#mr-l-suka-anc">
             <from>Mr L SUKA (ANC)</from>
             <p>Madam Deputy Speaker, on behalf of the ANC I want to place on record that the attitude displayed by the DA's Gauteng regional leader, Solly Msimanga, towards community members at the recent Protection of State Information Bill hearings in Mamelodi is indicative of the condescending and insensitive manner with which the DA views the suffering of our people.</p>
             <p>At the hearings, Mr Msimanga accused and insulted some of those present by suggesting that they attended the hearings only because they were promised food and T-shirts. He and those of his ilk in the DA showed contempt for our people by questioning the intelligence of our people. In their insulting opinion, the people present at the hearings did not attend because they cared about their country and were interested in issues that affected them, but attended simply because they could be bought with food and clothing.</p>
@@ -484,7 +484,7 @@
         </debateSection>
         <debateSection id="dbs17" name="review-of-powers-of-constitutional-court">
           <heading id="dbsh17">REVIEW OF POWERS OF CONSTITUTIONAL COURT (Member's Statement)</heading>
-          <speech by="#the-leader-of-the-opposition-da-">
+          <speech by="#the-leader-of-the-opposition-da">
             <from>The LEADER OF THE OPPOSITION (DA)</from>
             <p>Madam Deputy Speaker, President Zuma's remarks last week to the effect that his government intends to review the powers of the Constitutional Court are not only a serious affront to the principle of the separation of powers, but also undermine public confidence in the executive's commitment to upholding the Constitution.</p>
             <p>The Minister of Justice and Constitutional Development, the hon Jeff Radebe, has already set out plans to "review the impact of Constitutional Court decisions over the past 17 years". How is it that the executive can initiate a review of the decisions of another arm of state when it has itself been the subject of some of these decisions?</p>
@@ -494,7 +494,7 @@
         </debateSection>
         <debateSection id="dbs18" name="interview-with-chief-whip-of-majority-party-in-rapport-newspaper">
           <heading id="dbsh18">INTERVIEW WITH CHIEF WHIP OF MAJORITY PARTY IN RAPPORT NEWSPAPER (Member's Statement)</heading>
-          <speech by="#mrs-j-d-kilian-cope-">
+          <speech by="#mrs-j-d-kilian-cope">
             <from>Mrs J D KILIAN (Cope)</from>
             <p>Madam Deputy Speaker, in an interview in Rapport published two days ago, on Sunday, the Chief Whip of the Majority Party in the National Assembly, Dr Matole Motshekga, again tried to justify government's focused campaign to undermine the independence of the judiciary. He made some profound statements, such as that certain people wanted to hand over the powers of Parliament and President Zuma to the courts; that South Africa was being transformed into a one-party state with unelected people at the helm; and that President Zuma's recent statement that government wanted to review the powers of the Constitutional Court was not unconstitutional or out of order, but that such statements were simply a reflection of public concern over the powers of the courts.</p>
             <p>He also said that for most people it appeared that government had to ask the permission of the courts before it did anything, although government derived its mandate from the people while the courts comprised a handful of appointed people. He also said elements that use the courts for their narrow interests and to prevent transformation were totally out of order and that political parties ran to court to challenge Bills before Parliament.</p>
@@ -503,7 +503,7 @@
         </debateSection>
         <debateSection id="dbs19" name="nedbank-career-guidance-initiative">
           <heading id="dbsh19">NEDBANK CAREER GUIDANCE INITIATIVE (Member's Statement)</heading>
-          <speech by="#ms-n-n-p-mkhulusi-anc-">
+          <speech by="#ms-n-n-p-mkhulusi-anc">
             <from>Ms N N P MKHULUSI (ANC)</from>
             <p>Madam Deputy Speaker, a career guidance initiative launched by Nedbank to assist high-school pupils is welcomed by the ANC. As a key priority area of the ANC's programme of action, this educational project, worth R5,5 million, will benefit more than 40 000 Grade 9 to Grade 12 learners from underprivileged communities.</p>
             <p>We have seen the recent enrolment crisis at tertiary institutions. One of the contributing factors was the lack of career guidance. Many learners who wish to further their studies often arrive at university enrolment centres without a clear idea and plan of what they would like to study.</p>
@@ -513,7 +513,7 @@
         </debateSection>
         <debateSection id="dbs20" name="acid-mine-seepage-affects-water-in-carolina-mpumalanga">
           <heading id="dbsh20">ACID MINE SEEPAGE AFFECTS WATER IN CAROLINA, MPUMALANGA (Member's Statement)</heading>
-          <speech by="#mrs-c-n-z-zikalala-ifp-">
+          <speech by="#mrs-c-n-z-zikalala-ifp">
             <from>Mrs C N Z ZIKALALA (IFP)</from>
             <p>Madam Deputy Speaker, when is the government going to start taking acid mine contamination of our country's water supplies seriously? How much of our drinking water must be contaminated before we acknowledge the severity of this crisis?</p>
             <p>Carolina is merely the tip of the iceberg and the harbinger of such scenarios that will begin to play themselves out all over Gauteng and Mpumalanga, should the problem of acid mine water seepage not be dealt with proactively. It is imperative that pre-emptive, immediate and decisive action be taken by government on a holistic basis if we wish to prevent situations like the one that occurred in Carolina from happening again. I thank you.</p>
@@ -521,7 +521,7 @@
         </debateSection>
         <debateSection id="dbs21" name="electricity-supply-crisis-in-south-africa">
           <heading id="dbsh21">ELECTRICITY SUPPLY CRISIS IN SOUTH AFRICA (Member's Statement)</heading>
-          <speech by="#mr-l-w-greyling-id-">
+          <speech by="#mr-l-w-greyling-id">
             <from>Mr L W GREYLING (ID)</from>
             <p>Madam Deputy Speaker, the ID is extremely concerned about the critical electricity supply situation in South Africa. According to Eskom, the country could be exposed to load shedding as early as April this year.</p>
             <p>It is totally unacceptable that South Africans have been placed in this crisis due to a combination of poor planning, conflicts of interest and instances of gross incompetence at Eskom. Last year, an entirely avoidable accident at Duvha Power Station saw 600 megawatts removed from the grid at a cost of over R2 billion. We are still waiting for the independent report to be submitted to Parliament on how such an occurrence could happen at a professionally run power utility.</p>
@@ -531,7 +531,7 @@
         </debateSection>
         <debateSection id="dbs22" name="health-projects-in-kwazulu-natal">
           <heading id="dbsh22">HEALTH PROJECTS IN KWAZULU-NATAL (Member's Statement)</heading>
-          <speech by="#ms-b-t-ngcobo-anc-">
+          <speech by="#ms-b-t-ngcobo-anc">
             <from>Ms B T NGCOBO (ANC)</from>
             <p>Madam Deputy Speaker, in response to the President's call in his state of the nation address for critical social infrastructure, KwaZulu-Natal is going to be building four health care centres worth R150 million: in Jozini, Umzimkhulu and Pomeroy, as well as neonatal and labour wards at Stanger Hospital. These projects will help to create jobs and deliver better services to the community.</p>
             <p>Future projects identified include the refurbishing of a Durban regional laundry worth R171 million and an outpatient department, as well as casualty wards at Estcourt Hospital worth R141 million. An amount of R1,6 billion will also be spent on the new Dr Pixley ka Seme Regional Hospital in the INK area, which comprises Inanda, Ntuzuma and KwaMashu.</p>
@@ -540,7 +540,7 @@
         </debateSection>
         <debateSection id="dbs23" name="safety-of-nonstriking-mineworkers">
           <heading id="dbsh23">SAFETY OF NONSTRIKING MINEWORKERS (Member's Statement)</heading>
-          <speech by="#rev-k-r-j-meshoe-acdp-">
+          <speech by="#rev-k-r-j-meshoe-acdp">
             <from>Rev K R J MESHOE (ACDP)</from>
             <p>Madam Deputy Speaker, the report in last week's edition of the City Press newspaper about striking mineworkers was alarming indeed. The headline of the report was: "We will kill them if they go to work." These utterances were made after a man was killed, apparently by striking mineworkers who suspected that he was trying to sneak back to the Impala Mine Shaft No 8 to reapply for his job.</p>
             <p>The striking mineworkers allegedly said more people would die if the 17 000 workers fired last month were not reinstated soon. They reportedly threatened to wait for those nonstriking workers at the bus stop. One intimidator was reported to have said: "Every morning you will find dead bodies because we are going to kill them. If they try to go to work, they will die."</p>
@@ -555,7 +555,7 @@
         </debateSection>
         <debateSection id="dbs24" name="threat-to-trade-and-investment-gateway-into-africa">
           <heading id="dbsh24">THREAT TO TRADE AND INVESTMENT GATEWAY INTO AFRICA (Member's Statement)</heading>
-          <speech by="#dr-w-g-james-da-">
+          <speech by="#dr-w-g-james-da">
             <from>Dr W G JAMES (DA)</from>
             <p>Madam Deputy Speaker, our status as the trade and investment gateway into Africa is under threat, unless we make bold moves to enable business to trade more efficiently and more cost-effectively. The continent's largest retail group, our very own Shoprite, reports expenditure of R160 000 a week to secure import permits to distribute meat and milk to their stores in Zambia alone.</p>
             <p>Shoprite has outlets in 13 SADC countries. To trade in the region, management applies for 100 import permits a week, 300 at peak times. For every truck that crosses the border, up to 1 600 documents are required. The situation is compounded when corruption rears its head. It is high time that the Department of Home Affairs and Customs, which falls under the SA Revenue Service, identify pilot sites on our borders to remove barriers that hamper commerce.</p>
@@ -564,7 +564,7 @@
         </debateSection>
         <debateSection id="dbs25" name="poultry-project-inspires-village-women">
           <heading id="dbsh25">POULTRY PROJECT INSPIRES VILLAGE WOMEN (Member's Statement)</heading>
-          <speech by="#mrs-s-t-williams-de-bruyn-anc-">
+          <speech by="#mrs-s-t-williams-de-bruyn-anc">
             <from>Mrs S T WILLIAMS-DE BRUYN (ANC)</from>
             <p>Madam Deputy Speaker, this statement relates to a poultry project that is inspiring village women. The issue of unemployment and addressing its rising levels remains one of the ANC government's biggest priorities.</p>
             <p>However, the solution does not rely solely on government, but also on people and communities helping themselves. It is thus extremely heart- warming to see how the Dumisani Women's Project in the rural village of Kameelrivier has started a poultry project in which they nurture chickens and sell them in the village and surrounding areas. Their initiative to provide chickens to the people in the area has meant that long trips to the cities in order to purchase live chickens for family rituals and ceremonies in particular are a thing of the past.</p>
@@ -573,7 +573,7 @@
         </debateSection>
         <debateSection id="dbs26" name="bullying-in-schools-on-the-rise">
           <heading id="dbsh26">BULLYING IN SCHOOLS ON THE RISE (Member's Statement)</heading>
-          <speech by="#mr-a-m-mpontshane-ifp-">
+          <speech by="#mr-a-m-mpontshane-ifp">
             <from>Mr A M MPONTSHANE (IFP)</from>
             <p>Madam Deputy Speaker, the death of David Hlongwane, a learner from the Lethabong Secondary School in Soshanguve, is proof that bullying is on the rise in South Africa's schools and that it poses a real threat to the emotional stability and wellbeing of our children.</p>
             <p>It is also clear that not enough is being done to combat this form of emotional and physical abuse in our schools. The IFP urges all principals and parents to embark on programmes that will empower their children on this topic, so that they can develop the necessary coping mechanisms and strategies to deal with bullying and other forms of behaviour that infringe on their rights and wellbeing.</p>
@@ -581,17 +581,17 @@
             <p>Lastly, the IFP wishes to convey its heartfelt and deepest sympathies to the Hlongwane family. I thank you.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs27" name="eskom-s-increasing-electricity-tariffs">
+        <debateSection id="dbs27" name="eskoms-increasing-electricity-tariffs">
           <heading id="dbsh27">ESKOM'S INCREASING ELECTRICITY TARIFFS (Member's Statement)</heading>
-          <speech by="#mr-g-b-d-mc-intosh-cope-">
+          <speech by="#mr-g-b-d-mc-intosh-cope">
             <from>Mr G B D MC INTOSH (Cope)</from>
             <p>Madam Deputy Speaker, Eskom's ever-increasing electricity tariffs are having an adverse effect on South Africans, especially the poor. Even though the National Energy Regulator of SA managed to grant a lower electricity tariff increase of only 25,9%, if that is lower, for 2012 than what Eskom at first applied for, the impact of additional tariff increases from other electricity providers such as municipalities are having far-reaching implications for the poor. The repeated increases in electricity costs have averaged over 25% per year since July 2008 and are rapidly making affordable housing in the Johannesburg inner city and elsewhere completely unaffordable.</p>
             <p>Over each of the past four years, the additional increase, on top of the annual Eskom price increases, last year reached the ridiculous increase of 35% for residential properties. This meant that many tenants saw their monthly electricity bills increase by between R150 and R200 per month. Families are crippled by this and struggle to come out on their monthly earnings. While pay packets may have increased, electricity costs over the same period have tripled, far outweighing the earnings of many families. As a result of arrears and write-offs, vacancies have risen to uneconomic levels in the City of Johannesburg, or people move into overcrowded buildings. [Time expired.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs28" name="response-to-dr-mulder-s-land-claims-assertion">
+        <debateSection id="dbs28" name="response-to-dr-mulders-land-claims-assertion">
           <heading id="dbsh28">RESPONSE TO DR MULDER'S LAND CLAIMS ASSERTION (Member's Statement)</heading>
-          <speech by="#mr-m-i-malale-anc-">
+          <speech by="#mr-m-i-malale-anc">
             <from>Mr M I MALALE (ANC)</from>
             <p>Madam Deputy Speaker, the FF Plus leader, Dr Mulder, in his response to the state of the nation debate, had the temerity to suggest that Africans cannot lay claim to 40% of South African land because they migrated from Northern Africa. He contends that Africans cannot lay claim to the land in the Western Cape and the Northern Cape because they are not the original inhabitants of this land.</p>
             <p>His sweeping generalisations, based on his land maps of the 19th century, ignore the persistent legacy of colonial dispossession and the history of conquest and collusion. To suggest that when white colonialists arrived here the land was empty is a distortion of our painful history and heaps scorn on the current inequalities we experience as a result of colonial invasion.</p>
@@ -601,7 +601,7 @@
         </debateSection>
         <debateSection id="dbs29" name="exposure-of-corruption-in-south-africa">
           <heading id="dbsh29">EXPOSURE OF CORRUPTION IN SOUTH AFRICA (Member's Statement)</heading>
-          <speech by="#dr-d-t-george-da-">
+          <speech by="#dr-d-t-george-da">
             <from>Dr D T GEORGE (DA)</from>
             <p>Madam Deputy Speaker, in last week's reply to the state of the nation debate, President Zuma said that most of the corruption you read about in the media is exposed as a result of the work of government and its agencies. These are the words of a President who is completely disconnected from reality. South Africa's major corruption scandals have not been broken by government, but by the media and the opposition. These include the arms deal, Travelgate, Oilgate, the SA Police Service lease debacle and the Chancellor House scandal.</p>
             <p>Nowhere is the government's attitude towards exposing corruption more clear than in its determination to see the Protection of Information Bill, better known as "the Secrecy Bill", pushed through Parliament in its current form. Should this Bill be passed, journalists and whistleblowers who report on what government deems secret will face up to 25 years in prison.</p>
@@ -621,7 +621,7 @@
         </debateSection>
         <debateSection id="dbs30" name="curbing-underage-drinking">
           <heading id="dbsh30">CURBING UNDERAGE DRINKING (Member's Statement)</heading>
-          <speech by="#mrs-l-s-makhubela-mashele-anc-">
+          <speech by="#mrs-l-s-makhubela-mashele-anc">
             <from>Mrs L S MAKHUBELA-MASHELE (ANC)</from>
             <p>Madam Deputy Speaker, the ANC holds the view that a nation that takes care of its youth ensures a better future, not only for the youth, but for the country as a whole. We thus welcome the launch of the integrated strategy by the Department of Trade and Industry, SA Breweries and the National Youth Development Agency to solve the problem of underage drinking. The campaign, which is called "You Decide", was launched in Durban and targets drinking by children under the age of 18, although it can also be extended to include those who are 21 years of age.</p>
             <p>Statistics show that 25% of teenagers drink because they are bored, while about 45% drink because they are depressed. Whatever the cause, it is a ticking time bomb and extremely dangerous.</p>
@@ -666,14 +666,14 @@
             <p>I will ask my hon colleague, Mrs Molewa, to approach the appropriate committee and ensure that her report is tabled, but action has been taken. Thank you, Madam Deputy Speaker. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs35" name="eskom-s-increasing-electricity-tariffs">
+        <debateSection id="dbs35" name="eskoms-increasing-electricity-tariffs">
           <heading id="dbsh35">ESKOM'S INCREASING ELECTRICITY TARIFFS (Minister's Response)</heading>
           <speech by="#the-minister-in-the-presidency">
             <from>The MINISTER IN THE PRESIDENCY</from>
             <p>PERFORMANCE MONITORING AND EVALUATION AS WELL AS ADMINISTRATION: Madam Deputy Speaker, a member of the House talked at length about Eskom and the problems around Eskom's delivery of electricity to the nation. The answer to that question lies in the statement made by the Minister of Public Enterprises in the debate after the President's speech, so I will refer the member to Hansard. If the member is not satisfied, that member can come back to the House and we will respond.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs36" name="response-to-dr-mulder-s-land-claims-assertion">
+        <debateSection id="dbs36" name="response-to-dr-mulders-land-claims-assertion">
           <heading id="dbsh36">RESPONSE TO DR MULDER'S LAND CLAIMS ASSERTION (Minister's Response)</heading>
           <speech by="#the-deputy-minister-of-rural-development-and-land-reform">
             <from>The DEPUTY MINISTER OF RURAL DEVELOPMENT AND LAND REFORM</from>
@@ -881,7 +881,7 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs42" name="consideration-of-report-of-portfolio-committee-on-international-relations-and-co-operation-on-oversight-of-south-africa-s-mission-abroad-addis-ababa-ethiopia-18-22-november-2010-and-execution-of-south-africa-s-international-relations-policy">
+        <debateSection id="dbs42" name="consideration-of-report-of-portfolio-committee-on-international-relations-and-co-operation-on-oversight-of-south-africas-mission-abroad-addis-ababa-ethiopia-18-22-november-2010-and-execution-of-south-africas-international-relations-policy">
           <heading id="dbsh42">CONSIDERATION OF REPORT OF PORTFOLIO COMMITTEE ON INTERNATIONAL RELATIONS AND CO-OPERATION ON OVERSIGHT OF SOUTH AFRICA'S MISSION ABROAD - ADDIS ABABA, ETHIOPIA, 18-22 NOVEMBER 2010 - AND EXECUTION OF SOUTH AFRICA'S INTERNATIONAL RELATIONS POLICY</heading>
           <speech by="#mr-h-t-magama">
             <from>Mr H T MAGAMA</from>

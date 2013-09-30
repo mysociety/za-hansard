@@ -66,7 +66,7 @@
         <prayers id="prayers">
           <p>The Deputy Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000-">
+        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000">
           <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS - see col 000.</heading>
         </debateSection>
         <debateSection id="dbs2" name="motion-of-condolence">
@@ -594,7 +594,7 @@
             <p>Report accordingly adopted.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs10" name="instrument-for-the-amendment-of-the-constitution-of-the-international-labour-organisation-ilo-">
+        <debateSection id="dbs10" name="instrument-for-the-amendment-of-the-constitution-of-the-international-labour-organisation-ilo">
           <heading id="dbsh10">INSTRUMENT FOR THE AMENDMENT OF THE CONSTITUTION OF THE INTERNATIONAL LABOUR ORGANISATION (ILO) (Consideration of Request for Approval)</heading>
           <speech by="#mr-b-m-mkongi">
             <from>Mr B M MKONGI</from>

@@ -45,21 +45,21 @@
         <TLCPerson href="http://dummy/popit/path/mr-l-ramatlakane" id="mr-l-ramatlakane" showAs="Mr L RAMATLAKANE"/>
         <TLCPerson href="http://dummy/popit/path/the-chief-whip-of-the-majority-party" id="the-chief-whip-of-the-majority-party" showAs="The CHIEF WHIP OF THE MAJORITY PARTY"/>
         <TLCPerson href="http://dummy/popit/path/mrs-s-v-kalyan" id="mrs-s-v-kalyan" showAs="Mrs S V KALYAN"/>
-        <TLCPerson href="http://dummy/popit/path/mr-s-g-mmusi-anc-" id="mr-s-g-mmusi-anc-" showAs="Mr S G MMUSI (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/dr-w-g-james-da-" id="dr-w-g-james-da-" showAs="Dr W G JAMES (DA)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-n-j-j-koornhof-cope-" id="mr-n-j-j-koornhof-cope-" showAs="Mr N J J KOORNHOF (Cope)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-d-d-van-rooyen-anc-" id="mr-d-d-van-rooyen-anc-" showAs="Mr D D VAN ROOYEN (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/dr-m-g-oriani-ambrosini-ifp-" id="dr-m-g-oriani-ambrosini-ifp-" showAs="Dr M G ORIANI-AMBROSINI (IFP)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-s-g-mmusi-anc" id="mr-s-g-mmusi-anc" showAs="Mr S G MMUSI (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/dr-w-g-james-da" id="dr-w-g-james-da" showAs="Dr W G JAMES (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-n-j-j-koornhof-cope" id="mr-n-j-j-koornhof-cope" showAs="Mr N J J KOORNHOF (Cope)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-d-d-van-rooyen-anc" id="mr-d-d-van-rooyen-anc" showAs="Mr D D VAN ROOYEN (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/dr-m-g-oriani-ambrosini-ifp" id="dr-m-g-oriani-ambrosini-ifp" showAs="Dr M G ORIANI-AMBROSINI (IFP)"/>
         <TLCPerson href="http://dummy/popit/path/dr-m-g-oriani-ambrosini" id="dr-m-g-oriani-ambrosini" showAs="Dr M G ORIANI-AMBROSINI"/>
-        <TLCPerson href="http://dummy/popit/path/ms-d-e-dlakude-anc-" id="ms-d-e-dlakude-anc-" showAs="Ms D E DLAKUDE (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-l-m-mphahlele-pac-" id="mr-l-m-mphahlele-pac-" showAs="Mr L M MPHAHLELE (PAC)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-r-a-p-trollip-da-" id="mr-r-a-p-trollip-da-" showAs="Mr R A P TROLLIP (DA)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-g-j-selau-anc-" id="mr-g-j-selau-anc-" showAs="Mr G J SELAU (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-m-hlengwa-ifp-" id="mr-m-hlengwa-ifp-" showAs="Mr M HLENGWA (IFP)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-l-ramatlakane-cope-" id="mr-l-ramatlakane-cope-" showAs="Mr L RAMATLAKANE (Cope)"/>
-        <TLCPerson href="http://dummy/popit/path/mrs-f-f-mushwana-anc-" id="mrs-f-f-mushwana-anc-" showAs="Mrs F F MUSHWANA (ANC)"/>
-        <TLCPerson href="http://dummy/popit/path/mr-s-c-motau-da-" id="mr-s-c-motau-da-" showAs="Mr S C MOTAU (DA)"/>
-        <TLCPerson href="http://dummy/popit/path/ms-m-c-c-pilane-majake-anc-" id="ms-m-c-c-pilane-majake-anc-" showAs="Ms M C C PILANE-MAJAKE (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/ms-d-e-dlakude-anc" id="ms-d-e-dlakude-anc" showAs="Ms D E DLAKUDE (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-l-m-mphahlele-pac" id="mr-l-m-mphahlele-pac" showAs="Mr L M MPHAHLELE (PAC)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-r-a-p-trollip-da" id="mr-r-a-p-trollip-da" showAs="Mr R A P TROLLIP (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-g-j-selau-anc" id="mr-g-j-selau-anc" showAs="Mr G J SELAU (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-m-hlengwa-ifp" id="mr-m-hlengwa-ifp" showAs="Mr M HLENGWA (IFP)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-l-ramatlakane-cope" id="mr-l-ramatlakane-cope" showAs="Mr L RAMATLAKANE (Cope)"/>
+        <TLCPerson href="http://dummy/popit/path/mrs-f-f-mushwana-anc" id="mrs-f-f-mushwana-anc" showAs="Mrs F F MUSHWANA (ANC)"/>
+        <TLCPerson href="http://dummy/popit/path/mr-s-c-motau-da" id="mr-s-c-motau-da" showAs="Mr S C MOTAU (DA)"/>
+        <TLCPerson href="http://dummy/popit/path/ms-m-c-c-pilane-majake-anc" id="ms-m-c-c-pilane-majake-anc" showAs="Ms M C C PILANE-MAJAKE (ANC)"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-rural-development-and-land-reform" id="the-minister-of-rural-development-and-land-reform" showAs="The MINISTER OF RURAL DEVELOPMENT AND LAND REFORM"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-higher-education-and-training" id="the-minister-of-higher-education-and-training" showAs="The MINISTER OF HIGHER EDUCATION AND TRAINING"/>
         <TLCPerson href="http://dummy/popit/path/mr-a-m-mpontshane" id="mr-a-m-mpontshane" showAs="Mr A M MPONTSHANE"/>
@@ -92,7 +92,7 @@
         <prayers id="prayers">
           <p>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000-">
+        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000">
           <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS - see col 000.</heading>
         </debateSection>
         <debateSection id="dbs2" name="new-member">
@@ -252,7 +252,7 @@
             <p>Agreed to.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs8" name="suspension-of-rule-253-1-on-second-reading-of-a-bill">
+        <debateSection id="dbs8" name="suspension-of-rule-2531-on-second-reading-of-a-bill">
           <heading id="dbsh8">SUSPENSION OF RULE 253(1) ON SECOND READING OF A BILL (Draft Resolution)</heading>
           <speech by="#the-chief-whip-of-the-majority-party">
             <from>The CHIEF WHIP OF THE MAJORITY PARTY</from>
@@ -261,9 +261,9 @@
             <p>Agreed to.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs9" name="anniversary-of-steve-biko-s-death">
+        <debateSection id="dbs9" name="anniversary-of-steve-bikos-death">
           <heading id="dbsh9">ANNIVERSARY OF STEVE BIKO'S DEATH (Member's Statement)</heading>
-          <speech by="#mr-s-g-mmusi-anc-">
+          <speech by="#mr-s-g-mmusi-anc">
             <from>Mr S G MMUSI (ANC)</from>
             <p>Last week, on 12 September 2012, we commemorated the 35th anniversary of the death of Steve Biko. Biko, the leader of the SA Students' Organisation, Saso, pioneer of the Black Consciousness philosophy and founder of the Black Consciousness Movement in 1969, died in police custody at the age of 30.</p>
             <p>His life and writings influenced and empowered many people, and his slogan, "Black is beautiful", became the inspiration for many. Biko worked throughout his life to empower black people and he was one of South Africa's most influential and prominent anti-apartheid activists. Biko saw the struggle to restore African consciousness as having two stages, psychological liberation and physical liberation. His philosophy that political freedom could only be achieved if blacks stopped feeling inferior to whites is considered by many to be the turning point in the demise of apartheid.</p>
@@ -274,7 +274,7 @@
         </debateSection>
         <debateSection id="dbs10" name="da-victory-in-mitchells-plain">
           <heading id="dbsh10">DA VICTORY IN MITCHELLS PLAIN (Member's Statement)</heading>
-          <speech by="#dr-w-g-james-da-">
+          <speech by="#dr-w-g-james-da">
             <from>Dr W G JAMES (DA)</from>
             <p>Mr Speaker, I stand before you as a proud DA constituency MP of Mitchells Plain, which is now entirely blue! [Applause] Yesterday, Mr Speaker, the DA took the last remaining ANC wards in Mitchells Plain - including Philippi, Heinz Park, and New Woodlands - with a 52,4% win. This is the very first time that we have won the seat.</p>
             <p>The message, Mr Speaker, is clear today to the ANC that its ungovernability campaign in the Western Cape has backfired. [Applause]. The more they promote ungovernability in the Western Cape, the more votes we get. It's a fairly simple calculation.</p>
@@ -282,9 +282,9 @@
             <p>Members of the ANC across the board, please take note that the people of South Africa want the DA's quality service delivery and good governance, and they do not want the ANC's selfish and corrupt hegemony that caters only for insiders who are part of the tripartite alliance. They want "a better life for all", and they do not want a party interested simply in itself. Thank you. [Time expired.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs11" name="heritage-day-and-cosatu-s-suggestion-to-change-our-national-anthem">
+        <debateSection id="dbs11" name="heritage-day-and-cosatus-suggestion-to-change-our-national-anthem">
           <heading id="dbsh11">HERITAGE DAY AND COSATU'S SUGGESTION TO CHANGE OUR NATIONAL ANTHEM (Member's Statement)</heading>
-          <speech by="#mr-n-j-j-koornhof-cope-">
+          <speech by="#mr-n-j-j-koornhof-cope">
             <from>Mr N J J KOORNHOF (Cope)</from>
             <p>Mr Speaker, on Monday South Africans will be celebrating Heritage Day in various ways, emphasising our different cultures. We should all ponder this on the day and try to reach out for those things that are common to us; those things that provide the glue that keeps us together as a nation. We should also try to serve our country better.</p>
             <p>So far 2012 has been a dramatic year. We have had the joy of the Summer Olympics and the sadness of the Marikana massacre.</p>
@@ -294,7 +294,7 @@
         </debateSection>
         <debateSection id="dbs12" name="new-banknotes-honouring-nelson-mandela">
           <heading id="dbsh12">NEW BANKNOTES HONOURING NELSON MANDELA (Member's Statement)</heading>
-          <speech by="#mr-d-d-van-rooyen-anc-">
+          <speech by="#mr-d-d-van-rooyen-anc">
             <from>Mr D D VAN ROOYEN (ANC)</from>
             <p>Hon Speaker, the SA Reserve Bank has unveiled South Africa's new series of banknotes which features the image of Isithwalandwe Nelson Mandela. In the centenary year of the ANC, it is a fitting tribute to Tata Nelson Mandela as an ANC President who became a symbol of our country's struggle for freedom, human rights, and democracy.</p>
             <p>This development signifies the deep gratitude of the South African people for his life spent in service to the country and for the cause of humanity worldwide. It honour an outstanding leader and a patriot. Banknotes are a window on the country as a whole - its people, heritage, and culture.</p>
@@ -303,7 +303,7 @@
         </debateSection>
         <debateSection id="dbs13" name="tibetan-flame-of-truth-displayed-in-house">
           <heading id="dbsh13">TIBETAN "FLAME OF TRUTH" DISPLAYED IN HOUSE (Member's Statement)</heading>
-          <speech by="#dr-m-g-oriani-ambrosini-ifp-">
+          <speech by="#dr-m-g-oriani-ambrosini-ifp">
             <from>Dr M G ORIANI-AMBROSINI (IFP)</from>
             <p>Mr Speaker, it gives me great pleasure to display in the House this Flame of Truth that the hon Trollip, the hon Hlengwa, other hon Members of Parliament and I received from people outside Parliament an hour ago. This Flame of Truth has toured the country. It has been in Johannesburg and Durban, and it has now reached Cape Town. From here it will go to all the parliaments around the world.</p>
             <p>It's a symbolic flame. As you can see, there is no real flame to pose a threat. It is a symbol of the quest of the people of Tibet to bring to others the truth about and knowledge of the sufferings of all those who do not enjoy the rights and liberties which are so freely enjoyed in this country and in other countries.</p>
@@ -331,7 +331,7 @@
         </debateSection>
         <debateSection id="dbs15" name="poor-conditions-for-pensioners-at-sassa-payout-point-in-piet-retief-area">
           <heading id="dbsh15">POOR CONDITIONS FOR PENSIONERS AT SASSA PAYOUT POINT IN PIET RETIEF AREA (Member's Statement)</heading>
-          <speech by="#ms-d-e-dlakude-anc-">
+          <speech by="#ms-d-e-dlakude-anc">
             <from>Ms D E DLAKUDE (ANC)</from>
             <p>Mr Speaker, the ANC believes that the provision of social security grants remains a key strategy of addressing the plight of the poor.</p>
             <p>It is thus extremely worrying when applicants for social security grants in the Piet Retief area are expected to queue outside the South African Social Security Agency, Sassa, offices on a busy side road in the sun and in the rain. Those applying for grants are expected to stand outside and receive services through a small window in all weather conditions. In addition, a shortage of staff often results in those applicants who have been queuing an entire day being turned away without being attended to.</p>
@@ -341,7 +341,7 @@
         </debateSection>
         <debateSection id="dbs16" name="marikana-disaster">
           <heading id="dbsh16">MARIKANA DISASTER (Member's Statement)</heading>
-          <speech by="#mr-l-m-mphahlele-pac-">
+          <speech by="#mr-l-m-mphahlele-pac">
             <from>Mr L M MPHAHLELE (PAC)</from>
             <p>Hon Speaker, Ms Pauline Masutle has become the 46th casualty of the Marikana disaster.</p>
             <p>Beyond the praiseworthy wage agreement, a sad story of Marikana is continuing to unfold. It is the story of power at war with powerlessness. It is the story of need competing with greed. It is the story of poverty existing side by side with prosperity. It is the story of a bourgeois democracy confessing its sins and failures. It is the story of political heavyweights who are simultaneously economic mosquito weights. It is the story of buffaloes weighing more than human beings on the scales of African compradors.</p>
@@ -352,7 +352,7 @@
         </debateSection>
         <debateSection id="dbs17" name="daso-wins-src-election-at-nelson-mandela-metropolitan-university">
           <heading id="dbsh17">DASO WINS SRC ELECTION AT NELSON MANDELA METROPOLITAN UNIVERSITY (Member's Statement)</heading>
-          <speech by="#mr-r-a-p-trollip-da-">
+          <speech by="#mr-r-a-p-trollip-da">
             <from>Mr R A P TROLLIP (DA)</from>
             <p>Hon Speaker, the DA notes the spectacular Democratic Alliance Students Organisation, Daso, electoral victory in the SRC election at the Nelson Mandela Metropolitan University.</p>
             <p>After a year of good student governance under Daso, and the fulfilment of a realistic and coherent electoral manifesto, Daso went into yesterday's election quietly confident that they would be given a renewed mandate to govern the Nelson Mandela Metropolitan University SRC. What happened, in fact, was an unprecedented, record "landslide" electoral victory for Daso, which took 16 of the 21 SRC seats. [Applause.]</p>
@@ -365,7 +365,7 @@
         </debateSection>
         <debateSection id="dbs18" name="nestle-investment-projects-in-babelegi">
           <heading id="dbsh18">NESTLE INVESTMENT PROJECTS IN BABELEGI (Member's Statement)</heading>
-          <speech by="#mr-g-j-selau-anc-">
+          <speech by="#mr-g-j-selau-anc">
             <from>Mr G J SELAU (ANC)</from>
             <p>Hon Speaker, the ANC welcomes the recent launch, by Nestl, of investment projects to the value of R500 million in Babelegi, Hammanskraal. These projects include, amongst other things, the construction of a 16 000 m factory for the manufacturing of cereals. Moreover, the Babelegi investment alone has created over 130 permanent jobs and 300 indirect jobs over a 20-month period during the construction phase. The two new Nestl production sites in Babelegi will be for the manufacturing of the company's breakfast cereals and, in addition, new production lines.</p>
             <p>This undertaking reflects the ANC-led government's resolve to deepen and strengthen the presence of agro-processing in South Africa. This investment thus represents one of the few investment opportunities taken recently in South Africa by a global multinational company in the agro-processing area.</p>
@@ -374,7 +374,7 @@
         </debateSection>
         <debateSection id="dbs19" name="voter-fraud-in-nongoma-by-election">
           <heading id="dbsh19">VOTER FRAUD IN NONGOMA BY-ELECTION (Member's Statement)</heading>
-          <speech by="#mr-m-hlengwa-ifp-">
+          <speech by="#mr-m-hlengwa-ifp">
             <from>Mr M HLENGWA (IFP)</from>
             <p>Hon Speaker, the IFP uncovered massive fraud in the run- up to the hotly contested by-election in Ward 12, Nongoma, KwaZulu-Natal. Our urgent application to have 525 fraudulently registered voters scrapped from the voters' roll was accepted and effected. It appears that students from a nearby FET college were registered and bribed to vote for our opponents, even though some of them lived hundreds of kilometres away in Pongola!</p>
             <p>The Independent Electoral Commission, IEC, has announced that it will launch an internal investigation into the matter. The IFP welcomes the IEC investigation because, quite frankly, we as the IFP are sick and tired of voter fraud.</p>
@@ -385,7 +385,7 @@
         </debateSection>
         <debateSection id="dbs20" name="police-violation-of-constitutional-provisions">
           <heading id="dbsh20">POLICE VIOLATION OF CONSTITUTIONAL PROVISIONS (Member's Statement)</heading>
-          <speech by="#mr-l-ramatlakane-cope-">
+          <speech by="#mr-l-ramatlakane-cope">
             <from>Mr L RAMATLAKANE (Cope)</from>
             <p>Hon Speaker, as members of this House we have all sworn allegiance to the Constitution, that we will uphold the Constitution with all its provisions. We, as Cope, are worried that the events of last Monday suggest that the Constitution is being blatantly abused by the police. They are offending against the Constitution, while we all watch and say nothing!</p>
             <p>About eight provisions of the Constitution have been violated. For example, the Bill of Rights has been violated by the police by their refusal to allow citizens of this country to participate or act in, or attend any gathering that is legal.</p>
@@ -395,7 +395,7 @@
         </debateSection>
         <debateSection id="dbs21" name="ezemvelo-direct-farm-programme">
           <heading id="dbsh21">EZEMVELO DIRECT FARM PROGRAMME (Member's Statement)</heading>
-          <speech by="#mrs-f-f-mushwana-anc-">
+          <speech by="#mrs-f-f-mushwana-anc">
             <from>Mrs F F MUSHWANA (ANC)</from>
             <p>The ANC is committed to supporting the growth of rural market institutions by empowering small farmers to access markets and build links with formal sector value chains.</p>
             <p>Thus the ANC welcomes the recent official launch of Massmart's Ezemvelo, Direct Farm Programme in Tzaneen and Maruleng, with the aim of identifying, developing, and supporting small farmers in order for them to supply Massmart with fresh produce on an ongoing basis.</p>
@@ -406,7 +406,7 @@
         </debateSection>
         <debateSection id="dbs22" name="refusal-of-minister-of-labour-to-engage-with-amcu">
           <heading id="dbsh22">REFUSAL OF MINISTER OF LABOUR TO ENGAGE WITH AMCU (Member's Statement)</heading>
-          <speech by="#mr-s-c-motau-da-">
+          <speech by="#mr-s-c-motau-da">
             <from>Mr S C MOTAU (DA)</from>
             <p>Speaker, on Tuesday the Minister of Labour, Mildred Oliphant, reiterated her government's refusal to engage with the Association of Mineworkers and Construction Union, Amcu, claiming that the union was not recognised. In reality, this means that the ANC is continuing to avoid engaging with unions not affiliated to its alliance partner, Cosatu.</p>
             <p>The Minister is clearly willing to risk another Marikana by defending a majoritarian labour regime. To prevent a repeat of the events of Marikana, we need a fair labour regime that includes all unions, not just those politically connected.</p>
@@ -416,7 +416,7 @@
         </debateSection>
         <debateSection id="dbs23" name="very-visible-successes-in-service-delivery-by-anc">
           <heading id="dbsh23">VERY VISIBLE SUCCESSES IN SERVICE DELIVERY BY ANC (Member's Statement)</heading>
-          <speech by="#ms-m-c-c-pilane-majake-anc-">
+          <speech by="#ms-m-c-c-pilane-majake-anc">
             <from>Ms M C C PILANE-MAJAKE (ANC)</from>
             <p>Hon Speaker, when President Zuma recently outlined the very visible - that is, to those who do not purposely turn a blind eye - successes in service delivery by the ANC-led government in just 18 years, much criticism was forthcoming from the opposition.</p>
             <p>Government has made strides in providing basic services that were historically, during the apartheid era, meant for the few from one race. These services are formal housing, clean water and sanitation, roads, electricity to millions of homes, social protection and creating a safety net for millions of South Africans through social grants - and the list goes on.</p>
@@ -873,7 +873,7 @@
             <p>Permission accordingly granted to the Portfolio Committee on Higher Education and Training into amending other provisions of Higher Education Act, Act 101 of 1997, in terms of Rule 249(3)(b).</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs41" name="unparliamentary-language-mr-k-b-manamela-s-statement">
+        <debateSection id="dbs41" name="unparliamentary-language-mr-k-b-manamelas-statement">
           <heading id="dbsh41">UNPARLIAMENTARY LANGUAGE - MR K B MANAmela's statement (Ruling)</heading>
           <speech by="#the-deputy-speaker">
             <from>The DEPUTY SPEAKER</from>
@@ -885,7 +885,7 @@
             <p>The approach I have taken is consistent with previous rulings by presiding officers of this House, that held that reference to a political party in this manner is not out of order. I therefore rule that the statement by hon Manamela was not unparliamentary. [Applause.]</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs42" name="unparliamentary-language-mr-a-p-van-der-westhuizen-s-statement">
+        <debateSection id="dbs42" name="unparliamentary-language-mr-a-p-van-der-westhuizens-statement">
           <heading id="dbsh42">UNPARLIAMENTARY LANGUAGE - MR A P Van Der Westhuizen's statement (Ruling)</heading>
           <speech by="#the-deputy-speaker">
             <from>The DEPUTY SPEAKER</from>
@@ -897,7 +897,7 @@
             <p>Having said that, I would like to urge members, as other presiding officers have done previously, to refrain from making inflammatory, divisive and unsubstantiated statements in the House.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs43" name="unparliamentary-language-minister-of-justice-and-constitutional-development-s-statement">
+        <debateSection id="dbs43" name="unparliamentary-language-minister-of-justice-and-constitutional-developments-statement">
           <heading id="dbsh43">UNPARLIAMENTARY LANGUAGE - MINISTER OF JUSTICE AND CONSTITUTIONAL DEVELOPMENT'S STATEMENT (Ruling)</heading>
           <speech by="#the-deputy-speaker">
             <from>The DEPUTY SPEAKER</from>
@@ -907,7 +907,7 @@
             <p>The test of a genuine point of order is whether the Chair can actually rule on it because it relates to the rules and practice of the House. Therefore, in this instance the question is whether the phrase is acceptable parliamentary language, or not. The expression is not unparliamentary as it is a point of debate.</p>
           </speech>
         </debateSection>
-        <debateSection id="dbs44" name="unparliamentary-language-deputy-minister-of-police-s-statement">
+        <debateSection id="dbs44" name="unparliamentary-language-deputy-minister-of-polices-statement">
           <heading id="dbsh44">UNPARLIAMENTARY LANGUAGE - Deputy Minister of police'S STATEMENT (Ruling)</heading>
           <speech by="#the-deputy-speaker">
             <from>The DEPUTY SPEAKER</from>
@@ -1347,7 +1347,7 @@
         <debateSection id="dbs60" name="4-fifteenth-report-of-the-committee-on-public-accounts-on-the-annual">
           <heading id="dbsh60">4. FIFTEENTH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE ANNUAL</heading>
         </debateSection>
-        <debateSection id="dbs61" name="reports-and-financial-statements-of-the-department-of-mineral-resources-and-the-report-of-the-auditor-general-on-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs61" name="reports-and-financial-statements-of-the-department-of-mineral-resources-and-the-report-of-the-auditor-general-on-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh61">REPORTS AND FINANCIAL STATEMENTS OF THE DEPARTMENT OF MINERAL RESOURCES AND THE REPORT OF THE AUDITOR-GENERAL ON THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the contents of the Annual Report and the Report of the Auditor- General (AG) on the 2010/11 financial statements of the Department of Mineral Resources (the Department). The Committee noted the qualified audit opinion, highlighted areas which required the attention of the Accounting Officer, and reports as follows:</p>
@@ -1385,7 +1385,7 @@
         <debateSection id="dbs63" name="reports-and-financial-statements-of-the-department-of-labour-and-the-sheltered-employment-factories-and-the-report-of-the-auditor-general-on-the">
           <heading id="dbsh63">REPORTS AND FINANCIAL STATEMENTS OF THE DEPARTMENT OF LABOUR AND THE SHELTERED EMPLOYMENT FACTORIES AND THE REPORT OF THE AUDITOR GENERAL ON THE</heading>
         </debateSection>
-        <debateSection id="dbs64" name="2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs64" name="201011-financial-year-dated-22-august-2012">
           <heading id="dbsh64">2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the content of the Annual Report and the Report of the Auditor- General (A-G) on the 2010/11 financial statements of the Department of Labour (the Department). The Committee noted the unqualified audit opinion, highlighted areas which required the attention of the Accounting Officer, and reports as follows:</p>
@@ -1423,7 +1423,7 @@
           <p>The Auditor- General identified the following:</p>
           <p>During the inventory count, material variances between counts of inventory on hand and the accounting records were identified. Furthermore, an assessment of the stage of completion of work in progress at 31 March 2011 was not done. The entity's records did not permit the application of alternative audit procedures regarding inventories. Consequently, the A-G did not obtain all the information and explanations considered necessary to verify the existence and completeness of inventories amounting to</p>
         </debateSection>
-        <debateSection id="dbs65" name="r993000-">
+        <debateSection id="dbs65" name="r993000">
           <heading id="dbsh65">R993000.</heading>
           <p>The Committee recommends that the Accounting Officer ensures that the following:</p>
           <p>The entity's management makes certain that all the designed internal controls are implemented and adhered to by all personnel, through the assigning of oversight responsibilities.</p>
@@ -1443,7 +1443,7 @@
           <p>The Committee on Public Accounts further recommends that the Accounting Officer submits quarterly reports on all the above-mentioned recommendations.</p>
           <p>Report to be considered 6. SEVENTEENTH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT OF</p>
         </debateSection>
-        <debateSection id="dbs66" name="auditor-general-on-the-annual-reports-and-financial-statements-of-the-department-of-sports-and-recreation-for-the-2010-11-financial-year-dated">
+        <debateSection id="dbs66" name="auditor-general-on-the-annual-reports-and-financial-statements-of-the-department-of-sports-and-recreation-for-the-201011-financial-year-dated">
           <heading id="dbsh66">AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF THE DEPARTMENT OF SPORTS AND RECREATION FOR THE 2010/11 FINANCIAL YEAR, DATED</heading>
         </debateSection>
         <debateSection id="dbs67" name="22-august-2012">
@@ -1457,7 +1457,7 @@
           <p>The Auditor-General identified the following:</p>
           <p>The Accounting Officer did not take effective and appropriate steps to prevent irregular expenditure, as a required by section 38(1)(c)(ii) of the</p>
         </debateSection>
-        <debateSection id="dbs68" name="pfma-">
+        <debateSection id="dbs68" name="pfma">
           <heading id="dbsh68">PFMA.</heading>
           <p>The Committee recommends that the Accounting Authority ensures that:</p>
           <p>a) Disciplinary action is taken against employees who were responsible for incurring such irregular expenditure as required by Section 51 (e) (iii) of the PFMA.</p>
@@ -1474,7 +1474,7 @@
         <debateSection id="dbs69" name="7-eighteenth-report-of-the-committee-on-public-accounts-on-the-report-of">
           <heading id="dbsh69">7. EIGHTEENTH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT OF</heading>
         </debateSection>
-        <debateSection id="dbs70" name="auditor-general-on-the-annual-reports-and-financial-statements-of-boxing-south-africa-for-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs70" name="auditor-general-on-the-annual-reports-and-financial-statements-of-boxing-south-africa-for-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh70">AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF BOXING SOUTH AFRICA FOR THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the content of the Annual Report and the Report of the Auditor- General (AG) on the 2010/11 financial statements of Boxing South Africa (BSA). The Committee noted the qualified audit opinion, highlighted areas which required the attention of the Accounting Authority, and reports as follows:</p>
@@ -1512,7 +1512,7 @@
         <debateSection id="dbs71" name="8-nineteenth-report-of-the-committee-on-public-accounts-on-the-report-of">
           <heading id="dbsh71">8. NINETEENTH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT OF</heading>
         </debateSection>
-        <debateSection id="dbs72" name="auditor-general-on-the-annual-reports-and-financial-statements-of-the-department-of-arts-and-culture-for-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs72" name="auditor-general-on-the-annual-reports-and-financial-statements-of-the-department-of-arts-and-culture-for-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh72">AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF THE DEPARTMENT OF ARTS AND CULTURE FOR THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the content of the Annual Report and the Report of the Auditor- General (AG) on the 2010/11 financial statements of the Department of Arts and Culture (the Department). The Committee noted the unqualified audit opinion, highlighted areas which required the attention of the Accounting Officer, and reports as follows:</p>
@@ -1546,7 +1546,7 @@
         <debateSection id="dbs73" name="9-twentieth-report-of-the-committee-on-public-accounts-on-the-report-of">
           <heading id="dbsh73">9. TWENTIETH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT OF</heading>
         </debateSection>
-        <debateSection id="dbs74" name="auditor-general-on-the-annual-reports-and-financial-statements-of-national-arts-council-for-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs74" name="auditor-general-on-the-annual-reports-and-financial-statements-of-national-arts-council-for-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh74">AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF NATIONAL ARTS COUNCIL FOR THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction The Committee on Public Accounts (the Committee) heard evidence on and considered the contents of the Annual Report and the Report of the Auditor- General on the 2010/11 financial statements of the National Arts Council (NAC). The Committee noted the qualified audit opinion, highlighted areas which required the urgent attention of the Accounting Authority, and reports as follows:</p>
           <p>2. Non-current asset held for transfer</p>
@@ -1561,7 +1561,7 @@
           <p>4. Business combination and consolidated financial statements</p>
           <p>The Auditor-General identified the following: The purchase of the business as disclosed in note 30 was not correctly accounted for in accordance with the requirements of International Financial Reporting Standards(IFRS 3), Business Combination and the SA Standards of GRAP,GRAP 6, consolidated and separate financial statements. This resulted in accounts payable being understated by R3 382 597 (2010: R3 209 505), cash and cash equivalents overstated by R455 305 (2010: understated by R3 191 565) and the accumulated surplus being understated by</p>
         </debateSection>
-        <debateSection id="dbs75" name="r440-862-">
+        <debateSection id="dbs75" name="r440-862">
           <heading id="dbsh75">R440 862.</heading>
           <p>The Committee recommends that the Accounting Authority ensures that:</p>
           <p>Management takes ownership to ensure that the accounting treatment relating to the purchase of Downtown Studio's should be in terms of requirements of GRAP 6 and IFRS 3.</p>
@@ -1590,7 +1590,7 @@
         <debateSection id="dbs76" name="10-twenty-first-report-of-the-committee-on-public-accounts-on-the-report">
           <heading id="dbsh76">10. TWENTY-FIRST REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT</heading>
         </debateSection>
-        <debateSection id="dbs77" name="of-auditor-general-on-the-annual-reports-and-financial-statements-of-the-south-african-heritage-resource-agency-for-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs77" name="of-auditor-general-on-the-annual-reports-and-financial-statements-of-the-south-african-heritage-resource-agency-for-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh77">OF AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF THE SOUTH AFRICAN HERITAGE RESOURCE AGENCY FOR THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the contents of the Annual Report and the Report of the Auditor- General on the 2010/11 financial statements of the South African Heritage Resource Agency (SAHRA). The Committee noted the qualified audit opinion, highlighted areas which required the urgent attention of the Accounting Authority, and reports as follows:</p>
@@ -1631,7 +1631,7 @@
         <debateSection id="dbs78" name="11-twenty-second-report-of-the-committee-on-public-accounts-on-the-report">
           <heading id="dbsh78">11. TWENTY-SECOND REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE REPORT</heading>
         </debateSection>
-        <debateSection id="dbs79" name="of-auditor-general-on-the-annual-reports-and-financial-statements-of-public-service-sector-education-and-training-authority-for-the-2010-11-financial-year-dated-22-august-2012">
+        <debateSection id="dbs79" name="of-auditor-general-on-the-annual-reports-and-financial-statements-of-public-service-sector-education-and-training-authority-for-the-201011-financial-year-dated-22-august-2012">
           <heading id="dbsh79">OF AUDITOR-GENERAL ON THE ANNUAL REPORTS AND FINANCIAL STATEMENTS OF PUBLIC SERVICE SECTOR EDUCATION AND TRAINING AUTHORITY FOR THE 2010/11 FINANCIAL YEAR, DATED 22 AUGUST 2012</heading>
           <p>1. Introduction</p>
           <p>The Committee on Public Accounts (the Committee) heard evidence on and considered the contents of the Annual Report and the Report of the Auditor- General on the 2010/11 financial statements of the Public Service SETA (PSETA). The Committee noted the disclaimer opinion, highlighted areas which required the urgent attention of the Accounting Authority, and reports as follows: 2. Going Concern</p>
@@ -1662,7 +1662,7 @@
         <debateSection id="dbs80" name="12-sixth-report-of-the-committee-on-public-accounts-on-the-annual-report">
           <heading id="dbsh80">12. SIXTH REPORT OF THE COMMITTEE ON PUBLIC ACCOUNTS ON THE ANNUAL REPORT</heading>
         </debateSection>
-        <debateSection id="dbs81" name="and-financial-statements-of-transnet-and-the-report-of-the-independent-auditors-on-the-2010-11-financial-year-dated-23-may-2012">
+        <debateSection id="dbs81" name="and-financial-statements-of-transnet-and-the-report-of-the-independent-auditors-on-the-201011-financial-year-dated-23-may-2012">
           <heading id="dbsh81">AND FINANCIAL STATEMENTS OF TRANSNET AND THE REPORT OF THE INDEPENDENT AUDITORS ON THE 2010/11 FINANCIAL YEAR, DATED 23 MAY 2012</heading>
           <p>1. Introduction The Committee on Public Accounts (the Committee) heard evidence on and considered the contents of the Annual Report and the Report of the Independent Auditors on the 2010/11 financial statements of Transnet (the entity). The Committee noted the unqualified audit opinion, highlighted areas which required the attention of the Accounting Authority, and reports as follows:</p>
           <p>2. Procurement, contract and expenditure management</p>

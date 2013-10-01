@@ -219,14 +219,14 @@ class Answer (models.Model):
     # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT, 
     # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT, 
     # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
-    number_oral = models.IntegerField()
+    number_oral = models.TextField()
     text = models.TextField()
     processed = models.BooleanField()
     name = models.TextField()
     language = models.TextField()
     url = models.TextField()
     house = models.TextField()
-    number_written = models.IntegerField()
+    number_written = models.TextField()
     date = models.DateField()
     type = models.TextField()
 

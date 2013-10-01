@@ -317,6 +317,7 @@ class Command(BaseCommand):
     def get_answers(self, url, **options):
         #gets the answer documents on the current page (url)
 
+        self.stderr.write( self.start_url_a[0] + url )
         page=urllib2.urlopen( self.start_url_a[0] + url)
         contents = page.read()
 
@@ -337,11 +338,21 @@ class Command(BaseCommand):
                 number_written=''
                 #check for written/oral question numbers (using apparent convention - a question can have one of each number)
                 if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']):
-                    number_oral=re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']).group(1)
+                    number_oral=re.match(
+                        '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']).group(1)
                 if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']):
-                    number_written=re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']).group(1)
+                    number_written=re.match(
+                        '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']).group(1)
 
                 a = Answer.objects.filter( url = url )
+                date = row['cell'][2]['contents']
+                parsed_date = None
+                try:
+                    parsed_date = datetime.strptime(date, '%d %B %Y')
+                except:
+                    raise Exception("Failed to parse date (%s)" % date)
+                    pass
+
                 if not a.exists():
                     answer = Answer.objects.create(
                         number_oral = number_oral,
@@ -350,9 +361,9 @@ class Command(BaseCommand):
                         url         = 'http://www.parliament.gov.za/live/'+url,
                         house       = row['cell'][4]['contents'],
                         number_written = number_written,
-                        date        = row['cell'][2]['contents'],
+                        date        = parsed_date,
                         type        = types[2] )
-                    answers.push(answer)
+                    answers.append(answer)
         
         #if there is a next link, process the next page of results
         limit = options['limit']
@@ -394,7 +405,6 @@ class Command(BaseCommand):
                         row.processed = 1
                         row.text = text
                         row.save()
-                        c.execute("UPDATE answers SET processed=?,text=? WHERE id=?",t)
                     except subprocess.CalledProcessError:
                         self.stderr.write( 'ERROR in antiword processing %d' % row.id )
                         pass
@@ -437,7 +447,7 @@ class Command(BaseCommand):
                     question.save()
                     answer.matched_to_question = 1
                     answer.save()
-                    count++
+                    count += 1
 
             # now oral (answer can be to both a written and oral question)
             # TODO refactor with above
@@ -456,7 +466,7 @@ class Command(BaseCommand):
                     question.save()
                     answer.matched_to_question = 1
                     answer.save()
-                    count++
+                    count += 1
 
         self.stdout.write('Matched %d answers\n' % count)
 
@@ -465,15 +475,15 @@ class Command(BaseCommand):
         for question in questions:
             answer = question.answer
             tosave = {
-                number1 = question.number1,
-                number2 = question.number2,
-                askedby = question.askedby,
-                questionto = question.questionto,
-                type = question.type,
-                house = question.house,
-                parliament = question.parliament,
-                session = question.session,
-                utterances = [
+                'number1': question.number1,
+                'number2': question.number2,
+                'askedby': question.askedby,
+                'questionto': question.questionto,
+                'type': question.type,
+                'house': question.house,
+                'parliament': question.parliament,
+                'session': question.session,
+                'utterances': [
                     {
                         'type':       'question',
                         'personname': question.askedby,
@@ -488,14 +498,15 @@ class Command(BaseCommand):
                         'name':   answer.name,
                         'source': answer.url,
                         'text':   answer.text,
-                        'persontitle': question.questionto',
+                        'persontitle': question.questionto,
                         'date':   answer.date,
                     }
-                }
+                ]
+            }
             filename = "output_json_matched/%d.json" % question.id
             with open(filename, 'w') as outfile:
                 json.dump(
                     tosave,
                     outfile,
                     indent=1)
-            self.stdout.write('Wrote %s\n" % filename)
+            self.stdout.write('Wrote %s\n' % filename)

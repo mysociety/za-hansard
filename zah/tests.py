@@ -12,7 +12,7 @@ import sys, os
 class ZAHansardParsingTests(TestCase):
 
     docnames = ['502914_1', 'NA290307', 'EPC110512', 'NA210212', 'NA200912']
-    xml = {} 
+    xml = {}
 
     @classmethod
     def setUpClass(cls):
@@ -79,7 +79,7 @@ class ZAHansardParsingTests(TestCase):
         self.assertEqual(recordedTime.text, '19:01')
         self.assertEqual(recordedTime.get('time'), '19:01:00')
         self.assertEqual(mainSection.prayers.p.text, 'The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.')
-        
+
         subSections = mainSection.findall('{*}debateSection')
         #for s in subSections:
             # print >> sys.stderr, s.get('id')
@@ -130,6 +130,6 @@ class ZAHansardParsingTests(TestCase):
         (xml, _) = self.xml.get('NA290307')
         self.assertTrue(xml is not None)
         debateBody = xml.debate.debateBody
-        mainSection = debateBody.debateSection 
+        mainSection = debateBody.debateSection
         subSections = mainSection.findall('{*}debateSection')
         self.assertEqual(len(subSections), 16)

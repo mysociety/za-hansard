@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from speeches.models import Section
 
 # NOTE: cargo culting from https://github.com/mysociety/mzalendo/blob/master/mzalendo/hansard/models/source.py
+# TODO refactor these routines, unsure how to do that in Python
 
 # check that the cache is setup and the directory exists
 try:
@@ -24,6 +25,12 @@ try:
 except AttributeError:
     raise ImproperlyConfigured("Could not find COMMITTEE_CACHE setting - please set it")
 
+try:
+    ANSWER_CACHE = settings.ANSWER_CACHE
+    if not os.path.exists( ANSWER_CACHE ):
+        os.makedirs( ANSWER_CACHE )
+except AttributeError:
+    raise ImproperlyConfigured("Could not find ANSWER_CACHE setting - please set it")
 
 # EXCEPTIONS
 
@@ -209,6 +216,9 @@ class PMGCommitteeAppearance(models.Model):
     text            = models.TextField()
 
 class Answer (models.Model):
+    # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT, 
+    # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT, 
+    # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
     number_oral = models.IntegerField()
     text = models.TextField()
     processed = models.BooleanField()

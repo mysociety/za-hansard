@@ -26,25 +26,65 @@ class Command(BaseCommand):
 
     help = 'Check for new sources'
     option_list = BaseCommand.option_list + (
-        make_option('--scrape',
+        make_option('--scrape-questions',
             default=False,
             action='store_true',
-            help='Scrape questions',
+            help='Scrape questions (step 1)',
+        ),
+        make_option('--scrape-answers',
+            default=False,
+            action='store_true',
+            help='Scrape answers (step 2)',
+        ),
+        make_option('--process-answers',
+            default=False,
+            action='store_true',
+            help='Process answers (step 3)',
+        ),
+        make_option('--match-answers',
+            default=False,
+            action='store_true',
+            help='Match answers (step 4)',
+        ),
+        make_option('--save',
+            default=False,
+            action='store_true',
+            help='Save Q&A as json (step 5)',
+        ),
+        make_option('--limit',
+            default=0,
+            action='store',
+            type='int',
+            help='How far to go back',
         ),
     )
 
+    start_url_q = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=236')
+    start_url_a = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=248')
+
     def handle(self, *args, **options):
-        if options['scrape']:
+        if options['scrape_questions']:
             self.scrape_questions(*args, **options)
+        elif options['scrape_answers']:
+            self.scrape_answers(*args, **options)
+        elif options['process_answers']:
+            self.process_answers(*args, **options)
+        elif options['match_answers']:
+            self.match_answers(*args, **options)
+        elif options['save']:
+            self.save(*args, **options)
         else:
             raise CommandError("Please supply a valid option")
 
     def scrape_questions(self, *args, **options):
-        urls = self.getdocs('http://www.parliament.gov.za/live/content.php?Category_ID=236') #get the first page
+        urls = self.get_questions(self.start_url_q[1], **options) #get the first page
+
+        if options['limit']:
+            urls = urls[ :options['limit'] ]
 
         print "Processing ",len(urls), " documents"
-
         count=0
+
         for url in urls:
             count+=1
             print "Document ", count
@@ -53,30 +93,30 @@ class Command(BaseCommand):
             if url['language']=='English' and url['type']=='pdf':
 
                 if Question.objects.filter( source=source_url ).count():
-                    self.stderr.write('Already exists')
+                    self.stderr.write('Already exists\n')
                 else:
-                    self.stderr.write('Going for it!')
+                    self.stderr.write('Going for it!\n')
                     #try:
-                    pages = self.getdocument( source_url )
+                    pages = self.get_question( source_url )
                     #except Exception as e:
                         #self.stderr.write( str(e) )
                         #pass
 
             elif url['language']=='English':
-                self.stderr.write('%s is not a pdf' % source_url)
+                self.stderr.write('%s is not a pdf\n' % source_url)
 
             else:
-                self.stderr.write('wuh? %s' % str(url) )
+                self.stderr.write('wuh? %s\n' % str(url) )
 
-    def getdocument(self, url):
+    def get_question(self, url):
         count=0
         pdfdata = urllib2.urlopen(url).read()
         xmldata = scraperwiki.pdftoxml(pdfdata)
         
         #try:
-        self.stderr.write("URL %s" % url)
-        self.stderr.write("PDF len %d" % len(pdfdata))
-        self.stderr.write("XML %s" % xmldata)
+        self.stderr.write("URL %s\n" % url)
+        self.stderr.write("PDF len %d\n" % len(pdfdata))
+        self.stderr.write("XML %s\n" % xmldata)
 
         if not xmldata:
             return False
@@ -85,7 +125,7 @@ class Command(BaseCommand):
         #except Exception as e:
             #self.stderr.write("OOPS")
             #raise CommandError( '%s failed (%s)' % (url, e))
-        self.stderr.write("ok so far...")
+        self.stderr.write("ok so far...\n")
 
         pages = list(root)
         
@@ -229,10 +269,11 @@ class Command(BaseCommand):
         self.stdout.write( 'Saved %d\n' % count )
         return True
 
-    def getdocs(self, url):
+    def get_questions(self, url, **options):
         urls = []
-        print 'start ',url
-        page=urllib2.urlopen(url)
+        self.stdout.write( 'Start (%s)\n' % url )
+
+        page=urllib2.urlopen( self.start_url_q[0] + url)
         contents = page.read()
         rules = {
                 "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
@@ -257,7 +298,204 @@ class Command(BaseCommand):
 
         for cell in page['next']: #check for next page of links
             if cell['contents']=='Next':
-                urls += self.getdocs('http://www.parliament.gov.za/live/'+cell['url'])
+                next_url = cell['url']
+                limit = options['limit']
+                if limit:
+                    match = re.search( 'DocumentStart=(\d+)$', next_url)
+                    if match:
+                        next_num = int( match.group(1) )
+                        sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
+                        if next_num > limit:
+                            break
+                urls += self.get_questions(next_url, **options)
 
         return urls
 
+    def scrape_answers(self, *args, **options):
+        urls = self.get_answers(self.start_url_a[1], **options) #get the first page
+
+    def get_answers(self, url, **options):
+        #gets the answer documents on the current page (url)
+
+        page=urllib2.urlopen( self.start_url_a[0] + url)
+        contents = page.read()
+
+        rules = {
+            "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
+            "next(table.tableOrange_sep table table td a)": [{"contents":".","url":"@href"}]}
+        p = parslepy.Parselet(rules)
+
+        page = p.parse_fromstring(contents)
+
+        answers = []
+
+        for row in page['papers']:
+            if len(row['cell']) == 11:
+                url=row['cell'][8]['url']
+                types=url.partition(".")
+                number_oral=''
+                number_written=''
+                #check for written/oral question numbers (using apparent convention - a question can have one of each number)
+                if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']):
+                    number_oral=re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']).group(1)
+                if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']):
+                    number_written=re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']).group(1)
+
+                a = Answer.objects.filter( url = url )
+                if not a.exists():
+                    answer = Answer.objects.create(
+                        number_oral = number_oral,
+                        name        = row['cell'][0]['contents'],
+                        language    = row['cell'][6]['contents'],
+                        url         = 'http://www.parliament.gov.za/live/'+url,
+                        house       = row['cell'][4]['contents'],
+                        number_written = number_written,
+                        date        = row['cell'][2]['contents'],
+                        type        = types[2] )
+                    answers.push(answer)
+        
+        #if there is a next link, process the next page of results
+        limit = options['limit']
+        for cell in page['next']:
+            # TODO refactor with get_questions
+            if cell['contents']=='Next':
+                next_url = cell['url']
+                if limit:
+                    match = re.search( 'DocumentStart=(\d+)$', next_url)
+                    if match:
+                        next_num = int( match.group(1) )
+                        sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
+                        if next_num > limit:
+                            break
+                answers += self.get_answers(next_url, **options)
+        return answers
+        
+    def process_answers(self, url, **options):
+
+        answers = Answer.objects.filter( url = None )
+            
+        # for row in c.execute('SELECT processed,id,url,type FROM answers'):
+
+        for row in answers:
+            if not row.processed:
+                try:
+                    download = urllib2.urlopen( row.url )
+                    save = open( 
+                        os.path.join(
+                            settings.ANSWER_CACHE,
+                            '%d.%s' % (row.id, row.type)),
+                        'wb')
+                    save.write( download.read() )
+                    save.close()
+
+                    try:
+                        text = subprocess.check_output([
+                            '/usr/bin/antiword', save]).decode('unocode-escape')
+                        row.processed = 1
+                        row.text = text
+                        row.save()
+                        c.execute("UPDATE answers SET processed=?,text=? WHERE id=?",t)
+                    except subprocess.CalledProcessError:
+                        self.stderr.write( 'ERROR in antiword processing %d' % row.id )
+                        pass
+                    
+                except urllib2.HTTPError:
+                    row.processed = 2
+                    row.save()
+                    self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
+                    pass
+
+                except urllib2.URLError:
+                    self.stderr.write( 'ERROR URLError while processing %d' % row.id )
+                    pass
+
+    def match_answers(self, *args, **options):
+        
+        #get all the answers for processing (this should change to all not already processed)
+
+        # for row in c.execute('SELECT id,number_written,number_oral,date FROM answers'):
+        answers = Answer.objects.all()
+
+        count = 0
+        
+        for answer in answers:
+            answer_date = answer.date
+            earliest_question_date = answer_date - datetime.timedelta( years=1 )
+
+            if answer.number_written:
+                questions = Question.objects.filter(
+                        number1 = answer.number_written,
+                        type = 'written',
+                        date__lte = answer_date,
+                        date__gte = earliest_question_date
+                    ).order_by('-date')
+
+                if questions.exists():
+                    question = questions[0]
+
+                    question.answer = answer
+                    question.save()
+                    answer.matched_to_question = 1
+                    answer.save()
+                    count++
+
+            # now oral (answer can be to both a written and oral question)
+            # TODO refactor with above
+            if answer.number_oral:
+                questions = Question.objects.filter(
+                        number1 = answer.number_oral,
+                        type = 'oral',
+                        date__lte = answer_date,
+                        date__gte = earliest_question_date
+                    ).order_by('-date')
+
+                if questions.exists():
+                    question = questions[0]
+
+                    question.answer = answer
+                    question.save()
+                    answer.matched_to_question = 1
+                    answer.save()
+                    count++
+
+        self.stdout.write('Matched %d answers\n' % count)
+
+    def qa_to_json(self, *args, **options):
+        questions = Question.objects.filter( answer__isnull = False)
+        for question in questions:
+            answer = question.answer
+            tosave = {
+                number1 = question.number1,
+                number2 = question.number2,
+                askedby = question.askedby,
+                questionto = question.questionto,
+                type = question.type,
+                house = question.house,
+                parliament = question.parliament,
+                session = question.session,
+                utterances = [
+                    {
+                        'type':       'question',
+                        'personname': question.askedby,
+                        'intro':      question.intro,
+                        'text':       question.question,
+                        'date':       question.date,
+                        'source':     question.source,
+                        'translated': question.translated
+                    },
+                    {
+                        'type':   'answer',
+                        'name':   answer.name,
+                        'source': answer.url,
+                        'text':   answer.text,
+                        'persontitle': question.questionto',
+                        'date':   answer.date,
+                    }
+                }
+            filename = "output_json_matched/%d.json" % question.id
+            with open(filename, 'w') as outfile:
+                json.dump(
+                    tosave,
+                    outfile,
+                    indent=1)
+            self.stdout.write('Wrote %s\n" % filename)

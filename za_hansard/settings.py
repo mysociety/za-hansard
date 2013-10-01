@@ -25,6 +25,7 @@ ADMINS = (
 
 HANSARD_CACHE = 'hansard_cache/'
 COMMITTEE_CACHE = 'hansard_cache/committee/'
+ANSWER_CACHE = 'hansard_cache/answers/'
 
 HTTPLIB2_CACHE_DIR = 'httplib2_cache/'
 

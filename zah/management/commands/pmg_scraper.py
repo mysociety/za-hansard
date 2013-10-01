@@ -122,7 +122,7 @@ class Command(BaseCommand):
         p = parslepy.Parselet(committees_rules)
         parsedcommittees = p.parse_fromstring(contents)
 
-        self.stdout.write('Started')
+        self.stdout.write('Started\n')
         for ctype in parsedcommittees['committee_types']: 
             for committee in ctype['committees']:
                 self.numcommittees = self.numcommittees + 1
@@ -156,7 +156,7 @@ class Command(BaseCommand):
               json.dump(self.allappearances, outfile)
 
     def updateprocess(self):
-        self.stdout.write('\rCommittee %d, Checked %d Reports, Processed %d, %d Appearances' 
+        self.stdout.write('Committee %d, Checked %d Reports, Processed %d, %d Appearances\n' 
             % (self.numcommittees, self.reportschecked, self.reportsprocessed, self.appearancesadded))
 
     def processReport(self, row, url,committeeName,committeeURL,meetingDate): 

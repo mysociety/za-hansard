@@ -50,11 +50,11 @@ class Command(BaseCommand):
 
         try:
             url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119&DocumentStart=%d' % (start or 0)
-            self.stdout.write("Retrieving %s" % url)
+            self.stdout.write("Retrieving %s\n" % url)
             h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
             response, content = h.request(url)
             assert response.status == 200
-            self.stdout.write("OK")
+            self.stdout.write("OK\n")
             # content = open('test.html').read()
 
             # parse content
@@ -69,7 +69,7 @@ class Command(BaseCommand):
             match = rx.search(pager.text)
             (pstart, pend, ptotal) = [int(p) for p in match.groups()]
 
-            self.stdout.write( "Processing %d to %d" % (pstart, pend) )
+            self.stdout.write( "Processing %d to %d\n" % (pstart, pend) )
 
             nodes = soup.findAll( 'a', text="View Document" )
             def scrape(node):

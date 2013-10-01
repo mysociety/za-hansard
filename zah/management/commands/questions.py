@@ -208,7 +208,7 @@ class Command(BaseCommand):
                                     'house': house,
                                     'type': questiontype
                                     }
-                            self.stdout.write("Writing object %s" % str(data))
+                            self.stdout.write("Writing object %s\n" % str(data))
                             Question.objects.create( **data )
                             summer=''
                         else:
@@ -226,7 +226,7 @@ class Command(BaseCommand):
                         startquestion=True
                         summer=''
                     
-        self.stdout.write( 'Saved %d' % count )
+        self.stdout.write( 'Saved %d\n' % count )
         return True
 
     def getdocs(self, url):

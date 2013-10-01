@@ -73,7 +73,7 @@ class Command(BaseCommand):
         for s in (sources[:limit] if limit else sources):
         # for s in sources[:limit].iterator():
             if s.language != 'English':
-                self.stdout.write("Skipping non-English for now...") # fails date parsing, hehehe
+                self.stdout.write("Skipping non-English for now...\n") # fails date parsing, hehehe
                 continue
             s.last_processing_attempt = datetime.datetime.now().date()
             s.save()
@@ -91,7 +91,7 @@ class Command(BaseCommand):
 
                 open('%s.xml' % filename, 'w').write(xml)
                 s.save()
-                self.stdout.write( "Processed %s (%d)" % (s.document_name, s.document_number) )
+                self.stdout.write( "Processed %s (%d)\n" % (s.document_name, s.document_number) )
             except Exception as e:
                 # raise CommandError("Failed to run parsing: %s" % str(e))
                 self.stderr.write("WARN: Failed to run parsing: %s" % str(e))

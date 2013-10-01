@@ -7,3 +7,5 @@
 chromedriver.log
 *~
 .noseids
+build
+za_hansard.egg-info

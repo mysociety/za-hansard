@@ -21,7 +21,8 @@ setup(
     author='mySociety',
     author_email='hakim@mysociety.org',
     url='https://github.com/mysociety/za-hansard',
-    packages=find_packages(),
+    packages=find_packages(),    
+    package_data={'zah': ['fixtures/test_inputs/*']},
     include_package_data=True,
     install_requires=install_requires(),
     classifiers=[

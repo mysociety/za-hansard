@@ -21,10 +21,10 @@ class FailedToRetrieveSourceException (Exception):
 class Command(BaseCommand):
     help = 'Check for new sources'
     option_list = BaseCommand.option_list + (
-        make_option('--stop-on-seen',
+        make_option('--check-all',
             default=False,
             action='store_true',
-            help='Stop when get as far back as first seen item',
+            help="Don't stop when when reaching a previously seen item",
         ),
         make_option('--start-offset',
             default=0,
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 if Source.objects.filter( 
                     document_name   = s['document_name'], 
                     document_number = s['document_number']).exists():
-                    if options['stop_on_seen']:
+                    if not options['check_all']:
                         return scraped
                 else:
                     scraped.append(s)

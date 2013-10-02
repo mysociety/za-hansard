@@ -468,7 +468,7 @@ class Command(BaseCommand):
 
             importer = ImportJson
             try:
-                self.stderr.write("TRYING %d\n" % row.id)
+                self.stdout.write("TRYING %d\n" % row.id)
                 section = importer.import_document(filename)
                 sections.append(section)
                 s.sayit_section = section

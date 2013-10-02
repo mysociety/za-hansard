@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
             importer = ImportAkomaNtoso( instance=instance )
             try:
-                self.stderr.write("TRYING %s\n" % path)
+                self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)
                 sections.append(section)
                 s.sayit_section = section

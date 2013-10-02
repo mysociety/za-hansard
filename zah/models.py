@@ -99,7 +99,7 @@ class Source(models.Model):
             os.remove( cache_file_path )
         
         
-    def file(self, debug=True):
+    def file(self, debug=False):
         """
         Return as a file object the resource that the url is pointing to.
         

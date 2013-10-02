@@ -270,46 +270,58 @@ class Command(BaseCommand):
         return True
 
     def get_questions(self, url, **options):
-        urls = []
-        self.stdout.write( 'Start (%s)\n' % url )
-
-        page=urllib2.urlopen( self.start_url_q[0] + url)
-        contents = page.read()
         rules = {
-                "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
-                "next(table.tableOrange_sep table table td a)": [{"contents":".","url":"@href"}]
-                }
+            "papers(table.tableOrange_sep tr)" : 
+                [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
+            "next(table.tableOrange_sep table table td a)": 
+                [{"contents":".","url":"@href"}]
+        }
         p = parslepy.Parselet(rules)
 
-        page = p.parse_fromstring(contents)
+        def _get_questions(url, **options):
+            questions = []
 
-        for row in page['papers']:
-            if len(row['cell'])==11:
-                url=row['cell'][8]['url']
-                types=url.partition(".")
-                urls.append({
-                    "name":     row['cell'][0]['contents'],
-                    "language": row['cell'][6]['contents'],
-                    "url":      'http://www.parliament.gov.za/live/'+url,
-                    "house":    row['cell'][4]['contents'],
-                    "date":     row['cell'][2]['contents'],
-                    "type":     types[2]
-                    })
+            self.stdout.write( 'Questions (%s)\n' % url )
+            page=urllib2.urlopen( self.start_url_q[0] + url)
 
-        for cell in page['next']: #check for next page of links
-            if cell['contents']=='Next':
-                next_url = cell['url']
-                limit = options['limit']
-                if limit:
-                    match = re.search( 'DocumentStart=(\d+)$', next_url)
-                    if match:
-                        next_num = int( match.group(1) )
-                        sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
-                        if next_num > limit:
-                            break
-                urls += self.get_questions(next_url, **options)
+            contents = page.read()
 
-        return urls
+            page = p.parse_fromstring(contents)
+
+            for row in page['papers']:
+                if len(row['cell'])==11:
+                    url = row['cell'][8]['url']
+                    types = url.partition(".")
+                    questions.append({
+                        "name":     row['cell'][0]['contents'],
+                        "language": row['cell'][6]['contents'],
+                        "url":      'http://www.parliament.gov.za/live/'+url,
+                        "house":    row['cell'][4]['contents'],
+                        "date":     row['cell'][2]['contents'],
+                        "type":     types[2]
+                        })
+
+            for cell in page['next']: #check for next page of links
+                if cell['contents']=='Next':
+                    next_url = cell['url']
+                    limit = options['limit']
+                    if limit:
+                        match = re.search( 'DocumentStart=(\d+)$', next_url)
+                        if match:
+                            next_num = int( match.group(1) )
+                            sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
+                            if next_num > limit:
+                                break
+                    return (questions, next_url)
+            return (questions, None)
+
+        questions = []
+        next_url = self.start_url_q[1]
+        while next_url:
+            (_questions, next_url) = _get_questions(next_url, **options)
+            questions += _get_questions
+
+        return questions
 
     def scrape_answers(self, *args, **options):
         urls = self.get_answers(self.start_url_a[1], **options) #get the first page
@@ -317,68 +329,78 @@ class Command(BaseCommand):
     def get_answers(self, url, **options):
         #gets the answer documents on the current page (url)
 
-        self.stderr.write( self.start_url_a[0] + url )
-        page=urllib2.urlopen( self.start_url_a[0] + url)
-        contents = page.read()
-
         rules = {
             "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
             "next(table.tableOrange_sep table table td a)": [{"contents":".","url":"@href"}]}
         p = parslepy.Parselet(rules)
 
-        page = p.parse_fromstring(contents)
+        def _get_answers (url, **options):
+            self.stderr.write( self.start_url_a[0] + url )
+            page=urllib2.urlopen( self.start_url_a[0] + url)
+            contents = page.read()
 
+
+            page = p.parse_fromstring(contents)
+
+            answers = []
+
+            for row in page['papers']:
+                if len(row['cell']) == 11:
+                    url=row['cell'][8]['url']
+                    types=url.partition(".")
+                    number_oral=''
+                    number_written=''
+                    #check for written/oral question numbers 
+                    # (using apparent convention - a question can have one of each number)
+                    if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']):
+                        number_oral=re.match(
+                            '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']).group(1)
+                    if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']):
+                        number_written=re.match(
+                            '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']).group(1)
+
+                    a = Answer.objects.filter( url = url )
+                    date = row['cell'][2]['contents']
+                    parsed_date = None
+                    try:
+                        parsed_date = datetime.strptime(date, '%d %B %Y')
+                    except:
+                        raise Exception("Failed to parse date (%s)" % date)
+                        pass
+
+                    if not a.exists():
+                        answer = Answer.objects.create(
+                            number_oral = number_oral,
+                            name        = row['cell'][0]['contents'],
+                            language    = row['cell'][6]['contents'],
+                            url         = 'http://www.parliament.gov.za/live/'+url,
+                            house       = row['cell'][4]['contents'],
+                            number_written = number_written,
+                            date        = parsed_date,
+                            type        = types[2] )
+                        answers.append(answer)
+            
+            #if there is a next link, process the next page of results
+            limit = options['limit']
+            for cell in page['next']:
+                # TODO refactor with get_questions
+                if cell['contents']=='Next':
+                    next_url = cell['url']
+                    if limit:
+                        match = re.search( 'DocumentStart=(\d+)$', next_url)
+                        if match:
+                            next_num = int( match.group(1) )
+                            sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
+                            if next_num > limit:
+                                break
+                    return (answers, next_url)
+            return (answers, None)
+
+        next_url = self.start_url_a[1]
         answers = []
-
-        for row in page['papers']:
-            if len(row['cell']) == 11:
-                url=row['cell'][8]['url']
-                types=url.partition(".")
-                number_oral=''
-                number_written=''
-                #check for written/oral question numbers (using apparent convention - a question can have one of each number)
-                if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']):
-                    number_oral=re.match(
-                        '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']).group(1)
-                if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']):
-                    number_written=re.match(
-                        '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]',row['cell'][0]['contents']).group(1)
-
-                a = Answer.objects.filter( url = url )
-                date = row['cell'][2]['contents']
-                parsed_date = None
-                try:
-                    parsed_date = datetime.strptime(date, '%d %B %Y')
-                except:
-                    raise Exception("Failed to parse date (%s)" % date)
-                    pass
-
-                if not a.exists():
-                    answer = Answer.objects.create(
-                        number_oral = number_oral,
-                        name        = row['cell'][0]['contents'],
-                        language    = row['cell'][6]['contents'],
-                        url         = 'http://www.parliament.gov.za/live/'+url,
-                        house       = row['cell'][4]['contents'],
-                        number_written = number_written,
-                        date        = parsed_date,
-                        type        = types[2] )
-                    answers.append(answer)
-        
-        #if there is a next link, process the next page of results
-        limit = options['limit']
-        for cell in page['next']:
-            # TODO refactor with get_questions
-            if cell['contents']=='Next':
-                next_url = cell['url']
-                if limit:
-                    match = re.search( 'DocumentStart=(\d+)$', next_url)
-                    if match:
-                        next_num = int( match.group(1) )
-                        sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
-                        if next_num > limit:
-                            break
-                answers += self.get_answers(next_url, **options)
+        while next_url:
+            (_answers, next_url) = _get_answers(next_url, **options)
+            answers += _answers
         return answers
         
     def process_answers(self, url, **options):

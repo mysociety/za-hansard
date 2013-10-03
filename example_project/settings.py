@@ -1,4 +1,4 @@
-# Django settings for za_hansard project.
+# Django settings for example_project project.
 
 import os
 import yaml
@@ -124,10 +124,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'za_hansard.urls'
+ROOT_URLCONF = 'example_project.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'za_hansard.wsgi.application'
+WSGI_APPLICATION = 'example_project.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

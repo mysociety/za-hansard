@@ -4,15 +4,17 @@ import lxml.etree
 import sys
 import re, os
 import lxml.html  
-import json 
 import dateutil.parser 
 import string 
 import parslepy
 import json
+from zah.datejson import DateEncoder
 from lxml import etree
 import time
 
-from datetime import datetime, date
+import subprocess
+
+from datetime import datetime, date, timedelta
 
 from optparse import make_option
 
@@ -21,6 +23,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from za_hansard.models import Question, Answer
 from speeches.importers.import_json import ImportJson
+from instances.models import Instance
 
 class Command(BaseCommand):
 
@@ -51,6 +54,16 @@ class Command(BaseCommand):
             action='store_true',
             help='Save Q&A as json (step 5)',
         ),
+        make_option('--import-into-sayit',
+            default=False,
+            action='store_true',
+            help='Import saved json to sayit (step 6)',
+        ),
+        make_option('--instance',
+            type='str',
+            default='default',
+            help='Instance to import into',
+        ),
         make_option('--limit',
             default=0,
             action='store',
@@ -72,7 +85,9 @@ class Command(BaseCommand):
         elif options['match_answers']:
             self.match_answers(*args, **options)
         elif options['save']:
-            self.save(*args, **options)
+            self.qa_to_json(*args, **options)
+        elif options['import_into_sayit']:
+            self.import_into_sayit(*args, **options)
         else:
             raise CommandError("Please supply a valid option")
 
@@ -403,43 +418,45 @@ class Command(BaseCommand):
             answers += _answers
         return answers
         
-    def process_answers(self, url, **options):
+    def process_answers(self, *args, **options):
 
-        answers = Answer.objects.filter( url = None )
+        answers = Answer.objects.exclude( url = None )
+        unprocessed = answers.exclude( processed_code=1 )
+
+        self.stderr.write( "Processing %d records" % len(unprocessed) )
             
         # for row in c.execute('SELECT processed,id,url,type FROM answers'):
 
-        for row in answers:
-            if not row.processed:
+        for row in unprocessed:
+            self.stdout.write('.')
+            try:
+                download = urllib2.urlopen( row.url )
+                filename = os.path.join(
+                        settings.ANSWER_CACHE,
+                        '%d.%s' % (row.id, row.type))
+                save = open( filename, 'wb' )
+                save.write( download.read() )
+                save.close()
+
                 try:
-                    download = urllib2.urlopen( row.url )
-                    save = open( 
-                        os.path.join(
-                            settings.ANSWER_CACHE,
-                            '%d.%s' % (row.id, row.type)),
-                        'wb')
-                    save.write( download.read() )
-                    save.close()
-
-                    try:
-                        text = subprocess.check_output([
-                            '/usr/bin/antiword', save]).decode('unocode-escape')
-                        row.processed = 1
-                        row.text = text
-                        row.save()
-                    except subprocess.CalledProcessError:
-                        self.stderr.write( 'ERROR in antiword processing %d' % row.id )
-                        pass
-                    
-                except urllib2.HTTPError:
-                    row.processed = 2
+                    text = subprocess.check_output([
+                        '/usr/bin/antiword', filename]).decode('unicode-escape')
+                    row.processed_code = 1
+                    row.text = text
                     row.save()
-                    self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
+                except subprocess.CalledProcessError:
+                    self.stderr.write( 'ERROR in antiword processing %d' % row.id )
                     pass
+                
+            except urllib2.HTTPError:
+                row.processed_code = 2
+                row.save()
+                self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
+                pass
 
-                except urllib2.URLError:
-                    self.stderr.write( 'ERROR URLError while processing %d' % row.id )
-                    pass
+            except urllib2.URLError:
+                self.stderr.write( 'ERROR URLError while processing %d' % row.id )
+                pass
 
     def match_answers(self, *args, **options):
         
@@ -452,7 +469,7 @@ class Command(BaseCommand):
         
         for answer in answers:
             answer_date = answer.date
-            earliest_question_date = answer_date - datetime.timedelta( years=1 )
+            earliest_question_date = answer_date - timedelta( days = 365 )
 
             if answer.number_written:
                 questions = Question.objects.filter(
@@ -493,42 +510,117 @@ class Command(BaseCommand):
         self.stdout.write('Matched %d answers\n' % count)
 
     def qa_to_json(self, *args, **options):
-        questions = Question.objects.filter( answer__isnull = False)
+        questions = (Question.objects
+                .filter( answer__isnull = False)
+                .prefetch_related('answer')
+                .filter(answer__processed = 1)
+                )
+
         for question in questions:
             answer = question.answer
+            #{
+            # "speeches": [
+            #  {
+            #   "personname": "M Johnson",
+            #   "party": "ANC",
+            #   "text": "Mr M Johnson (ANC) chaired the meeting."
+            #  },
+            #  ...
+            #  ],
+            # "date": "2013-06-21",
+            # "organization": "Agriculture, Forestry and Fisheries",
+            # "reporturl": "http://www.pmg.org.za/report/20130621-report-back-from-departments-health-trade-and-industry-and-agriculture-forestry-and-fisheries-meat-inspection",
+            # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
+            ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
             tosave = {
-                'number1': question.number1,
-                'number2': question.number2,
-                'askedby': question.askedby,
                 'questionto': question.questionto,
-                'type': question.type,
-                'house': question.house,
-                'parliament': question.parliament,
-                'session': question.session,
-                'utterances': [
+                'title': question.session,
+                'date': question.date,
+                'speeches': [
                     {
-                        'type':       'question',
                         'personname': question.askedby,
-                        'intro':      question.intro,
+                        # party?
                         'text':       question.question,
+                        'tags': ['question'],
+
+
+                        # unused for import
+                        'type':       'question',
+                        'intro':      question.intro,
                         'date':       question.date,
                         'source':     question.source,
                         'translated': question.translated
                     },
                     {
-                        'type':   'answer',
-                        'name':   answer.name,
-                        'source': answer.url,
+                        'personname':   question.questionto,
+                        # party?
                         'text':   answer.text,
+                        'tags': ['answer'],
+
+                        # unused for import
+                        'name' : answer.name,
                         'persontitle': question.questionto,
+                        'type':   'answer',
+                        'source': answer.url,
                         'date':   answer.date,
                     }
-                ]
+                ],
+
+                # random stuff that is NOT used by the JSON import
+                'number1': question.number1,
+                'number2': question.number2,
+                'askedby': question.askedby,
+                'type': question.type,
+                'house': question.house,
+                'parliament': question.parliament,
             }
-            filename = "output_json_matched/%d.json" % question.id
+            filename = os.path.join(
+                settings.ANSWER_CACHE,
+                "%d.json" % question.id)
             with open(filename, 'w') as outfile:
                 json.dump(
                     tosave,
                     outfile,
-                    indent=1)
+                    indent=1,
+                    cls=DateEncoder)
             self.stdout.write('Wrote %s\n' % filename)
+
+    def import_into_sayit(self, *args, **options):
+        instance = None
+        try:
+            instance = Instance.objects.get(label=options['instance'])
+        except Instance.NotFound:
+            raise CommandError("Instance specified not found (%s)" % options['instance'])
+
+        questions = (Question.objects
+                .filter( sayit_section = None ) # not already imported
+                .filter( answer__isnull = False)
+                .prefetch_related('answer')
+                .filter(answer__processed = 1)
+                )
+
+        sections = []
+        for question in questions:
+            path = os.path.join(
+                settings.ANSWER_CACHE,
+                "%d.json" % question.id)
+            if not os.path.exists(path):
+                continue
+                
+            importer = ImportJson( instance=instance )
+            #try:
+            self.stderr.write("TRYING %s\n" % path)
+            section = importer.import_document(path)
+            sections.append(section)
+            question.sayit_section = section
+            question.last_sayit_import = datetime.now().date()
+            question.save()
+            #except Exception as e:
+                #self.stderr.write('WARN: failed to import %d: %s' % 
+                    #(question.id, str(e)))
+
+        self.stdout.write( str( [s.id for s in sections] ) )
+        self.stdout.write( '\n' )
+        self.stdout.write('Imported %d / %d sections\n' %
+            (len(sections), len(questions)))
+        

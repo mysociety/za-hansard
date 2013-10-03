@@ -16,6 +16,8 @@ with open(config_file) as f:
 PMG_COMMITTEE_USER = config.get('PMG_COMMITTEE_USER')
 PMG_COMMITTEE_PASS = config.get('PMG_COMMITTEE_PASS')
 
+POPIT_API_URL = config.get('POPIT_API_URL')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

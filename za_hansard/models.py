@@ -221,7 +221,8 @@ class Answer (models.Model):
     # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
     number_oral = models.TextField()
     text = models.TextField()
-    processed = models.BooleanField()
+    processed = models.BooleanField() 
+    processed_code = models.IntegerField( null=False, default=0 ) # 0, 1, 2
     name = models.TextField()
     language = models.TextField()
     url = models.TextField()
@@ -250,6 +251,10 @@ class Question (models.Model):
     intro = models.TextField()
     parliament = models.TextField()
     askedby = models.TextField()
+
+    last_sayit_import = models.DateTimeField(blank=True, null=True)
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+        help_text='Associated Sayit section object, if imported')
 
 
 #CREATE TABLE completed_documents (`url` string);

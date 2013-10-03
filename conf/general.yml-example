@@ -27,3 +27,5 @@ BASE_PORT: ''
 # Username and password for pmg_scraper command
 PMG_COMMITTEE_USER: ''
 PMG_COMMITTEE_PASS: ''
+
+POPIT_API_URL: 'http://popit.example.com/api/v0.1/'

@@ -10,8 +10,8 @@ cd `dirname $0`/..
 # NOTE: some packages are difficult to install if they are not site packages,
 # for example xapian. If using these you might want to add the
 # '--enable-site-packages' argument.
-virtualenv --no-site-packages ../virtualenv-zah
-source ../virtualenv-zah/bin/activate
+virtualenv --no-site-packages ../virtualenv-za_hansard
+source ../virtualenv-za_hansard/bin/activate
 pip install --requirement requirements.txt
 
 # make sure that there is no old code (the .py files may have been git deleted)

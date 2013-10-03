@@ -8,29 +8,33 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing unique constraint on 'Source', fields ['document_name']
-        db.delete_unique(u'zah_source', ['document_name'])
+        # Adding field 'Source.is404'
+        db.add_column(u'za_hansard_source', 'is404',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding unique constraint on 'Source', fields ['document_name']
-        db.create_unique(u'zah_source', ['document_name'])
+        # Deleting field 'Source.is404'
+        db.delete_column(u'za_hansard_source', 'is404')
 
 
     models = {
-        u'zah.source': {
+        u'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'document_number': ('django.db.models.fields.IntegerField', [], {'unique': 'True'}),
             'house': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is404': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'language': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'last_processing_attempt': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'last_processing_success': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '1000'})
+            'url': ('django.db.models.fields.URLField', [], {'max_length': '1000'}),
+            'xml': ('django.db.models.fields.TextField', [], {'null': 'True'})
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']

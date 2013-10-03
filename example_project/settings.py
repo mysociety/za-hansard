@@ -146,7 +146,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nose',
     'south',
-    'zah',
+    'za_hansard',
     'speeches',
     'instances',
     'popit',

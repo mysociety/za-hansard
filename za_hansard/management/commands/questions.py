@@ -19,7 +19,7 @@ from optparse import make_option
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
-from zah.models import Question, Answer
+from za_hansard.models import Question, Answer
 from speeches.importers.import_json import ImportJson
 
 class Command(BaseCommand):

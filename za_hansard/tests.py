@@ -3,7 +3,7 @@ from __future__ import with_statement
 from datetime import datetime
 
 from django.test import TestCase
-from zah.parse import ZAHansardParser
+from za_hansard.parse import ZAHansardParser
 from lxml import etree
 
 import itertools

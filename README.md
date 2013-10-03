@@ -29,8 +29,8 @@ grep -v '#' conf/packages | sudo xargs apt-get install -y
 # this assumes that you will set up the virtualenv in ..
 # (e.g. outside the repo.
 #  You can use ~/.virtualenvs/ etc. if you prefer)
-virtualenv --no-site-packages ../virtualenv-zah
-source ../virtualenv-zah/bin/activate
+virtualenv --no-site-packages ../virtualenv-za_hansard
+source ../virtualenv-za_hansard/bin/activate
 
 # Install required python packages
 pip install --requirement requirements.txt

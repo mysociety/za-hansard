@@ -17,7 +17,7 @@ from optparse import make_option
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
-from zah.models import PMGCommitteeReport, PMGCommitteeAppearance
+from za_hansard.models import PMGCommitteeReport, PMGCommitteeAppearance
 from speeches.importers.import_json import ImportJson
 
 class Command(BaseCommand):

@@ -4,7 +4,7 @@ import time
 import sys
 
 from speeches.importers.import_akomantoso import ImportAkomaNtoso
-from zah.models import Source
+from za_hansard.models import Source
 from popit.models import ApiInstance
 from instances.models import Instance
 

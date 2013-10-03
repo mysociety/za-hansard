@@ -9,12 +9,12 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Deleting field 'Source.xml'
-        db.delete_column(u'zah_source', 'xml')
+        db.delete_column(u'za_hansard_source', 'xml')
 
 
     def backwards(self, orm):
         # Adding field 'Source.xml'
-        db.add_column(u'zah_source', 'xml',
+        db.add_column(u'za_hansard_source', 'xml',
                       self.gf('django.db.models.fields.TextField')(null=True),
                       keep_default=False)
 
@@ -74,7 +74,7 @@ class Migration(SchemaMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': "orm['speeches.Section']"}),
             'title': ('django.db.models.fields.TextField', [], {})
         },
-        'zah.source': {
+        'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
@@ -92,4 +92,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']

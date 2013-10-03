@@ -13,7 +13,7 @@ from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
 
-from zah.models import Source
+from za_hansard.models import Source
 
 class FailedToRetrieveSourceException (Exception):
     pass

@@ -9,14 +9,14 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding field 'PMGCommitteeAppearance.report'
-        db.add_column(u'zah_pmgcommitteeappearance', 'report',
-                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='appearances', null=True, to=orm['zah.PMGCommitteeReport']),
+        db.add_column(u'za_hansard_pmgcommitteeappearance', 'report',
+                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='appearances', null=True, to=orm['za_hansard.PMGCommitteeReport']),
                       keep_default=False)
 
 
     def backwards(self, orm):
         # Deleting field 'PMGCommitteeAppearance.report'
-        db.delete_column(u'zah_pmgcommitteeappearance', 'report_id')
+        db.delete_column(u'za_hansard_pmgcommitteeappearance', 'report_id')
 
 
     models = {
@@ -74,7 +74,7 @@ class Migration(SchemaMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': u"orm['speeches.Section']"}),
             'title': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.pmgcommitteeappearance': {
+        u'za_hansard.pmgcommitteeappearance': {
             'Meta': {'object_name': 'PMGCommitteeAppearance'},
             'committee': ('django.db.models.fields.TextField', [], {}),
             'committee_url': ('django.db.models.fields.TextField', [], {}),
@@ -84,17 +84,17 @@ class Migration(SchemaMigration):
             'meeting_url': ('django.db.models.fields.TextField', [], {}),
             'party': ('django.db.models.fields.TextField', [], {}),
             'person': ('django.db.models.fields.TextField', [], {}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['zah.PMGCommitteeReport']"}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['za_hansard.PMGCommitteeReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.pmgcommitteereport': {
+        u'za_hansard.pmgcommitteereport': {
             'Meta': {'object_name': 'PMGCommitteeReport'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'meeting_url': ('django.db.models.fields.TextField', [], {}),
             'premium': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
-        u'zah.source': {
+        u'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
@@ -112,4 +112,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']

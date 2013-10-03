@@ -8,51 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Question'
-        db.create_table(u'zah_question', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('answer', self.gf('django.db.models.fields.related.ForeignKey')(related_name='question', null=True, to=orm['zah.Answer'])),
-            ('house', self.gf('django.db.models.fields.TextField')()),
-            ('session', self.gf('django.db.models.fields.TextField')()),
-            ('number1', self.gf('django.db.models.fields.TextField')()),
-            ('number2', self.gf('django.db.models.fields.TextField')()),
-            ('date', self.gf('django.db.models.fields.DateField')()),
-            ('title', self.gf('django.db.models.fields.TextField')()),
-            ('question', self.gf('django.db.models.fields.TextField')()),
-            ('questionto', self.gf('django.db.models.fields.TextField')()),
-            ('source', self.gf('django.db.models.fields.TextField')()),
-            ('translated', self.gf('django.db.models.fields.IntegerField')()),
-            ('document', self.gf('django.db.models.fields.TextField')()),
-            ('type', self.gf('django.db.models.fields.TextField')()),
-            ('intro', self.gf('django.db.models.fields.TextField')()),
-            ('parliament', self.gf('django.db.models.fields.TextField')()),
-            ('askedby', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'zah', ['Question'])
+        # Adding field 'PMGCommitteeReport.last_sayit_import'
+        db.add_column(u'za_hansard_pmgcommitteereport', 'last_sayit_import',
+                      self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
+                      keep_default=False)
 
-        # Adding model 'Answer'
-        db.create_table(u'zah_answer', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('number_oral', self.gf('django.db.models.fields.IntegerField')()),
-            ('text', self.gf('django.db.models.fields.TextField')()),
-            ('processed', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.TextField')()),
-            ('language', self.gf('django.db.models.fields.TextField')()),
-            ('url', self.gf('django.db.models.fields.TextField')()),
-            ('house', self.gf('django.db.models.fields.TextField')()),
-            ('number_written', self.gf('django.db.models.fields.IntegerField')()),
-            ('date', self.gf('django.db.models.fields.DateField')()),
-            ('type', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'zah', ['Answer'])
+        # Adding field 'PMGCommitteeReport.sayit_section'
+        db.add_column(u'za_hansard_pmgcommitteereport', 'sayit_section',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['speeches.Section'], null=True, on_delete=models.PROTECT, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Question'
-        db.delete_table(u'zah_question')
+        # Deleting field 'PMGCommitteeReport.last_sayit_import'
+        db.delete_column(u'za_hansard_pmgcommitteereport', 'last_sayit_import')
 
-        # Deleting model 'Answer'
-        db.delete_table(u'zah_answer')
+        # Deleting field 'PMGCommitteeReport.sayit_section'
+        db.delete_column(u'za_hansard_pmgcommitteereport', 'sayit_section_id')
 
 
     models = {
@@ -110,21 +82,7 @@ class Migration(SchemaMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': u"orm['speeches.Section']"}),
             'title': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.answer': {
-            'Meta': {'object_name': 'Answer'},
-            'date': ('django.db.models.fields.DateField', [], {}),
-            'house': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'language': ('django.db.models.fields.TextField', [], {}),
-            'name': ('django.db.models.fields.TextField', [], {}),
-            'number_oral': ('django.db.models.fields.IntegerField', [], {}),
-            'number_written': ('django.db.models.fields.IntegerField', [], {}),
-            'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'text': ('django.db.models.fields.TextField', [], {}),
-            'type': ('django.db.models.fields.TextField', [], {}),
-            'url': ('django.db.models.fields.TextField', [], {})
-        },
-        u'zah.pmgcommitteeappearance': {
+        u'za_hansard.pmgcommitteeappearance': {
             'Meta': {'object_name': 'PMGCommitteeAppearance'},
             'committee': ('django.db.models.fields.TextField', [], {}),
             'committee_url': ('django.db.models.fields.TextField', [], {}),
@@ -134,10 +92,10 @@ class Migration(SchemaMigration):
             'meeting_url': ('django.db.models.fields.TextField', [], {}),
             'party': ('django.db.models.fields.TextField', [], {}),
             'person': ('django.db.models.fields.TextField', [], {}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['zah.PMGCommitteeReport']"}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['za_hansard.PMGCommitteeReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.pmgcommitteereport': {
+        u'za_hansard.pmgcommitteereport': {
             'Meta': {'object_name': 'PMGCommitteeReport'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_sayit_import': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
@@ -146,27 +104,7 @@ class Migration(SchemaMigration):
             'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'sayit_section': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['speeches.Section']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'})
         },
-        u'zah.question': {
-            'Meta': {'object_name': 'Question'},
-            'answer': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'question'", 'null': 'True', 'to': u"orm['zah.Answer']"}),
-            'askedby': ('django.db.models.fields.TextField', [], {}),
-            'date': ('django.db.models.fields.DateField', [], {}),
-            'document': ('django.db.models.fields.TextField', [], {}),
-            'house': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'intro': ('django.db.models.fields.TextField', [], {}),
-            'number1': ('django.db.models.fields.TextField', [], {}),
-            'number2': ('django.db.models.fields.TextField', [], {}),
-            'parliament': ('django.db.models.fields.TextField', [], {}),
-            'question': ('django.db.models.fields.TextField', [], {}),
-            'questionto': ('django.db.models.fields.TextField', [], {}),
-            'session': ('django.db.models.fields.TextField', [], {}),
-            'source': ('django.db.models.fields.TextField', [], {}),
-            'title': ('django.db.models.fields.TextField', [], {}),
-            'translated': ('django.db.models.fields.IntegerField', [], {}),
-            'type': ('django.db.models.fields.TextField', [], {})
-        },
-        u'zah.source': {
+        u'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
@@ -184,4 +122,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']

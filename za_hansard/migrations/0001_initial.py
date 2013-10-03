@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Source'
-        db.create_table(u'zah_source', (
+        db.create_table(u'za_hansard_source', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('document_name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=200)),
@@ -21,16 +21,16 @@ class Migration(SchemaMigration):
             ('last_processing_attempt', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('last_processing_success', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
         ))
-        db.send_create_signal(u'zah', ['Source'])
+        db.send_create_signal(u'za_hansard', ['Source'])
 
 
     def backwards(self, orm):
         # Deleting model 'Source'
-        db.delete_table(u'zah_source')
+        db.delete_table(u'za_hansard_source')
 
 
     models = {
-        u'zah.source': {
+        u'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '200'}),
@@ -45,4 +45,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']

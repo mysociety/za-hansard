@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 import os
 
 file_dir = os.path.abspath(os.path.dirname(__file__))
@@ -21,7 +21,7 @@ setup(
     author='mySociety',
     author_email='hakim@mysociety.org',
     url='https://github.com/mysociety/za-hansard',
-    packages=find_packages(),    
+    packages=['za_hansard'],
     package_data={'za_hansard': ['fixtures/test_inputs/*']},
     include_package_data=True,
     install_requires=install_requires(),

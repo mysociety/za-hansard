@@ -69,7 +69,7 @@ class Migration(DataMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': u"orm['speeches.Section']"}),
             'title': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.answer': {
+        u'za_hansard.answer': {
             'Meta': {'object_name': 'Answer'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'house': ('django.db.models.fields.TextField', [], {}),
@@ -84,7 +84,7 @@ class Migration(DataMigration):
             'type': ('django.db.models.fields.TextField', [], {}),
             'url': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.pmgcommitteeappearance': {
+        u'za_hansard.pmgcommitteeappearance': {
             'Meta': {'object_name': 'PMGCommitteeAppearance'},
             'committee': ('django.db.models.fields.TextField', [], {}),
             'committee_url': ('django.db.models.fields.TextField', [], {}),
@@ -94,10 +94,10 @@ class Migration(DataMigration):
             'meeting_url': ('django.db.models.fields.TextField', [], {}),
             'party': ('django.db.models.fields.TextField', [], {}),
             'person': ('django.db.models.fields.TextField', [], {}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['zah.PMGCommitteeReport']"}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appearances'", 'null': 'True', 'to': u"orm['za_hansard.PMGCommitteeReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.pmgcommitteereport': {
+        u'za_hansard.pmgcommitteereport': {
             'Meta': {'object_name': 'PMGCommitteeReport'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_sayit_import': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
@@ -106,9 +106,9 @@ class Migration(DataMigration):
             'processed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'sayit_section': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['speeches.Section']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'})
         },
-        u'zah.question': {
+        u'za_hansard.question': {
             'Meta': {'object_name': 'Question'},
-            'answer': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'question'", 'null': 'True', 'to': u"orm['zah.Answer']"}),
+            'answer': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'question'", 'null': 'True', 'to': u"orm['za_hansard.Answer']"}),
             'askedby': ('django.db.models.fields.TextField', [], {}),
             'date': ('django.db.models.fields.DateField', [], {}),
             'document': ('django.db.models.fields.TextField', [], {}),
@@ -126,7 +126,7 @@ class Migration(DataMigration):
             'translated': ('django.db.models.fields.IntegerField', [], {}),
             'type': ('django.db.models.fields.TextField', [], {})
         },
-        u'zah.source': {
+        u'za_hansard.source': {
             'Meta': {'ordering': "['-date', 'document_name']", 'object_name': 'Source'},
             'date': ('django.db.models.fields.DateField', [], {}),
             'document_name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
@@ -144,5 +144,5 @@ class Migration(DataMigration):
         }
     }
 
-    complete_apps = ['zah']
+    complete_apps = ['za_hansard']
     symmetrical = True

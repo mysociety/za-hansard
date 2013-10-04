@@ -4,7 +4,7 @@ import re
 import pprint
 import csv
 import json
-from zah.datejson import DateEncoder
+from za_hansard.datejson import DateEncoder
 from bs4 import BeautifulSoup
 import sys
 import time

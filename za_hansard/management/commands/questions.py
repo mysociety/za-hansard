@@ -8,7 +8,7 @@ import dateutil.parser
 import string 
 import parslepy
 import json
-from zah.datejson import DateEncoder
+from za_hansard.datejson import DateEncoder
 from lxml import etree
 import time
 

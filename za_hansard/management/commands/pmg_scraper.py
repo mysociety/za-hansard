@@ -6,7 +6,7 @@ import csv
 import json
 from za_hansard.datejson import DateEncoder
 from bs4 import BeautifulSoup
-import sys
+import sys, os
 import time
 import cookielib
 import urllib
@@ -18,6 +18,7 @@ from optparse import make_option
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
+from instances.models import Instance
 from za_hansard.models import PMGCommitteeReport, PMGCommitteeAppearance
 from speeches.importers.import_json import ImportJson
 
@@ -25,6 +26,11 @@ class Command(BaseCommand):
 
     help = 'Check for new sources'
     option_list = BaseCommand.option_list + (
+        make_option('--instance',
+            type='str',
+            default='default',
+            help='Instance to import into',
+        ),
         make_option('--scrape',
             default=False,
             action='store_true',
@@ -57,8 +63,14 @@ class Command(BaseCommand):
     appearancesadded=0
     totalappearances=0 # seems to be reset later, not really a good global
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
+    instance = None
 
     def handle(self, *args, **options):
+
+        try:
+            self.instance = Instance.objects.get(label=options['instance'])
+        except Instance.NotFound:
+            raise CommandError("Instance specified not found (%s)" % options['instance'])
 
         if options['scrape_with_json']:
             options['scrape'] = True
@@ -73,7 +85,7 @@ class Command(BaseCommand):
             self.save_json(*args, **options)
 
         if options['import_to_sayit']:
-            options['import_to_sayit']
+            self.import_to_sayit(*args, **options)
 
     def scrape(self, *args, **options):
         #before anything starts - login so that we can access premium content
@@ -163,7 +175,7 @@ class Command(BaseCommand):
     def processReport(self, row, url,committeeName,committeeURL,meetingDate): 
         #get the appearances in the report
 
-        meetingDate = datetime.strptime(meetingDate, '%d %b %Y').strftime('%Y-%m-%d').date()
+        meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
 
         self.reportsprocessed = self.reportsprocessed + 1
         self.updateprocess()
@@ -414,44 +426,36 @@ class Command(BaseCommand):
         reports = PMGCommitteeReport.objects.all()
 
         for report in reports:
-            tosave={
-                    'committee_url': '',
-                    'committee': '',
-                    'meeting': '',
-                    'meeting_url': '',
-                    'meeting_date': '',
-                    'premium':''
-                    }
+
+            appearances = report.appearances.all()
+
+            if not len(appearances):
+                continue
+
+            first_appearance = appearances[0]
 
             speeches = []
-            for row in report.appearances.all():
-
-                if (tosave['committee_url'] not in ['', row.committee_url] or 
-                    tosave['committee'] not in ['', row.committee] or 
-                    tosave['meeting'] not in ['', row.meeting] or 
-                    tosave['meeting_url'] not in ['', row.meeting_url] or  
-                    tosave['meeting_date'] not in ['', row.meeting_date]):
-
-                    self.stderr.write('ERROR: unexpected data')
-
-                # slightly odd logic, we're updating this every time..., will rewrite
-                tosave={
-                        'committee_url': row.committee_url,
-                        'committee': row.committee,
-                        'meeting': row.meeting,
-                        'meeting_url': row.meeting_url,
-                        'meeting_date': row.meeting_date,
-                        'premium': report.premium,
-                        }
-
-                speech = {
+            for row in appearances:
+                speeches.append({
                         'party': row.party,
-                        'person': row.person,
+                        'personname': row.person,
                         'text': row.text,
-                        }
-                speeches.append(speech)
+                        })
+            tosave={
+                    # TODO, really these fields belong to report, not to first appearance row
+                    'committee_url': first_appearance.committee_url,
+                    'organization':  first_appearance.committee,
+                    'title':         first_appearance.meeting,
+                    'report_url':    first_appearance.meeting_url,
+                    'date':          first_appearance.meeting_date,
+                    'premium':       report.premium,
+                    'speeches':      speeches,
+                    'parent_section_titles': [
+                        'Committee Minutes', 
+                        first_appearance.committee,
+                        first_appearance.meeting_date.strftime('%d %B %Y')
+                        ]}
 
-            tosave['speeches'] = speeches
 
             filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
             with open(filename, 'w') as outfile:
@@ -467,21 +471,21 @@ class Command(BaseCommand):
             if not os.path.exists(filename):
                 continue
 
-            importer = ImportJson
+            importer = ImportJson( instance=self.instance )
             try:
-                self.stdout.write("TRYING %d\n" % row.id)
+                self.stdout.write("TRYING %d (%s)\n" % (row.id, filename))
                 section = importer.import_document(filename)
                 sections.append(section)
-                s.sayit_section = section
-                s.last_sayit_import = datetime.datetime.now().date()
-                s.save()
+                row.sayit_section = section
+                row.last_sayit_import = datetime.datetime.now().date()
+                row.save()
 
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' % 
-                    (s.id, str(e)))
+                    (row.id, str(e)))
 
-            self.stdout.write( str( [s.id for s in sections] ) )
-            self.stdout.write( '\n' )
+        self.stdout.write( str( [s.id for s in sections] ) )
+        self.stdout.write( '\n' )
 
-            self.stdout.write('Imported %d / %d sections\n' %
-                (len(sections), len(sources)))
+        self.stdout.write('Imported %d / %d sections\n' %
+            (len(sections), len(sources)))

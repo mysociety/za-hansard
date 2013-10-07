@@ -355,7 +355,7 @@ class Command(BaseCommand):
         next_url = self.start_url_q[1]
         while next_url:
             (_questions, next_url) = _get_questions(next_url, **options)
-            questions += _get_questions
+            questions += _questions
 
         return questions
 

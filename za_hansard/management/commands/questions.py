@@ -534,7 +534,7 @@ class Command(BaseCommand):
         questions = (Question.objects
                 .filter( answer__isnull = False)
                 .prefetch_related('answer')
-                .filter(answer__processed = 1)
+                .filter(answer__processed_code = 1)
                 )
 
         for question in questions:
@@ -617,7 +617,7 @@ class Command(BaseCommand):
                 .filter( sayit_section = None ) # not already imported
                 .filter( answer__isnull = False)
                 .prefetch_related('answer')
-                .filter(answer__processed = 1)
+                .filter(answer__processed_code = 1)
                 )
 
         sections = []

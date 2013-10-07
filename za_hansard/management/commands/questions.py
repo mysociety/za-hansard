@@ -461,7 +461,7 @@ class Command(BaseCommand):
 
                 try:
                     text = subprocess.check_output([
-                        '/usr/bin/antiword', filename]).decode('unicode-escape')
+                        'antiword', filename]).decode('unicode-escape')
                     row.processed_code = 1
                     row.text = text
                     row.save()

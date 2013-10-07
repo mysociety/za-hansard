@@ -318,9 +318,9 @@ class Command(BaseCommand):
             questions = []
 
             self.stdout.write( 'Questions (%s)\n' % url )
-            page=urllib2.urlopen( self.start_url_q[0] + url)
+            response=urllib2.urlopen( self.start_url_q[0] + url)
 
-            contents = page.read()
+            contents = response.read()
 
             page = p.parse_fromstring(contents)
 

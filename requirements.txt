@@ -19,5 +19,3 @@ popit-django
 
 # For committee minutes parser
 parslepy
-
-scraperwiki

@@ -1,4 +1,3 @@
-import scraperwiki
 import urllib2
 import lxml.etree
 import sys
@@ -11,6 +10,7 @@ import json
 from za_hansard.datejson import DateEncoder
 from lxml import etree
 import time
+import tempfile
 
 import subprocess
 
@@ -24,6 +24,27 @@ from django.core.management.base import BaseCommand, CommandError
 from za_hansard.models import Question, Answer
 from speeches.importers.import_json import ImportJson
 from instances.models import Instance
+
+# from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
+# Copied rather than included as the scraperwiki __init__.py was having trouble
+# loading the sqlite code, which is something we don't actually need.
+def pdftoxml(pdfdata):
+    """converts pdf file to xml file"""
+    pdffout = tempfile.NamedTemporaryFile(suffix='.pdf')
+    pdffout.write(pdfdata)
+    pdffout.flush()
+
+    xmlin = tempfile.NamedTemporaryFile(mode='r', suffix='.xml')
+    tmpxml = xmlin.name # "temph.xml"
+    cmd = 'pdftohtml -xml -nodrm -zoom 1.5 -enc UTF-8 -noframes "%s" "%s"' % (pdffout.name, os.path.splitext(tmpxml)[0])
+    cmd = cmd + " >/dev/null 2>&1" # can't turn off output, so throw away even stderr yeuch
+    os.system(cmd)
+
+    pdffout.close()
+    #xmlfin = open(tmpxml)
+    xmldata = xmlin.read()
+    xmlin.close()
+    return xmldata
 
 class Command(BaseCommand):
 
@@ -126,7 +147,7 @@ class Command(BaseCommand):
     def get_question(self, url):
         count=0
         pdfdata = urllib2.urlopen(url).read()
-        xmldata = scraperwiki.pdftoxml(pdfdata)
+        xmldata = pdftoxml(pdfdata)
         
         #try:
         self.stderr.write("URL %s\n" % url)

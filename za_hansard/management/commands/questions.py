@@ -105,7 +105,9 @@ class Command(BaseCommand):
         start_url = self.start_url_q[0] + self.start_url_q[1]
         details = question_scraper.QuestionDetailIterator(start_url)
 
+        self.stdout.write( "Processing %d document" % len(urls))
         count = 0
+        errors = 0
 
         for detail in details:
             count+=1
@@ -120,41 +122,43 @@ class Command(BaseCommand):
                         self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
                         break
                 else:
-                    self.stderr.write('Going for it!\n')
-                    #try:
-                    pages = self.get_question( source_url )
-                    #except Exception as e:
-                        #self.stderr.write( str(e) )
-                        #pass
+                    try:
+                        self.stderr.write('Processing %s' % source_url)
+                        pages = self.get_question( source_url )
+                    except Exception as e:
+                        self.stderr.write( str(e) )
+                        errors += 1
+                        pass
 
             elif detail['language']=='English':
                 self.stderr.write('%s is not a pdf\n' % source_url)
 
             else:
-                self.stderr.write('wuh? %s\n' % str(detail) )
+                pass
+                # presumably non-English
 
             if options['limit'] and count >= options['limit']:
                 break
 
+        self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
 
     def get_question(self, url):
         count=0
         pdfdata = urllib2.urlopen(url).read()
         xmldata = question_scraper.pdftoxml(pdfdata)
 
-        #try:
-        self.stderr.write("URL %s\n" % url)
-        self.stderr.write("PDF len %d\n" % len(pdfdata))
-        self.stderr.write("XML %s\n" % xmldata)
-
         if not xmldata:
             return False
+
+        #self.stderr.write("URL %s\n" % url)
+        #self.stderr.write("PDF len %d\n" % len(pdfdata))
+        #self.stderr.write("XML %s\n" % xmldata)
 
         root = lxml.etree.fromstring(xmldata)
         #except Exception as e:
             #self.stderr.write("OOPS")
             #raise CommandError( '%s failed (%s)' % (url, e))
-        self.stderr.write("ok so far...\n")
+        self.stderr.write("XML parsed...\n")
 
         pages = list(root)
 
@@ -277,8 +281,9 @@ class Command(BaseCommand):
                                     'house': house,
                                     'type': questiontype
                                     }
-                            self.stdout.write("Writing object %s\n" % str(data))
-                            Question.objects.create( **data )
+                            # self.stdout.write("Writing object %s\n" % str(data))
+                            q = Question.objects.create( **data )
+                            self.stdout.write("Wrote question #%d\n" % q.id)
                             summer=''
                         else:
                             question = question + part

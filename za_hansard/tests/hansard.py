@@ -16,8 +16,8 @@ class ZAHansardParsingTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        app_dir = os.path.dirname(os.path.abspath(__file__))
-        cls._in_fixtures = os.path.join(app_dir, 'tests', 'test_inputs','hansard')
+        tests_dir = os.path.dirname(os.path.abspath(__file__))
+        cls._in_fixtures = os.path.join(tests_dir, 'test_inputs','hansard')
 
         def process(docname):
             filename = os.path.join( cls._in_fixtures, '%s.%s' % (docname, 'doc') )

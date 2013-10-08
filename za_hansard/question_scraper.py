@@ -1,4 +1,5 @@
 import distutils
+import subprocess
 import tempfile
 
 from django.core.exceptions import ImproperlyConfigured
@@ -30,3 +31,8 @@ def pdftoxml(pdfdata):
     xmlin.close()
     return xmldata
 
+
+
+ensure_executable_found("antiword")
+def extract_answer_text_from_word_document(filename):
+    return subprocess.check_output(['antiword', filename]).decode('unicode-escape')

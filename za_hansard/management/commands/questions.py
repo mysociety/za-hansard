@@ -443,8 +443,7 @@ class Command(BaseCommand):
                 save.close()
 
                 try:
-                    text = subprocess.check_output([
-                        'antiword', filename]).decode('unicode-escape')
+                    text = question_scraper.extract_answer_text_from_word_document(filename)
                     row.processed_code = Answer.PROCESSED_OK
                     row.text = text
                     row.save()

@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    # PROCESSED_PENDING    = 0
+    # PROCESSED_OK         = 1
+    # PROCESSED_HTTP_ERROR = 2
+
     def forwards(self, orm):
         orm.Answer.objects.filter( processed = True ).update( processed_code = 1 )
         orm.Answer.objects.filter( processed = False ).update( processed_code = 0 )

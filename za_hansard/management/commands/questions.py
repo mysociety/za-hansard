@@ -442,7 +442,7 @@ class Command(BaseCommand):
     def process_answers(self, *args, **options):
 
         answers = Answer.objects.exclude( url = None )
-        unprocessed = answers.exclude( processed_code=1 )
+        unprocessed = answers.exclude( processed_code=Answer.PROCESSED_OK )
 
         self.stderr.write( "Processing %d records" % len(unprocessed) )
             
@@ -462,7 +462,7 @@ class Command(BaseCommand):
                 try:
                     text = subprocess.check_output([
                         'antiword', filename]).decode('unicode-escape')
-                    row.processed_code = 1
+                    row.processed_code = Answer.PROCESSED_OK
                     row.text = text
                     row.save()
                 except subprocess.CalledProcessError:
@@ -470,7 +470,7 @@ class Command(BaseCommand):
                     pass
                 
             except urllib2.HTTPError:
-                row.processed_code = 2
+                row.processed_code = Answer.PROCESSED_HTTP_ERROR
                 row.save()
                 self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
                 pass
@@ -534,7 +534,7 @@ class Command(BaseCommand):
         questions = (Question.objects
                 .filter( answer__isnull = False)
                 .prefetch_related('answer')
-                .filter(answer__processed_code = 1)
+                .filter(answer__processed_code = Answer.PROCESSED_OK)
                 )
 
         for question in questions:
@@ -617,7 +617,7 @@ class Command(BaseCommand):
                 .filter( sayit_section = None ) # not already imported
                 .filter( answer__isnull = False)
                 .prefetch_related('answer')
-                .filter(answer__processed_code = 1)
+                .filter(answer__processed_code = Answer.PROCESSED_OK)
                 )
 
         sections = []

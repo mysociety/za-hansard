@@ -216,13 +216,24 @@ class PMGCommitteeAppearance(models.Model):
     text            = models.TextField()
 
 class Answer (models.Model):
+
+    # Various values that the processed_code can have
+    PROCESSED_PENDING    = 0
+    PROCESSED_OK         = 1
+    PROCESSED_HTTP_ERROR = 2
+    PROCESSED_CHOICES = (
+        ( PROCESSED_PENDING,    'pending' ),
+        ( PROCESSED_OK,         'OK' ),
+        ( PROCESSED_HTTP_ERROR, 'HTTP error' ),
+    )
+
     # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT, 
     # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT, 
     # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
     number_oral = models.TextField()
     text = models.TextField()
     processed = models.BooleanField() 
-    processed_code = models.IntegerField( null=False, default=0 ) # 0, 1, 2
+    processed_code = models.IntegerField( null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES )
     name = models.TextField()
     language = models.TextField()
     url = models.TextField()

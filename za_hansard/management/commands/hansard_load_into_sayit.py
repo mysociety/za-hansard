@@ -70,7 +70,7 @@ class Command(BaseCommand):
                 s.save()
 
             except Exception as e:
-                self.stderr.write('WARN: failed to import %d: %s' % 
+                self.stderr.write('WARN: failed to import %d: %s' %
                     (s.id, str(e)))
 
         self.stdout.write('Imported %d / %d sections\n' %

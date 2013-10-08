@@ -85,7 +85,7 @@ class Command(BaseCommand):
                     s.save()
                     raise e
                 obj = ZAHansardParser.parse(filename)
-                xml = etree.tostring(obj.akomaNtoso) 
+                xml = etree.tostring(obj.akomaNtoso)
                 # s.xml = xml # we really don't need this
                 s.last_processing_success = datetime.datetime.now().date()
 

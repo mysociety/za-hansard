@@ -109,14 +109,14 @@ class Command(BaseCommand):
             scraped = []
             for node in nodes:
                 s = scrape(node)
-                if Source.objects.filter( 
-                    document_name   = s['document_name'], 
+                if Source.objects.filter(
+                    document_name   = s['document_name'],
                     document_number = s['document_number']).exists():
                     if not options['check_all']:
                         return scraped
                 else:
                     scraped.append(s)
-                    
+
             if pend < (options['limit'] or ptotal):
                 # NB following isn't phrased as a tail call, could rewrite if
                 # that becomes important

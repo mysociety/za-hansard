@@ -5,7 +5,7 @@ import string
 import sys, os
 
 from itertools import imap, ifilter, groupby, chain
-from datetime import datetime 
+from datetime import datetime
 from lxml import etree
 from lxml import objectify
 
@@ -49,8 +49,8 @@ class ParaParslet(Parslet):
     @classmethod
     def _handle_match(cls, parser, p):
         jp = re.sub(
-                r'\s+', 
-                ' ', 
+                r'\s+',
+                ' ',
                 ' '.join(p))
         return cls.match(parser, jp)
 
@@ -115,7 +115,7 @@ class TitleParslet(ParaParslet):
         if re.search(r'[a-z]', mline):
             return None
         return { 'text': line }
-    
+
     def output(self, parser, E):
         line = self.text
         if parser.hasTitle:
@@ -137,7 +137,7 @@ class ParensParslet(SingleLineParslet):
         if etree.QName(parser.current.tag).localname == 'debateSection':
             # munging existing text in Objectify seems to be frowned upon.  Ideally refactor
             # this to be more functionl to avoid having to do call private _setText method...
-            parser.current.heading._setText( '%s %s' % 
+            parser.current.heading._setText( '%s %s' %
                     (parser.current.heading.text, self.text ))
         else:
             # as continuation
@@ -242,7 +242,7 @@ class PrayersParslet(ParaParslet):
 
     def output(self, parser, E):
         elem = E.prayers(
-            E.p(self.text), 
+            E.p(self.text),
             id='prayers')
         parser.current.append(elem)
         parser.hasPrayers = True
@@ -278,7 +278,7 @@ class SpeechParslet(ParaParslet):
                     E('from',  self.name ),
                     E.p(self.speech),
                     by='#%s' % self.id)
-            
+
         if etree.QName(parser.current.tag).localname == 'speech':
             parser.current = parser.current.getparent()
         parser.current.append(elem)
@@ -327,7 +327,7 @@ class ZAHansardParser(object):
 
     @classmethod
     def parse(cls, document_path):
-        
+
         # oddly, antiword gives better results (punctuation, spaces around
         # dates/numbers) under a C locale, but we will be running under utf8.
         my_env = os.environ.copy()
@@ -399,7 +399,7 @@ class ZAHansardParser(object):
                 ),
                 source='#mysociety'),
             )
-        obj.akomaNtoso.debate.meta.append( 
+        obj.akomaNtoso.debate.meta.append(
                 E.references(
                     E.TLCOrganization(
                         id='za-parliament',
@@ -427,7 +427,7 @@ class ZAHansardParser(object):
         def match(p):
             #try:
                 m = ifilter(
-                        lambda x: x != None, 
+                        lambda x: x != None,
                         imap(
                             lambda cls: cls.handle_match(obj, p),
                             classes)
@@ -443,7 +443,7 @@ class ZAHansardParser(object):
             result = []
             a = nodes[0]
             for b in nodes[1:]:
-                if ((type(b).__name__ == 'ParensParslet') and 
+                if ((type(b).__name__ == 'ParensParslet') and
                     (type(a).__name__ == 'ContinuationParslet') and
                     (not re.compile('^\s*\d+\.').match(a.text))):
                     if False:

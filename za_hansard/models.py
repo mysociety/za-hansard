@@ -60,7 +60,7 @@ class SourceManager(models.Manager):
 class Source(models.Model):
     """
     Sources of the hansard transcripts
-    
+
     For example a Word transcript.
     """
 
@@ -77,7 +77,7 @@ class Source(models.Model):
     last_processing_success = models.DateTimeField(blank=True, null=True)
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
-    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
     objects = SourceManager()
@@ -94,18 +94,18 @@ class Source(models.Model):
         """After deleting from db, delete the cached file too"""
         cache_file_path = self.cache_file_path()
         super( Source, self ).delete()
-        
+
         if os.path.exists( cache_file_path ):
             os.remove( cache_file_path )
-        
-        
+
+
     def file(self, debug=False):
         """
         Return as a file object the resource that the url is pointing to.
-        
+
         Should check the local cache first, and fetch and store if it is not
         found there.
-        
+
         Raises a SourceUrlCouldNotBeRetrieved exception if URL could not be
         retrieved.
         """
@@ -115,11 +115,11 @@ class Source(models.Model):
 
         if debug:
             print >> sys.stderr, "%s (%s)" % (cache_file_path, found)
-        
+
         # If the file exists open it, read it and return it
         if found:
             return cache_file_path
-        
+
         # If not fetch the file, save to cache and then return fh
         h = httplib2.Http()
         url = 'http://www.parliament.gov.za/live/' + self.url
@@ -150,8 +150,8 @@ class Source(models.Model):
         if not content:
             raise SourceUrlCouldNotBeRetrieved("WTF?")
         with open(cache_file_path, "w") as new_cache_file:
-            new_cache_file.write(content)        
-        
+            new_cache_file.write(content)
+
         return cache_file_path
 
     def cache_file_path(self):
@@ -170,7 +170,7 @@ class Source(models.Model):
             os.makedirs( cache_dir )
 
         d = self.date.strftime('%Y-%m-%d')
-        
+
         # create the path to the file
         cache_file_path = os.path.join(cache_dir, '-'.join([d, id_str, self.document_name]))
         return cache_file_path
@@ -192,7 +192,7 @@ class PMGCommitteeReport(models.Model):
     meeting_url     = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
-    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
 class PMGCommitteeAppearance(models.Model):
@@ -209,9 +209,9 @@ class PMGCommitteeAppearance(models.Model):
     party           = models.TextField()
     person          = models.TextField()
     meeting_url     = models.TextField()
-    report = models.ForeignKey(PMGCommitteeReport, 
+    report = models.ForeignKey(PMGCommitteeReport,
         null=True,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name='appearances')
     text            = models.TextField()
 
@@ -227,12 +227,12 @@ class Answer (models.Model):
         ( PROCESSED_HTTP_ERROR, 'HTTP error' ),
     )
 
-    # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT, 
-    # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT, 
+    # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT,
+    # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT,
     # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
     number_oral = models.TextField()
     text = models.TextField()
-    processed = models.BooleanField() 
+    processed = models.BooleanField()
     processed_code = models.IntegerField( null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES )
     name = models.TextField()
     language = models.TextField()
@@ -245,7 +245,7 @@ class Answer (models.Model):
 class Question (models.Model):
     answer = models.ForeignKey(Answer,
         null=True,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name='question')
     house = models.TextField()
     session = models.TextField()
@@ -264,7 +264,7 @@ class Question (models.Model):
     askedby = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
-    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT, 
+    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
 

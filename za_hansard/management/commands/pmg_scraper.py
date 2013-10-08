@@ -122,7 +122,7 @@ class Command(BaseCommand):
 
         committees_rules = {
             "heading": "h1.title",
-            "committee_types(div.view-committees-all-list div.item-list)": 
+            "committee_types(div.view-committees-all-list div.item-list)":
                 [{
                 "type":"h3",
                 "committees(li.views-row a)":
@@ -136,15 +136,15 @@ class Command(BaseCommand):
         parsedcommittees = p.parse_fromstring(contents)
 
         self.stdout.write('Started\n')
-        for ctype in parsedcommittees['committee_types']: 
+        for ctype in parsedcommittees['committee_types']:
             for committee in ctype['committees']:
                 self.numcommittees = self.numcommittees + 1
-                
+
                 try:
                     self.processCommittee(
                         'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
                         committee['name'])
-                except urllib2.HTTPError: 
+                except urllib2.HTTPError:
                     #if there is an http error, just ignore this committee this time
                     self.stderr.write('HTTPERROR '+committee['name'])
                     pass
@@ -154,25 +154,25 @@ class Command(BaseCommand):
                     "url": committee['url'],
                     "type": ctype['type']
                     })
-                
+
         if options['scrape_with_json']:
             with open('committees_json.json', 'w') as outfile:
               json.dump(self.committees, outfile)
-              
+
             with open('members_json.json', 'w') as outfile:
               json.dump(self.allmembers, outfile)
 
             with open('reports_json.json', 'w') as outfile:
               json.dump(self.allreports, outfile)
-              
+
             with open('appearances_json.json', 'w') as outfile:
               json.dump(self.allappearances, outfile)
 
     def updateprocess(self):
-        self.stdout.write('Committee %d, Checked %d Reports, Processed %d, %d Appearances\n' 
+        self.stdout.write('Committee %d, Checked %d Reports, Processed %d, %d Appearances\n'
             % (self.numcommittees, self.reportschecked, self.reportsprocessed, self.appearancesadded))
 
-    def processReport(self, row, url,committeeName,committeeURL,meetingDate): 
+    def processReport(self, row, url,committeeName,committeeURL,meetingDate):
         #get the appearances in the report
 
         meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
@@ -189,8 +189,8 @@ class Command(BaseCommand):
         p = parslepy.Parselet(report_rules)
         report = p.parse_fromstring(contents)
         self.totalappearances=0
-        
-        soup = BeautifulSoup(contents) 
+
+        soup = BeautifulSoup(contents)
         #use BeautifulSoup due to issues with <br/> divisions when using Parslepy
         text=(
             unicode(soup.find('div',class_='field-field-minutes'))
@@ -202,19 +202,19 @@ class Command(BaseCommand):
             .replace('\t','')
             .replace('<b><i>Discussion</i></b>',''))
         paragraphs = text.split("\n")
-        
+
         if len(paragraphs)<3 and len(report['paragraphs'])>1:
             paragraphs = report['paragraphs']
-            
+
         PMGCommitteeAppearance.objects.filter(report = row).delete()
-        
+
         if 'chairperson' not in report:
             report['chairperson']=""
-        
+
         chairs=re.findall(self.name_re, report['chairperson'])
-        
+
         findchair=False
-        
+
         if len(chairs)>1:
             for chair in chairs:
                 save={
@@ -226,7 +226,7 @@ class Command(BaseCommand):
                     'party':  chair[2],
                     'person': chair[1],
                     'meeting_url': url,
-                    'text': re.sub('<[^>]*>', '', 
+                    'text': re.sub('<[^>]*>', '',
                         '%s %s (%s) chaired the meeting.' % (
                             chair[0], chair[1], chair[2]))
                     }
@@ -236,13 +236,13 @@ class Command(BaseCommand):
 
                 self.allappearances.append(save)
                 self.totalappearances = self.totalappearances + 1
-                
+
         if len(chairs) is 1:
             findchair=True
-        
+
         for paragraph in paragraphs:
 
-            if (re.match('^(Apologies:)',paragraph) or 
+            if (re.match('^(Apologies:)',paragraph) or
                 'The Chairperson noted the apologies of' in paragraph):
                 continue
             find = re.findall(self.name_re, paragraph)
@@ -250,7 +250,7 @@ class Command(BaseCommand):
                 for found in find:
                     name=found[1]
                     party=found[2]
-                    
+
                     save={
                         'report': row,
                         'meeting_date': meetingDate,
@@ -272,13 +272,13 @@ class Command(BaseCommand):
                         meeting_url = url,
                         defaults = save,
                         )
-                    
+
                     if created:
                         self.appearancesadded = self.appearancesadded + 1
 
                         self.allappearances.append(save)
                         self.totalappearances = self.totalappearances + 1
-            
+
             if findchair:
                 if "The Chairperson" in paragraph:
                     findchair=False
@@ -286,8 +286,8 @@ class Command(BaseCommand):
                     save={
                         'report': row,
                         'meeting_date': meetingDate,
-                        'committee_url': committeeURL, 
-                        'committee': committeeName, 
+                        'committee_url': committeeURL,
+                        'committee': committeeName,
                         'meeting': report['heading'],
                         'party': chairs[0][2],
                         'person': chairs[0][1],
@@ -302,15 +302,15 @@ class Command(BaseCommand):
                     self.appearancesadded = self.appearancesadded + 1
                     self.allappearances.append(save)
                     self.totalappearances = self.totalappearances + 1
-                
+
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
-    def processReports(self, url,processingcommitteeName,processingcommitteeURL): 
+    def processReports(self, url,processingcommitteeName,processingcommitteeURL):
         #get reports on this page, process them, proceed to next page
         page=urllib2.urlopen(url)
         contents = page.read()
-        
+
         reports_rules = {
             "heading":"h1.title",
             "reports(div.view-reports-by-committee table tr)": [{
@@ -323,15 +323,15 @@ class Command(BaseCommand):
         }
         p = parslepy.Parselet(reports_rules)
         reports = p.parse_fromstring(contents)
-        
+
         for report in reports['reports']:
-            
+
             self.updateprocess()
             if "date" in report:
                 self.reportschecked = self.reportschecked + 1
                 if report['date'] != '' and report['date'] != '':
-                    if (len(report)>0 and "date" in report 
-                        and "meeting" in report and "url" in report 
+                    if (len(report)>0 and "date" in report
+                        and "meeting" in report and "url" in report
                         and time.strptime(report['date'],'%d %b %Y')
                             > time.strptime('22 Apr 2009','%d %b %Y')):
                         self.allreports.append({
@@ -377,7 +377,7 @@ class Command(BaseCommand):
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
-                
+
         if "next" in reports:
             self.processReports(
                 'http://www.pmg.org.za'+reports['next'],
@@ -392,12 +392,12 @@ class Command(BaseCommand):
         members_rules = {
             "heading": "h1.title",
             "chairperson": "div.pane-views-panes div.view-id-committee_members div.views-field-title",
-            "members(table.views-view-grid.col-4 div.views-field-title )": 
+            "members(table.views-view-grid.col-4 div.views-field-title )":
                 [{"name": ".",}],
         }
         p = parslepy.Parselet(members_rules)
         members = p.parse_fromstring(contents)
-        
+
         for member in members['members']:
             if ' (ALT)' in member['name']:
                 member['alternative']=True
@@ -418,7 +418,7 @@ class Command(BaseCommand):
 
             member['committee']=processingcommitteeName
             self.allmembers.append(member)
-        
+
         self.processReports( url, processingcommitteeName, url )
 
     def save_json(self, *args, **options):
@@ -451,7 +451,7 @@ class Command(BaseCommand):
                     'premium':       report.premium,
                     'speeches':      speeches,
                     'parent_section_titles': [
-                        'Committee Minutes', 
+                        'Committee Minutes',
                         first_appearance.committee,
                         first_appearance.meeting_date.strftime('%d %B %Y')
                         ]}
@@ -481,7 +481,7 @@ class Command(BaseCommand):
                 row.save()
 
             except Exception as e:
-                self.stderr.write('WARN: failed to import %d: %s' % 
+                self.stderr.write('WARN: failed to import %d: %s' %
                     (row.id, str(e)))
 
         self.stdout.write( str( [s.id for s in sections] ) )

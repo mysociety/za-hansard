@@ -2,9 +2,9 @@ import urllib2
 import lxml.etree
 import sys
 import re, os
-import lxml.html  
-import dateutil.parser 
-import string 
+import lxml.html
+import dateutil.parser
+import string
 import parslepy
 import json
 from za_hansard.datejson import DateEncoder
@@ -148,7 +148,7 @@ class Command(BaseCommand):
         count=0
         pdfdata = urllib2.urlopen(url).read()
         xmldata = pdftoxml(pdfdata)
-        
+
         #try:
         self.stderr.write("URL %s\n" % url)
         self.stderr.write("PDF len %d\n" % len(pdfdata))
@@ -164,7 +164,7 @@ class Command(BaseCommand):
         self.stderr.write("ok so far...\n")
 
         pages = list(root)
-        
+
         inquestion = 0
         intro      = ''
         question   = ''
@@ -192,14 +192,14 @@ class Command(BaseCommand):
         pattern4 = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
         pattern5 = re.compile("[a-zA-Z]+ SESSION, [a-zA-Z]+ PARLIAMENT")
         pattern6 = re.compile("[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z]+ {1,2}([-a-zA-z ]+) \(")
-        
+
         for page in pages:
             for el in list(page): #for el in list(page)[:300]:
                 if el.tag == "text":
                     part=re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
                     summer=summer+part.replace('<b>','').replace('</b>','')
                     if not details1 or not details2:
-                        
+
                         if not details1 and pattern5.search(summer): #search for session and parliament numbers
 
                             session = pattern5.search(summer).group(0).partition(' SESSION')[0]
@@ -222,8 +222,8 @@ class Command(BaseCommand):
                     if pattern4.search(part):
                         date=pattern4.search(part).group(0)
 
-                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or 
-                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or 
+                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or
+                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or
                        pattern4.search(part)):
                         continue
 
@@ -237,7 +237,7 @@ class Command(BaseCommand):
                                 number1=numbertmp[0]
                             else:
                                 number1=''
-                            
+
                             if '&#8224;' in intro:
                                 translated=1
                             else:
@@ -268,19 +268,19 @@ class Command(BaseCommand):
                             parsed_date = datetime.strptime(date, '%A, %d %B %Y')
                             #except:
                                 #pass
-                            
+
                             data = {
-                                    'intro': intro.replace('<b>','').replace('</b>',''), 
-                                    'question': question.replace('&#204;',''), 
+                                    'intro': intro.replace('<b>','').replace('</b>',''),
+                                    'question': question.replace('&#204;',''),
                                     'number2': number2,
                                     'number1': number1,
                                     'source': url,
-                                    'questionto': asked, 
+                                    'questionto': asked,
                                     'askedby': askedby,
                                     'date': parsed_date,
                                     'translated': translated,
                                     'session': session,
-                                    'parliament': parliament, 
+                                    'parliament': parliament,
                                     'house': house,
                                     'type': questiontype
                                     }
@@ -301,15 +301,15 @@ class Command(BaseCommand):
                         startintro=True
                         startquestion=True
                         summer=''
-                    
+
         self.stdout.write( 'Saved %d\n' % count )
         return True
 
     def get_questions(self, url, **options):
         rules = {
-            "papers(table.tableOrange_sep tr)" : 
+            "papers(table.tableOrange_sep tr)" :
                 [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
-            "next(table.tableOrange_sep table table td a)": 
+            "next(table.tableOrange_sep table table td a)":
                 [{"contents":".","url":"@href"}]
         }
         p = parslepy.Parselet(rules)
@@ -386,7 +386,7 @@ class Command(BaseCommand):
                     types=url.partition(".")
                     number_oral=''
                     number_written=''
-                    #check for written/oral question numbers 
+                    #check for written/oral question numbers
                     # (using apparent convention - a question can have one of each number)
                     if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]',row['cell'][0]['contents']):
                         number_oral=re.match(
@@ -415,7 +415,7 @@ class Command(BaseCommand):
                             date        = parsed_date,
                             type        = types[2] )
                         answers.append(answer)
-            
+
             #if there is a next link, process the next page of results
             limit = options['limit']
             for cell in page['next']:
@@ -438,14 +438,14 @@ class Command(BaseCommand):
             (_answers, next_url) = _get_answers(next_url, **options)
             answers += _answers
         return answers
-        
+
     def process_answers(self, *args, **options):
 
         answers = Answer.objects.exclude( url = None )
         unprocessed = answers.exclude( processed_code=Answer.PROCESSED_OK )
 
         self.stderr.write( "Processing %d records" % len(unprocessed) )
-            
+
         # for row in c.execute('SELECT processed,id,url,type FROM answers'):
 
         for row in unprocessed:
@@ -468,7 +468,7 @@ class Command(BaseCommand):
                 except subprocess.CalledProcessError:
                     self.stderr.write( 'ERROR in antiword processing %d' % row.id )
                     pass
-                
+
             except urllib2.HTTPError:
                 row.processed_code = Answer.PROCESSED_HTTP_ERROR
                 row.save()
@@ -480,14 +480,14 @@ class Command(BaseCommand):
                 pass
 
     def match_answers(self, *args, **options):
-        
+
         #get all the answers for processing (this should change to all not already processed)
 
         # for row in c.execute('SELECT id,number_written,number_oral,date FROM answers'):
         answers = Answer.objects.all()
 
         count = 0
-        
+
         for answer in answers:
             answer_date = answer.date
             earliest_question_date = answer_date - timedelta( days = 365 )
@@ -627,7 +627,7 @@ class Command(BaseCommand):
                 "%d.json" % question.id)
             if not os.path.exists(path):
                 continue
-                
+
             importer = ImportJson( instance=instance )
             #try:
             self.stderr.write("TRYING %s\n" % path)
@@ -637,11 +637,11 @@ class Command(BaseCommand):
             question.last_sayit_import = datetime.now().date()
             question.save()
             #except Exception as e:
-                #self.stderr.write('WARN: failed to import %d: %s' % 
+                #self.stderr.write('WARN: failed to import %d: %s' %
                     #(question.id, str(e)))
 
         self.stdout.write( str( [s.id for s in sections] ) )
         self.stdout.write( '\n' )
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(questions)))
-        
+

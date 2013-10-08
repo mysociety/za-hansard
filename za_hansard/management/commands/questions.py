@@ -27,7 +27,7 @@ from instances.models import Instance
 # ideally almost all of the parsing code would be removed from this management
 # command and put into a module where it can be more easily tested and
 # separated. This is the start of that process.
-import ...question_scraper
+from ... import question_scraper
 
 class Command(BaseCommand):
 

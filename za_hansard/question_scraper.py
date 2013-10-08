@@ -4,6 +4,7 @@ import re
 import requests
 import subprocess
 import tempfile
+import os
 
 import parslepy
 

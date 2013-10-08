@@ -1,4 +1,5 @@
 import distutils
+import re
 import subprocess
 import tempfile
 
@@ -35,4 +36,11 @@ def pdftoxml(pdfdata):
 
 ensure_executable_found("antiword")
 def extract_answer_text_from_word_document(filename):
-    return subprocess.check_output(['antiword', filename]).decode('unicode-escape')
+    text = subprocess.check_output(['antiword', filename]).decode('unicode-escape')
+
+    # strip out lines that are just '________'
+    bar_regex = re.compile(r'^_+$', re.MULTILINE)
+    text = bar_regex.sub('', text)
+
+    return text
+

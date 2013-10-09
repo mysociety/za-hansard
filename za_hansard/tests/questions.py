@@ -117,3 +117,14 @@ class ZAQuestionIteratorTests(ZAIteratorBaseMixin, TestCase):
     penultimate_url = start_url + "&DocumentStart=830"
     penultimate_expected_number = 19
 
+
+class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
+
+    cache_dir_name = 'answers_cache'
+    iterator_model = question_scraper.AnswerDetailIterator
+
+    start_url = "http://www.parliament.gov.za/live/content.php?Category_ID=248"
+
+    penultimate_url = start_url + "&DocumentStart=5310"
+    penultimate_expected_number = 16
+

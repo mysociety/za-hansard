@@ -1,6 +1,11 @@
+from mock import patch
 import os
+import re
+import requests
+import shutil
 
 from django.test import TestCase
+from django.template.defaultfilters import slugify
 
 from .. import question_scraper
 
@@ -38,10 +43,38 @@ class ZAQuestionTests(TestCase):
         # delete the cache files they'll be regenerated on the next run, allowing you to
         # diff any changes to the server.
 
+        # To delete all the cache files uncomment this line
+        # shutil.rmtree(self.cache_file(''))
+
         details = question_scraper.QuestionDetailIterator("http://www.parliament.gov.za/live/content.php?Category_ID=236")
-        
-        for detail in details:
-            print detail
-            break
-        
-        self.assertTrue(False)
+
+        # create a method to retrieve url contents from file
+        def get_from_file_or_network(url):
+
+            # Reduce the url into something more manageable as a filename
+            filename = slugify( re.sub( r'\W+', '-', re.sub(r'^.*/','', url))) + ".html"
+            full_path = self.cache_file(filename)
+
+            # Check for the file on disk. If found return it, else fetch and cache it
+            if os.path.exists(full_path):
+                with open(full_path) as read_from:
+                    return read_from.read()
+            else:
+                print "Retrieving and caching " + url
+                response = requests.get( url )
+                with open(full_path, 'w') as write_to:
+                    write_to.write(response.text)
+                return response.text
+
+
+        retrieved_details = []
+        number_to_retrieve = 50
+
+        with patch.object(details, "url_get", new=get_from_file_or_network):
+            # Get the first number_to_retrieve questions
+            for detail in details:
+                retrieved_details.append( detail )
+                if len(retrieved_details) >= number_to_retrieve: break
+
+
+        self.assertEqual(len(retrieved_details), number_to_retrieve)

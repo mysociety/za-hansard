@@ -73,6 +73,12 @@ class QuestionDetailIterator(object):
             raise StopIteration
 
 
+    def url_get(self, url):
+        """Super simple method to retrieve url and return content. Intended to be easily mocked in tests"""
+        response = requests.get( url )
+        return response.text
+
+
     question_parsing_rules = {
         "papers(table.tableOrange_sep tr)":
             [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
@@ -84,8 +90,7 @@ class QuestionDetailIterator(object):
 
         print 'Questions (%s)\n' % self.next_list_url
 
-        response = requests.get( self.next_list_url)
-        contents = response.text
+        contents = self.url_get( self.next_list_url )
 
         p = parslepy.Parselet(self.question_parsing_rules)
         page = p.parse_fromstring(contents)

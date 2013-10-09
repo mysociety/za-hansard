@@ -72,7 +72,12 @@ class Command(BaseCommand):
             default=0,
             action='store',
             type='int',
-            help='How far to go back',
+            help='How far to go back (not set means all the way)',
+        ),
+        make_option('--fetch-to-limit',
+            default=False,
+            action='store_true',
+            help="Don't stop when reaching seen questions, continue to --limit",
         ),
     )
 
@@ -111,6 +116,9 @@ class Command(BaseCommand):
 
                 if Question.objects.filter( source=source_url ).count():
                     self.stderr.write('Already exists\n')
+                    if not options['fetch_to_limit']:
+                        self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
+                        break
                 else:
                     self.stderr.write('Going for it!\n')
                     #try:

@@ -105,7 +105,6 @@ class Command(BaseCommand):
         start_url = self.start_url_q[0] + self.start_url_q[1]
         details = question_scraper.QuestionDetailIterator(start_url)
 
-        self.stdout.write( "Processing %d document" % len(urls))
         count = 0
         errors = 0
 

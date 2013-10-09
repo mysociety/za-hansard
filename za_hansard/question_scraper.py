@@ -105,13 +105,13 @@ class QuestionDetailIterator(object):
                     })
 
         # check for next page of links (or None if not found)
+        self.next_list_url = None
         for cell in page['next']:
             if cell['contents']=='Next':
                 next_url = self.base_url + cell['url']
                 if self.next_list_url == next_url:
                     raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
-                self.next_list_url = cell['url']
-            else:
-                self.next_list_url = None
+                self.next_list_url = next_url
+                break
 
         return True

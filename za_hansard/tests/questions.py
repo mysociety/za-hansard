@@ -84,3 +84,26 @@ class ZAQuestionTests(TestCase):
 
 
         self.assertEqual(len(retrieved_details), number_to_retrieve)
+
+
+    def test_question_detail_iterator_stops_at_end(self):
+
+        # Note that these tests rely on the cached html being as expected. If you update
+        # that then please change the url below to be the penultimate page of results,
+        # and the number of questions expected after scraping.
+        penultimate_list_page_url = "http://www.parliament.gov.za/live/content.php?Category_ID=236&DocumentStart=830"
+        expected_number_of_questions = 19
+
+        details = question_scraper.QuestionDetailIterator(penultimate_list_page_url)
+
+        retrieved_details = []
+        number_to_retrieve = expected_number_of_questions + 20
+
+        with patch.object(details, "url_get", new=self.get_from_file_or_network):
+            # Get the first number_to_retrieve questions
+            for detail in details:
+                retrieved_details.append( detail )
+                if len(retrieved_details) >= number_to_retrieve: break
+
+
+        self.assertEqual(len(retrieved_details), expected_number_of_questions)

@@ -2,6 +2,9 @@ import distutils
 import re
 import subprocess
 import tempfile
+import requests
+
+import parslepy
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -44,3 +47,68 @@ def extract_answer_text_from_word_document(filename):
 
     return text
 
+
+class QuestionDetailIterator(object):
+    def __init__(self, start_list_url):
+
+        self.details = []  # Question URLs that we have collected from tha list
+        self.next_list_url = start_list_url  # The next list page to fetch urls from
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+
+        # If needed and possible try to fetch more urls from the next list page
+        while len(self.details) == 0 and self.next_list_url:
+            self.get_question_details()
+
+        # Return a url if we can.
+        if len(self.details):
+            return self.details.pop(0)
+        else:
+            raise StopIteration
+
+
+    question_parsing_rules = {
+        "papers(table.tableOrange_sep tr)":
+            [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
+        "next(table.tableOrange_sep table table td a)":
+            [{"contents":".","url":"@href"}]
+    }
+
+    def get_question_details(self):
+
+        print 'Questions (%s)\n' % self.next_list_url
+
+        response = requests.get( self.next_list_url)
+        contents = response.text
+
+        p = parslepy.Parselet(self.question_parsing_rules)
+        page = p.parse_fromstring(contents)
+
+
+        for row in page['papers']:
+            if len(row['cell'])==11:
+                url = row['cell'][8]['url']
+                types = url.partition(".")
+                self.details.append({
+                    "name":     row['cell'][0]['contents'],
+                    "language": row['cell'][6]['contents'],
+                    "url":      'http://www.parliament.gov.za/live/' + url,
+                    "house":    row['cell'][4]['contents'],
+                    "date":     row['cell'][2]['contents'],
+                    "type":     types[2]
+                    })
+
+        # check for next page of links (or None if not found)
+        for cell in page['next']:
+            if cell['contents']=='Next':
+                next_url = cell['url']
+                if self.next_list_url == next_url:
+                    raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
+                self.next_list_url = cell['url']
+            else:
+                self.next_list_url = None
+
+        return True

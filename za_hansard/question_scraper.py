@@ -50,10 +50,10 @@ def extract_answer_text_from_word_document(filename):
     return text
 
 
-class QuestionDetailIterator(object):
+class BaseDetailIterator(object):
     
     base_url = 'http://www.parliament.gov.za/live/'
-    
+
     def __init__(self, start_list_url):
 
         self.details = []  # Question URLs that we have collected from tha list
@@ -63,23 +63,24 @@ class QuestionDetailIterator(object):
         return self
 
     def next(self):
-
+    
         # If needed and possible try to fetch more urls from the next list page
         while len(self.details) == 0 and self.next_list_url:
-            self.get_question_details()
-
+            self.get_details()
+    
         # Return a url if we can.
         if len(self.details):
             return self.details.pop(0)
         else:
             raise StopIteration
 
-
     def url_get(self, url):
         """Super simple method to retrieve url and return content. Intended to be easily mocked in tests"""
         response = requests.get( url )
         return response.text
 
+
+class QuestionDetailIterator(BaseDetailIterator):
 
     question_parsing_rules = {
         "papers(table.tableOrange_sep tr)":
@@ -88,7 +89,7 @@ class QuestionDetailIterator(object):
             [{"contents":".","url":"@href"}]
     }
 
-    def get_question_details(self):
+    def get_details(self):
 
         print 'Questions (%s)\n' % self.next_list_url
 

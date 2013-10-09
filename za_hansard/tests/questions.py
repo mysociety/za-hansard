@@ -3,6 +3,7 @@ import os
 import re
 import requests
 import shutil
+import datetime
 
 from django.test import TestCase
 from django.template.defaultfilters import slugify
@@ -90,6 +91,9 @@ class ZAIteratorBaseMixin(object):
 
         self.assertEqual(len(retrieved_details), number_to_retrieve)
 
+        for index, expected in self.expected_details:
+            self.assertEqual(retrieved_details[index], expected)
+
 
     def test_question_detail_iterator_stops_at_end(self):
 
@@ -113,6 +117,16 @@ class ZAQuestionIteratorTests(ZAIteratorBaseMixin, TestCase):
     iterator_model = question_scraper.QuestionDetailIterator
 
     start_url = "http://www.parliament.gov.za/live/content.php?Category_ID=236"
+    expected_details = (
+        (0, {
+            'date': u'20 September 2013',
+            'house': u'National Council of Provinces',
+            'language': u'Afrikaans',
+            'name': u'QC130920.i28A',
+            'type': 'pdf',
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20130926/541835_1.pdf'
+        }),
+    )
 
     penultimate_url = start_url + "&DocumentStart=830"
     penultimate_expected_number = 19
@@ -124,6 +138,18 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     iterator_model = question_scraper.AnswerDetailIterator
 
     start_url = "http://www.parliament.gov.za/live/content.php?Category_ID=248"
+    expected_details = (
+        (0, {
+            'date': datetime.datetime(2013, 10, 3, 0, 0),
+            'house': u'National Assembly',
+            'language': u'English',
+            'name': u'RNW2356-131003',
+            'number_oral': '',
+            'number_written': u'2356',
+            'type': 'doc',
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc'
+        }),
+    )
 
     penultimate_url = start_url + "&DocumentStart=5310"
     penultimate_expected_number = 16

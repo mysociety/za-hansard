@@ -1,8 +1,9 @@
 import distutils
+import os
 import re
+import requests
 import subprocess
 import tempfile
-import requests
 
 import parslepy
 

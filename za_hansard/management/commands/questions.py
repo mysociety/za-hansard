@@ -96,20 +96,18 @@ class Command(BaseCommand):
             raise CommandError("Please supply a valid option")
 
     def scrape_questions(self, *args, **options):
-        urls = self.get_questions(self.start_url_q[1], **options) #get the first page
 
-        if options['limit']:
-            urls = urls[ :options['limit'] ]
+        start_url = self.start_url_q[0] + self.start_url_q[1]
+        details = question_scraper.QuestionDetailIterator(start_url)
 
-        print "Processing ",len(urls), " documents"
-        count=0
+        count = 0
 
-        for url in urls:
+        for detail in details:
             count+=1
             print "Document ", count
 
-            source_url = url['url']
-            if url['language']=='English' and url['type']=='pdf':
+            source_url = detail['url']
+            if detail['language']=='English' and detail['type']=='pdf':
 
                 if Question.objects.filter( source=source_url ).count():
                     self.stderr.write('Already exists\n')
@@ -121,11 +119,15 @@ class Command(BaseCommand):
                         #self.stderr.write( str(e) )
                         #pass
 
-            elif url['language']=='English':
+            elif detail['language']=='English':
                 self.stderr.write('%s is not a pdf\n' % source_url)
 
             else:
-                self.stderr.write('wuh? %s\n' % str(url) )
+                self.stderr.write('wuh? %s\n' % str(detail) )
+
+            if options['limit'] and count >= options['limit']:
+                break
+
 
     def get_question(self, url):
         count=0
@@ -288,59 +290,6 @@ class Command(BaseCommand):
         self.stdout.write( 'Saved %d\n' % count )
         return True
 
-    def get_questions(self, url, **options):
-        rules = {
-            "papers(table.tableOrange_sep tr)" :
-                [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
-            "next(table.tableOrange_sep table table td a)":
-                [{"contents":".","url":"@href"}]
-        }
-        p = parslepy.Parselet(rules)
-
-        def _get_questions(url, **options):
-            questions = []
-
-            self.stdout.write( 'Questions (%s)\n' % url )
-            response=urllib2.urlopen( self.start_url_q[0] + url)
-
-            contents = response.read()
-
-            page = p.parse_fromstring(contents)
-
-            for row in page['papers']:
-                if len(row['cell'])==11:
-                    url = row['cell'][8]['url']
-                    types = url.partition(".")
-                    questions.append({
-                        "name":     row['cell'][0]['contents'],
-                        "language": row['cell'][6]['contents'],
-                        "url":      'http://www.parliament.gov.za/live/'+url,
-                        "house":    row['cell'][4]['contents'],
-                        "date":     row['cell'][2]['contents'],
-                        "type":     types[2]
-                        })
-
-            for cell in page['next']: #check for next page of links
-                if cell['contents']=='Next':
-                    next_url = cell['url']
-                    limit = options['limit']
-                    if limit:
-                        match = re.search( 'DocumentStart=(\d+)$', next_url)
-                        if match:
-                            next_num = int( match.group(1) )
-                            sys.stderr.write( '%d > %d ?\n' % (next_num, limit) )
-                            if next_num > limit:
-                                break
-                    return (questions, next_url)
-            return (questions, None)
-
-        questions = []
-        next_url = self.start_url_q[1]
-        while next_url:
-            (_questions, next_url) = _get_questions(next_url, **options)
-            questions += _questions
-
-        return questions
 
     def scrape_answers(self, *args, **options):
         urls = self.get_answers(self.start_url_a[1], **options) #get the first page

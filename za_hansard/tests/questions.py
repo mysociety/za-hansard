@@ -30,17 +30,10 @@ class ZAAnswerTests(TestCase):
 
         self.assertEqual(text, expected)
 
+
 class ZAQuestionTests(TestCase):
 
-    def cache_file(self, name):
-        tests_dir = os.path.dirname(os.path.abspath(__file__))
-        cache_dir = os.path.join(tests_dir, 'test_inputs', 'questions_cache')
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
-        return os.path.join(cache_dir, name)
-
-
-    def test_question_detail_iterator(self):
+    def setUp(self):
         # These tests should use cached data so that they are not subject to changes
         # to the HTML on the server. This cached data is committed to the repo. If you
         # delete the cache files they'll be regenerated on the next run, allowing you to
@@ -49,31 +42,41 @@ class ZAQuestionTests(TestCase):
         # To delete all the cache files uncomment this line
         # shutil.rmtree(self.cache_file(''))
 
+        pass
+
+    def cache_file(self, name):
+        tests_dir = os.path.dirname(os.path.abspath(__file__))
+        cache_dir = os.path.join(tests_dir, 'test_inputs', 'questions_cache')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+        return os.path.join(cache_dir, name)
+
+    # create a method to retrieve url contents from file
+    def get_from_file_or_network(self, url):
+
+        # Reduce the url into something more manageable as a filename
+        filename = slugify( re.sub( r'\W+', '-', re.sub(r'^.*/','', url))) + ".html"
+        full_path = self.cache_file(filename)
+
+        # Check for the file on disk. If found return it, else fetch and cache it
+        if os.path.exists(full_path):
+            with open(full_path) as read_from:
+                return read_from.read()
+        else:
+            print "Retrieving and caching " + url
+            response = requests.get( url )
+            with open(full_path, 'w') as write_to:
+                write_to.write(response.text)
+            return response.text
+
+    def test_question_detail_iterator(self):
+
         details = question_scraper.QuestionDetailIterator("http://www.parliament.gov.za/live/content.php?Category_ID=236")
-
-        # create a method to retrieve url contents from file
-        def get_from_file_or_network(url):
-
-            # Reduce the url into something more manageable as a filename
-            filename = slugify( re.sub( r'\W+', '-', re.sub(r'^.*/','', url))) + ".html"
-            full_path = self.cache_file(filename)
-
-            # Check for the file on disk. If found return it, else fetch and cache it
-            if os.path.exists(full_path):
-                with open(full_path) as read_from:
-                    return read_from.read()
-            else:
-                print "Retrieving and caching " + url
-                response = requests.get( url )
-                with open(full_path, 'w') as write_to:
-                    write_to.write(response.text)
-                return response.text
-
 
         retrieved_details = []
         number_to_retrieve = 50
 
-        with patch.object(details, "url_get", new=get_from_file_or_network):
+        with patch.object(details, "url_get", new=self.get_from_file_or_network):
             # Get the first number_to_retrieve questions
             for detail in details:
                 retrieved_details.append( detail )

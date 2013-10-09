@@ -19,3 +19,6 @@ popit-django
 
 # For committee minutes parser
 parslepy
+
+requests
+requests-cache

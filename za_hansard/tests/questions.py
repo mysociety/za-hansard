@@ -10,18 +10,11 @@ from django.template.defaultfilters import slugify
 from .. import question_scraper
 
 
-class ZAQuestionTests(TestCase):
+class ZAAnswerTests(TestCase):
 
     def sample_file(self, filename):
         tests_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
-
-    def cache_file(self, name):
-        tests_dir = os.path.dirname(os.path.abspath(__file__))
-        cache_dir = os.path.join(tests_dir, 'test_inputs', 'questions_cache')
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
-        return os.path.join(cache_dir, name)
 
     def test_answer_parsing(self):
         input_doc_file       = self.sample_file('answer_1.doc')
@@ -36,6 +29,16 @@ class ZAQuestionTests(TestCase):
         # out.close()
 
         self.assertEqual(text, expected)
+
+class ZAQuestionTests(TestCase):
+
+    def cache_file(self, name):
+        tests_dir = os.path.dirname(os.path.abspath(__file__))
+        cache_dir = os.path.join(tests_dir, 'test_inputs', 'questions_cache')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+        return os.path.join(cache_dir, name)
+
 
     def test_question_detail_iterator(self):
         # These tests should use cached data so that they are not subject to changes

@@ -49,6 +49,9 @@ def extract_answer_text_from_word_document(filename):
 
 
 class QuestionDetailIterator(object):
+    
+    base_url = 'http://www.parliament.gov.za/live/'
+    
     def __init__(self, start_list_url):
 
         self.details = []  # Question URLs that we have collected from tha list
@@ -95,7 +98,7 @@ class QuestionDetailIterator(object):
                 self.details.append({
                     "name":     row['cell'][0]['contents'],
                     "language": row['cell'][6]['contents'],
-                    "url":      'http://www.parliament.gov.za/live/' + url,
+                    "url":      self.base_url + url,
                     "house":    row['cell'][4]['contents'],
                     "date":     row['cell'][2]['contents'],
                     "type":     types[2]
@@ -104,7 +107,7 @@ class QuestionDetailIterator(object):
         # check for next page of links (or None if not found)
         for cell in page['next']:
             if cell['contents']=='Next':
-                next_url = cell['url']
+                next_url = self.base_url + cell['url']
                 if self.next_list_url == next_url:
                     raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
                 self.next_list_url = cell['url']

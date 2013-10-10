@@ -477,7 +477,7 @@ class Command(BaseCommand):
                 section = importer.import_document(filename)
                 sections.append(section)
                 row.sayit_section = section
-                row.last_sayit_import = datetime.datetime.now().date()
+                row.last_sayit_import = datetime.now().date()
                 row.save()
 
             except Exception as e:

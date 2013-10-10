@@ -63,6 +63,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Import saved json to sayit (step 6)',
         ),
+        make_option('--run-all-steps',
+            default=False,
+            action='store_true',
+            help='Run all of the steps',
+        ),        
         make_option('--instance',
             type='str',
             default='default',
@@ -96,6 +101,13 @@ class Command(BaseCommand):
         elif options['save']:
             self.qa_to_json(*args, **options)
         elif options['import_into_sayit']:
+            self.import_into_sayit(*args, **options)
+        elif options['run_all_steps']:
+            self.scrape_questions(*args, **options)
+            self.scrape_answers(*args, **options)
+            self.process_answers(*args, **options)
+            self.match_answers(*args, **options)
+            self.qa_to_json(*args, **options)
             self.import_into_sayit(*args, **options)
         else:
             raise CommandError("Please supply a valid option")

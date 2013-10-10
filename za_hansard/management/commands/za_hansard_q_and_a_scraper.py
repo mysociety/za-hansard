@@ -450,6 +450,11 @@ class Command(BaseCommand):
             # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
             ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
             tosave = {
+                'parent_section_titles': [
+                    'Questions',
+                    question.questionto,
+                    question.date.strftime('%d %B %Y'),
+                ],
                 'questionto': question.questionto,
                 'title': question.session,
                 'date': question.date,

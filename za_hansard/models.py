@@ -232,7 +232,6 @@ class Answer (models.Model):
     # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
     number_oral = models.TextField()
     text = models.TextField()
-    processed = models.BooleanField()
     processed_code = models.IntegerField( null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES )
     name = models.TextField()
     language = models.TextField()

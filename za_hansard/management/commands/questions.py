@@ -390,8 +390,6 @@ class Command(BaseCommand):
 
         self.stderr.write( "Processing %d records" % len(unprocessed) )
 
-        # for row in c.execute('SELECT processed,id,url,type FROM answers'):
-
         for row in unprocessed:
             self.stdout.write('.')
             try:

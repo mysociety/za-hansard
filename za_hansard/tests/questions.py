@@ -91,6 +91,10 @@ class ZAIteratorBaseMixin(object):
 
         self.assertEqual(len(retrieved_details), number_to_retrieve)
 
+        # Test that selected results are as we expect. 'expected_details' is a list of
+        # tuples where the first item is the index in the expected details and the
+        # second is what is expected. This allows interesting or edge case results to be
+        # tested, skipping the dull or repeated ones.
         for index, expected in self.expected_details:
             self.assertEqual(retrieved_details[index], expected)
 
@@ -100,7 +104,7 @@ class ZAIteratorBaseMixin(object):
         # Note that these tests rely on the cached html being as expected. If you update
         # that then please change the settings for the penultimate page of results, and
         # the number of questions expected after scraping.
-        
+
         details = self.iterator_model(self.penultimate_url)
         number_to_retrieve = self.penultimate_expected_number + 20
 

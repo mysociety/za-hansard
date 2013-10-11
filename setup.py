@@ -15,7 +15,7 @@ def install_requires():
 
 setup(
     name="za-hansard",
-    version='0.1',
+    version='0.2',
     description='A scraper and parser for South African parliamentary transcripts.',
     long_description=read_file('README.md'),
     author='mySociety',

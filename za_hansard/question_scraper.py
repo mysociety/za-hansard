@@ -1,5 +1,5 @@
 import distutils
-import os
+import os, sys
 import re
 import requests
 import subprocess
@@ -42,7 +42,7 @@ def pdftoxml(pdfdata):
 
 ensure_executable_found("antiword")
 def extract_answer_text_from_word_document(filename):
-    text = subprocess.check_output(['antiword', filename]).decode('unicode-escape')
+    text = check_output_wrapper(['antiword', filename]).decode('unicode-escape')
 
     # strip out lines that are just '________'
     bar_regex = re.compile(r'^_+$', re.MULTILINE)
@@ -50,6 +50,23 @@ def extract_answer_text_from_word_document(filename):
 
     return text
 
+def check_output_wrapper(*args, **kwargs):
+
+    # Python 2.7
+    if hasattr(subprocess, 'check_output'):
+        return subprocess.check_output(*args)
+
+    # Backport to 2.6 from https://gist.github.com/edufelipe/1027906
+    else:
+        process = subprocess.Popen(stdout=subprocess.PIPE, *args, **kwargs)
+        output, unused_err = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            cmd = kwargs.get('args', args[0])
+            error = subprocess.CalledProcessError(retcode, cmd)
+            error.output = output
+            raise error
+        return output
 
 class BaseDetailIterator(object):
     

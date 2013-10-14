@@ -1,4 +1,4 @@
-import distutils
+import distutils.spawn
 import os, sys
 import re
 import requests

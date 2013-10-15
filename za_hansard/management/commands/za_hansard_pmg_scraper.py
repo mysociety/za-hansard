@@ -448,7 +448,7 @@ class Command(BaseCommand):
                     'title':         first_appearance.meeting,
                     'report_url':    first_appearance.meeting_url,
                     'date':          first_appearance.meeting_date,
-                    'premium':       report.premium,
+                    'public':        bool(not report.premium),
                     'speeches':      speeches,
                     'parent_section_titles': [
                         'Committee Minutes',

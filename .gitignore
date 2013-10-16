@@ -10,3 +10,4 @@ chromedriver.log
 build
 za_hansard.egg-info
 hansard_cache
+httplib2_cache

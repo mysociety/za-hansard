@@ -1,9 +1,11 @@
 import pprint
 import datetime
+import pytz
 import time
 import sys
 
 from speeches.importers.import_akomantoso import ImportAkomaNtoso
+from speeches.models import Section
 from za_hansard.models import Source
 from popit.models import ApiInstance
 from instances.models import Instance
@@ -66,12 +68,17 @@ class Command(BaseCommand):
                 section = importer.import_document(path)
                 sections.append(section)
                 s.sayit_section = section
-                s.last_sayit_import = datetime.datetime.now().date()
+                s.last_sayit_import = datetime.datetime.now(pytz.utc)
                 s.save()
 
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %
                     (s.id, str(e)))
+
+            # Get or create the sections above the one we just created and put it in there
+            parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)
+            section.parent = parent
+            section.save()
 
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(sources)))

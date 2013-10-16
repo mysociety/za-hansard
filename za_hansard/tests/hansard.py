@@ -1,8 +1,14 @@
 from __future__ import with_statement
 
-from datetime import datetime
+from datetime import datetime, date
+import pytz
 
+from django.core.management import call_command
 from django.test import TestCase
+from django.test.utils import override_settings
+
+from za_hansard.models import Source
+
 from za_hansard.parse import ZAHansardParser
 from lxml import etree
 
@@ -134,3 +140,49 @@ class ZAHansardParsingTests(TestCase):
         mainSection = debateBody.debateSection
         subSections = mainSection.findall('{*}debateSection')
         self.assertEqual(len(subSections), 16)
+
+
+class ZAHansardSayitLoadingTests(TestCase):
+
+    tests_dir = os.path.dirname(os.path.abspath(__file__))
+    test_hansard_cache_dir = os.path.join(tests_dir, 'test_inputs','hansard')
+
+    def setUp(self):
+        # create a source to test with
+        self.source = Source.objects.create(
+            id                      = 10, # Needed to create the correct path in cache_file_path
+            title                   = 'HANSARD',
+            document_name           = 'NA080513',
+            document_number         = '539685',
+            date                    = date(2013, 5, 8),
+            url                     = 'commonrepository/Processed/20130910/539685_1.doc',
+            house                   = 'National Assembly',
+            language                = 'English',
+            last_processing_attempt = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
+            last_processing_success = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
+        )
+
+    def test_source_section_parent_titles(self):
+        self.assertEqual(
+            self.source.section_parent_titles,
+            [
+                "Hansard",
+                "2013",
+                "05",
+                "08"
+            ]
+        )
+
+    @override_settings(HANSARD_CACHE=test_hansard_cache_dir)
+    def test_za_hansard_load_into_sayit(self):
+        source = self.source
+
+        call_command('za_hansard_load_into_sayit')
+
+        # Reload the source from db
+        source = Source.objects.get(pk=source.id)
+
+        # Test section created as expected
+        sayit_section = source.sayit_section
+        self.assertTrue(sayit_section)
+        self.assertEqual(sayit_section.parent.title, "08") # Hansards -> 2013 -> 05 -> *08* -> sayit_section

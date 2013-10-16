@@ -12,23 +12,20 @@ from speeches.models import Section
 
 # check that the cache is setup and the directory exists
 try:
-    HANSARD_CACHE = settings.HANSARD_CACHE
-    if not os.path.exists( HANSARD_CACHE ):
-        os.makedirs( HANSARD_CACHE )
+    if not os.path.exists( settings.HANSARD_CACHE ):
+        os.makedirs( settings.HANSARD_CACHE )
 except AttributeError:
     raise ImproperlyConfigured("Could not find HANSARD_CACHE setting - please set it")
 
 try:
-    COMMITTEE_CACHE = settings.COMMITTEE_CACHE
-    if not os.path.exists( COMMITTEE_CACHE ):
-        os.makedirs( COMMITTEE_CACHE )
+    if not os.path.exists( settings.COMMITTEE_CACHE ):
+        os.makedirs( settings.COMMITTEE_CACHE )
 except AttributeError:
     raise ImproperlyConfigured("Could not find COMMITTEE_CACHE setting - please set it")
 
 try:
-    ANSWER_CACHE = settings.ANSWER_CACHE
-    if not os.path.exists( ANSWER_CACHE ):
-        os.makedirs( ANSWER_CACHE )
+    if not os.path.exists( settings.ANSWER_CACHE ):
+        os.makedirs( settings.ANSWER_CACHE )
 except AttributeError:
     raise ImproperlyConfigured("Could not find ANSWER_CACHE setting - please set it")
 
@@ -154,6 +151,15 @@ class Source(models.Model):
 
         return cache_file_path
 
+    @property
+    def section_parent_titles(self):
+        return [
+            "Hansard",
+            str(self.date.year),
+            "%02d" % self.date.month,
+            "%02d" % self.date.day,
+        ]
+
     def cache_file_path(self):
         """Absolute path to the cache file for this source"""
 
@@ -163,7 +169,7 @@ class Source(models.Model):
         # FIXME - put in something to prevent the test suite overwriting non-test files.
         aaa = id_str[-1]
         bbb = id_str[-2]
-        cache_dir = os.path.join(HANSARD_CACHE, aaa, bbb)
+        cache_dir = os.path.join(settings.HANSARD_CACHE, aaa, bbb)
 
         # check that the dir exists
         if not os.path.exists( cache_dir ):

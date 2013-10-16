@@ -151,6 +151,15 @@ class Source(models.Model):
 
         return cache_file_path
 
+    @property
+    def section_parent_titles(self):
+        return [
+            "Hansard",
+            str(self.date.year),
+            "%02d" % self.date.month,
+            "%02d" % self.date.day,
+        ]
+
     def cache_file_path(self):
         """Absolute path to the cache file for this source"""
 

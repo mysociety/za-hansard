@@ -162,6 +162,17 @@ class ZAHansardSayitLoadingTests(TestCase):
             last_processing_success = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
         )
 
+    def test_source_section_parent_titles(self):
+        self.assertEqual(
+            self.source.section_parent_titles,
+            [
+                "Hansard",
+                "2013",
+                "05",
+                "08"
+            ]
+        )
+
     @override_settings(HANSARD_CACHE=test_hansard_cache_dir)
     def test_za_hansard_load_into_sayit(self):
         source = self.source

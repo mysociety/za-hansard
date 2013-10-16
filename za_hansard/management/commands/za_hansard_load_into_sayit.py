@@ -76,14 +76,7 @@ class Command(BaseCommand):
                     (s.id, str(e)))
 
             # Get or create the sections above the one we just created and put it in there
-            start_date = s.date
-            parent_titles = (
-                "Hansard",
-                start_date.year,
-                start_date.month,
-                start_date.day,
-            )
-            parent = Section.objects.get_or_create_with_parents(instance=instance, titles=parent_titles)
+            parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)
             section.parent = parent
             section.save()
 

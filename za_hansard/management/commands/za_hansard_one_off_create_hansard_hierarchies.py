@@ -26,14 +26,7 @@ class Command(BaseCommand):
             print section
 
             # create the parents
-            start_date = source.date
-            parent_titles = (
-                "Hansard",
-                start_date.year,
-                start_date.month,
-                start_date.day,
-            )
-            parent = Section.objects.get_or_create_with_parents(instance=section.instance, titles=parent_titles)
+            parent = Section.objects.get_or_create_with_parents(instance=section.instance, titles=source.section_parent_titles)
 
             # assign to the new section
             section.parent = parent

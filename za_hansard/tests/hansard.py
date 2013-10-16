@@ -172,4 +172,4 @@ class ZAHansardSayitLoadingTests(TestCase):
         # Test section created as expected
         sayit_section = source.sayit_section
         self.assertTrue(sayit_section)
-        self.assertEqual(sayit_section.parent, None)
+        self.assertEqual(sayit_section.parent.title, "8") # Hansards -> 2013 -> 5 -> *8* -> sayit_section

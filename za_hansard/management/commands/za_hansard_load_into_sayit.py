@@ -5,6 +5,7 @@ import time
 import sys
 
 from speeches.importers.import_akomantoso import ImportAkomaNtoso
+from speeches.models import Section
 from za_hansard.models import Source
 from popit.models import ApiInstance
 from instances.models import Instance
@@ -73,6 +74,18 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %
                     (s.id, str(e)))
+
+            # Get or create the sections above the one we just created and put it in there
+            start_date = s.date
+            parent_titles = (
+                "Hansard",
+                start_date.year,
+                start_date.month,
+                start_date.day,
+            )
+            parent = Section.objects.get_or_create_with_parents(instance=instance, titles=parent_titles)
+            section.parent = parent
+            section.save()
 
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(sources)))

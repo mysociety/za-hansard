@@ -147,11 +147,9 @@ class ZAHansardSayitLoadingTests(TestCase):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
     test_hansard_cache_dir = os.path.join(tests_dir, 'test_inputs','hansard')
 
-    @override_settings(HANSARD_CACHE=test_hansard_cache_dir)
-    def test_za_hansard_load_into_sayit(self):
-
+    def setUp(self):
         # create a source to test with
-        source = Source.objects.create(
+        self.source = Source.objects.create(
             id                      = 10, # Needed to create the correct path in cache_file_path
             title                   = 'HANSARD',
             document_name           = 'NA080513',
@@ -164,11 +162,15 @@ class ZAHansardSayitLoadingTests(TestCase):
             last_processing_success = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
         )
 
+    @override_settings(HANSARD_CACHE=test_hansard_cache_dir)
+    def test_za_hansard_load_into_sayit(self):
+        source = self.source
+
         call_command('za_hansard_load_into_sayit')
 
         # Reload the source from db
         source = Source.objects.get(pk=source.id)
-        
+
         # Test section created as expected
         sayit_section = source.sayit_section
         self.assertTrue(sayit_section)

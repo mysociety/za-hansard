@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 from datetime import datetime, date
+import pytz
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -159,8 +160,8 @@ class ZAHansardSayitLoadingTests(TestCase):
             url                     = 'commonrepository/Processed/20130910/539685_1.doc',
             house                   = 'National Assembly',
             language                = 'English',
-            last_processing_attempt = datetime(2013, 10, 15, 23, 0, 0),
-            last_processing_success = datetime(2013, 10, 15, 23, 0, 0),
+            last_processing_attempt = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
+            last_processing_success = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
         )
 
         call_command('za_hansard_load_into_sayit')

@@ -1,5 +1,6 @@
 import pprint
 import datetime
+import pytz
 import time
 import sys
 
@@ -66,7 +67,7 @@ class Command(BaseCommand):
                 section = importer.import_document(path)
                 sections.append(section)
                 s.sayit_section = section
-                s.last_sayit_import = datetime.datetime.now().date()
+                s.last_sayit_import = datetime.datetime.now(pytz.utc)
                 s.save()
 
             except Exception as e:

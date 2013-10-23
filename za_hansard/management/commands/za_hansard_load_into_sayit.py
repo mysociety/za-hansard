@@ -44,7 +44,7 @@ class Command(BaseCommand):
         instance = None
         try:
             instance = Instance.objects.get(label=options['instance'])
-        except Instance.NotFound:
+        except Instance.DoesNotExist:
             raise CommandError("Instance specified not found (%s)" % options['instance'])
 
         sources = Source.objects.filter(last_processing_success__isnull = False)

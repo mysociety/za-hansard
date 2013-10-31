@@ -51,6 +51,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Import documents to sayit',
         ),
+        make_option('--delete-existing',
+            default=False,
+            action='store_true',
+            help='delete existing records (assuming --import-to-sayit)',
+        ),
     )
 
     committees = []
@@ -475,10 +480,15 @@ class Command(BaseCommand):
             try:
                 self.stdout.write("TRYING %d (%s)\n" % (row.id, filename))
                 section = importer.import_document(filename)
-                sections.append(section)
+
+                old_section = row.sayit_section
+                if old_section and options['delete_existing']:
+                    old_section.delete()
+
                 row.sayit_section = section
                 row.last_sayit_import = datetime.now().date()
                 row.save()
+                sections.append(section)
 
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %

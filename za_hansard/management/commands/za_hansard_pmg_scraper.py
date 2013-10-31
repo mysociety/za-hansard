@@ -469,9 +469,11 @@ class Command(BaseCommand):
     def import_to_sayit(self, *args, **options):
 
         sections = []
-        sources = PMGCommitteeReport.objects.filter(sayit_section = None)
+        sources = PMGCommitteeReport.objects
+        if not options['delete_existing']:
+            sources = sources.filter(sayit_section = None)
 
-        for row in sources:
+        for row in sources.all():
             filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
             if not os.path.exists(filename):
                 continue

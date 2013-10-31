@@ -484,12 +484,14 @@ class Command(BaseCommand):
                 section = importer.import_document(filename)
 
                 old_section = row.sayit_section
-                if old_section and options['delete_existing']:
-                    old_section.delete()
 
                 row.sayit_section = section
                 row.last_sayit_import = datetime.now().date()
                 row.save()
+
+                if old_section and options['delete_existing']:
+                    old_section.delete()
+
                 sections.append(section)
 
             except Exception as e:

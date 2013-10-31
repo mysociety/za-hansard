@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
         try:
             self.instance = Instance.objects.get(label=options['instance'])
-        except Instance.NotFound:
+        except Instance.DoesNotExist:
             raise CommandError("Instance specified not found (%s)" % options['instance'])
 
         if options['scrape_with_json']:

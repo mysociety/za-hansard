@@ -473,24 +473,21 @@ class Command(BaseCommand):
         if not options['delete_existing']:
             sources = sources.filter(sayit_section = None)
 
-        for row in sources.all():
+        sources_all = sources.all()
+
+        for row in sources_all:
             filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
             if not os.path.exists(filename):
                 continue
 
-            importer = ImportJson( instance=self.instance )
+            importer = ImportJson( instance=self.instance, delete_existing = options['delete_existing'] )
             try:
                 self.stdout.write("TRYING %d (%s)\n" % (row.id, filename))
                 section = importer.import_document(filename)
 
-                old_section = row.sayit_section
-
                 row.sayit_section = section
                 row.last_sayit_import = datetime.now().date()
                 row.save()
-
-                if old_section and options['delete_existing']:
-                    old_section.delete()
 
                 sections.append(section)
 
@@ -502,4 +499,4 @@ class Command(BaseCommand):
         self.stdout.write( '\n' )
 
         self.stdout.write('Imported %d / %d sections\n' %
-            (len(sections), len(sources)))
+            (len(sections), len(sources_all)))

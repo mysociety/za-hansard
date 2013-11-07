@@ -2,7 +2,7 @@ language: python
 
 install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq antiword pdftohtml
+  - cat conf/packages | sed -r -e 's,#.*,,' | xargs sudo apt-get install -qq
   - pip install -r requirements.txt
   - sed -r -e "s,(ZAH_DB_USER:) 'za-hansard',\\1 'postgres'," conf/general.yml-example > conf/general.yml
 

@@ -66,14 +66,15 @@ class Command(BaseCommand):
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)
+            except Exception as e:
+                self.stderr.write('WARN: failed to import %d: %s' %
+                    (s.id, str(e)))
+            else:
                 sections.append(section)
                 s.sayit_section = section
                 s.last_sayit_import = datetime.datetime.now(pytz.utc)
                 s.save()
 
-            except Exception as e:
-                self.stderr.write('WARN: failed to import %d: %s' %
-                    (s.id, str(e)))
 
             # Get or create the sections above the one we just created and put it in there
             parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)

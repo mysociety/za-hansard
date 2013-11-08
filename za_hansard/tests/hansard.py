@@ -187,3 +187,8 @@ class ZAHansardSayitLoadingTests(TestCase):
         sayit_section = source.sayit_section
         self.assertTrue(sayit_section)
         self.assertEqual(sayit_section.parent.title, "08") # Hansards -> 2013 -> 05 -> *08* -> sayit_section
+
+        # Test that speeches are tagged
+        speech = sayit_section.descendant_speeches().all()[0]
+        self.assertEqual(speech.tags.count(), 1)
+        self.assertEqual(speech.tags.all()[0].name, 'hansard')

@@ -10,8 +10,8 @@
 
 ZAH_DB_HOST: 'localhost'
 ZAH_DB_PORT: '5432'
-ZAH_DB_USER: ''
-ZAH_DB_NAME: ''
+ZAH_DB_USER: 'za-hansard'
+ZAH_DB_NAME: 'za-hansard'
 ZAH_DB_PASS: ''
 
 STAGING: '1'

@@ -5,7 +5,7 @@ import time
 import sys
 
 from speeches.importers.import_akomantoso import ImportAkomaNtoso
-from speeches.models import Section
+from speeches.models import Section, Tag
 from za_hansard.models import Source
 from popit.models import ApiInstance
 from instances.models import Instance
@@ -55,6 +55,8 @@ class Command(BaseCommand):
 
         sections = []
 
+        hansard_tag, hansard_tag_created = Tag.objects.get_or_create(instance=instance, name="hansard")
+
         sources = sources[:limit] if limit else sources.all()
         for s in sources:
 
@@ -66,14 +68,18 @@ class Command(BaseCommand):
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)
-                sections.append(section)
-                s.sayit_section = section
-                s.last_sayit_import = datetime.datetime.now(pytz.utc)
-                s.save()
-
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %
                     (s.id, str(e)))
+                continue
+
+            sections.append(section)
+            s.sayit_section = section
+            s.last_sayit_import = datetime.datetime.now(pytz.utc)
+            s.save()
+
+            for speech in section.descendant_speeches():
+                speech.tags.add(hansard_tag)
 
             # Get or create the sections above the one we just created and put it in there
             parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)

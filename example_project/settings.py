@@ -187,3 +187,11 @@ LOGGING = {
     }
 }
 
+
+# Haystack config, needed by popit-resolver
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
+

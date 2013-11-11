@@ -1,0 +1,20 @@
+language: python
+
+install:
+  - sudo apt-get update -qq
+  - cat conf/packages | sed -r -e 's,#.*,,' | xargs sudo apt-get install -qq
+  - pip install -r requirements.txt
+  - sed -r -e "s,(ZAH_DB_USER:) 'za-hansard',\\1 'postgres'," conf/general.yml-example > conf/general.yml
+
+before_script:
+  - psql -c 'create database "za-hansard";' -U postgres
+  - ./manage.py syncdb --noinput --migrate
+
+script:
+  - ./manage.py test
+
+# report results in IRC
+# notifications:
+#   irc: "irc.mysociety.org#pmo"
+#   use_notice: true
+#   skip_join: true

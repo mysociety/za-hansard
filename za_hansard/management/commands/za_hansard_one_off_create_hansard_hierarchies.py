@@ -1,4 +1,4 @@
-# This is a noe-off script that will search for any sections that appear to be
+# This is a one-off script that will search for any sections that appear to be
 # from Hansard and that are not a sub-section of something else. This will
 # change the database to match what would have been the case had the changes in
 # https://github.com/mysociety/za-hansard/commit/aa8dd4df31062049b33304a1a7c3011

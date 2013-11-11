@@ -71,14 +71,15 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %
                     (s.id, str(e)))
-            else:
-                sections.append(section)
-                s.sayit_section = section
-                s.last_sayit_import = datetime.datetime.now(pytz.utc)
-                s.save()
+                continue
 
-                for speech in section.descendant_speeches():
-                    speech.tags.add(hansard_tag)
+            sections.append(section)
+            s.sayit_section = section
+            s.last_sayit_import = datetime.datetime.now(pytz.utc)
+            s.save()
+
+            for speech in section.descendant_speeches():
+                speech.tags.add(hansard_tag)
 
             # Get or create the sections above the one we just created and put it in there
             parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)

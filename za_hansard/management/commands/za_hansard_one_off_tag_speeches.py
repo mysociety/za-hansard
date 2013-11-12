@@ -17,6 +17,7 @@ class Command(BaseCommand):
         # Section title, tag name
         ('Hansard', 'hansard'),
         ('Committee Minutes', 'committee'),
+        ('Questions', 'question'),
     )
 
     indent_depth = 0

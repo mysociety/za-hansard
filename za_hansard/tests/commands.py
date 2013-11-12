@@ -50,7 +50,7 @@ class OneOffTagSpeechesTests(TestCase):
         call_command('za_hansard_one_off_tag_speeches')
 
         hansard = Tag.objects.get(name='hansard')
-        committee = Tag.objects.get(name='committee-minutes')
+        committee = Tag.objects.get(name='committee')
 
         self.assertEqual(Speech.objects.filter(tags=None).count(), 6)
         self.assertEqual(Speech.objects.filter(tags=hansard).count(), 6)

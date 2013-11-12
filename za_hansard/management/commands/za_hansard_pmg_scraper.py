@@ -445,7 +445,7 @@ class Command(BaseCommand):
                         'party': row.party,
                         'personname': row.person,
                         'text': row.text,
-                        'tags': ['committee-minutes']
+                        'tags': ['committee']
                         })
             tosave={
                     # TODO, really these fields belong to report, not to first appearance row

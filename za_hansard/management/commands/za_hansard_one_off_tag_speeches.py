@@ -16,7 +16,7 @@ class Command(BaseCommand):
     mapping = (
         # Section title, tag name
         ('Hansard', 'hansard'),
-        ('Committee Minutes', 'committee-minutes'),
+        ('Committee Minutes', 'committee'),
     )
 
     indent_depth = 0

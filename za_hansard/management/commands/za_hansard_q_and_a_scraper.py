@@ -453,10 +453,9 @@ class Command(BaseCommand):
                 'parent_section_titles': [
                     'Questions',
                     question.questionto,
-                    question.date.strftime('%d %B %Y'),
                 ],
                 'questionto': question.questionto,
-                'title': question.session,
+                'title': question.date.strftime('%d %B %Y'),
                 'date': question.date,
                 'speeches': [
                     {

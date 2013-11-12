@@ -159,33 +159,53 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
         }
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
+        'south': {
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
-    }
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'request': {
+            'handlers': ['console'],
+            'level': 'WARN',
+            'propagate': True,
+        },
+        'pyelasticsearch': {
+            'handlers': ['console'],
+            'level': 'WARN',
+            'propagate': True,
+        },
+        'requests.packages.urllib3.connectionpool': {
+            'handlers': ['console'],
+            'level': 'WARN',
+            'propagate': True,
+        },
+    },
 }
 
 

@@ -6,6 +6,8 @@ import pytz
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 
 from za_hansard.models import Source
 
@@ -22,6 +24,9 @@ class ZAHansardParsingTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        if 'popit_resolver' not in settings.INSTALLED_APPS:
+            raise ImproperlyConfigured("django_resolver is not in INSTALLED_APPS")
+
         tests_dir = os.path.dirname(os.path.abspath(__file__))
         cls._in_fixtures = os.path.join(tests_dir, 'test_inputs','hansard')
 

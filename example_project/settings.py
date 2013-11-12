@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'speeches',
     'instances',
     'popit',
+    'popit_resolver',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

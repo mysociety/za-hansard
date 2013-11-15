@@ -1,6 +1,6 @@
 lxml>=3.1.0
 pytz
-django
+django<1.5
 nose
 -e git://github.com/jbalogh/django-nose.git#egg=django-nose
 South

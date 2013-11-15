@@ -452,7 +452,7 @@ class Command(BaseCommand):
             tosave = {
                 'parent_section_titles': [
                     'Questions',
-                    question.questionto,
+                    'Questions asked to ' + question.questionto,
                 ],
                 'questionto': question.questionto,
                 'title': question.date.strftime('%d %B %Y'),

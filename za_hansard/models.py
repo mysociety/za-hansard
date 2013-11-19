@@ -1,6 +1,7 @@
 import os, sys
 import re
 import httplib2
+import calendar
 
 from django.db import models
 from django.conf import settings
@@ -156,7 +157,7 @@ class Source(models.Model):
         return [
             "Hansard",
             str(self.date.year),
-            "%02d" % self.date.month,
+            calendar.month_name[self.date.month],
             "%02d" % self.date.day,
         ]
 

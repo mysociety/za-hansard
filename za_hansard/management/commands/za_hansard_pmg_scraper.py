@@ -481,7 +481,8 @@ class Command(BaseCommand):
             if not os.path.exists(filename):
                 continue
 
-            importer = ImportJson( instance=self.instance, delete_existing = options['delete_existing'] )
+            importer = ImportJson( instance=self.instance, delete_existing = options['delete_existing'],
+                popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
             try:
                 self.stdout.write("TRYING %d (%s)\n" % (row.id, filename))
                 section = importer.import_document(filename)

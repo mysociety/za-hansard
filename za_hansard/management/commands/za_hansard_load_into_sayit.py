@@ -64,7 +64,8 @@ class Command(BaseCommand):
             if not path:
                 continue
 
-            importer = ImportAkomaNtoso( instance=instance )
+            importer = ImportAkomaNtoso( instance=instance,
+                popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)

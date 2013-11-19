@@ -146,8 +146,6 @@ class ZAHansardParsingTests(TestCase):
         subSections = mainSection.findall('{*}debateSection')
         self.assertEqual(len(subSections), 16)
 
-
-@override_settings(POPIT_API_URL='http://sa-test.matthew.popit.dev.mysociety.org/api/v0.1/')
 class ZAHansardSayitLoadingTests(TestCase):
 
     tests_dir = os.path.dirname(os.path.abspath(__file__))

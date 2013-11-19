@@ -172,7 +172,7 @@ class ZAHansardSayitLoadingTests(TestCase):
             [
                 "Hansard",
                 "2013",
-                "05",
+                "May",
                 "08"
             ]
         )

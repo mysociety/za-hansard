@@ -10,16 +10,16 @@ from django.template.defaultfilters import slugify
 
 from .. import question_scraper
 
+def sample_file(filename):
+    tests_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
+
 
 class ZAAnswerTests(TestCase):
 
-    def sample_file(self, filename):
-        tests_dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
-
     def test_answer_parsing(self):
-        input_doc_file       = self.sample_file('answer_1.doc')
-        expected_output_file = self.sample_file('answer_1_expected.txt')
+        input_doc_file       = sample_file('answer_1.doc')
+        expected_output_file = sample_file('answer_1_expected.txt')
 
         text = question_scraper.extract_answer_text_from_word_document(input_doc_file)
         expected = open(expected_output_file).read().decode('UTF-8')
@@ -157,4 +157,9 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
     penultimate_url = start_url + "&DocumentStart=5310"
     penultimate_expected_number = 16
+
+class ZAQuestionParsing(TestCase):
+
+    def test_pdf_to_xml(self):
+        pdfdata = open(self.tests_dir)
 

@@ -67,7 +67,7 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help='Run all of the steps',
-        ),        
+        ),
         make_option('--instance',
             type='str',
             default='default',
@@ -154,9 +154,8 @@ class Command(BaseCommand):
         self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
 
     def get_question(self, url):
-        count=0
-        pdfdata = urllib2.urlopen(url).read()
-        xmldata = question_scraper.pdftoxml(pdfdata)
+        pdfdata = self.get_question_pdf_from_url(url)
+        xmldata = self.get_question_xml_from_pdf(pdfdata)
 
         if not xmldata:
             return False
@@ -164,6 +163,20 @@ class Command(BaseCommand):
         #self.stderr.write("URL %s\n" % url)
         #self.stderr.write("PDF len %d\n" % len(pdfdata))
         #self.stderr.write("XML %s\n" % xmldata)
+
+        return self.create_questions_from_xml(xmldata)
+
+
+    def get_question_pdf_from_url(self, url):
+        return urllib2.urlopen(url).read()
+
+
+    def get_question_xml_from_pdf(self, pdfdata):
+        return question_scraper.pdftoxml(pdfdata)
+
+
+    def create_questions_from_xml(self, xmldata):
+        count=0
 
         root = lxml.etree.fromstring(xmldata)
         #except Exception as e:

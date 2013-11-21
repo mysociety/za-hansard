@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.template.defaultfilters import slugify
 
 from .. import question_scraper
+from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
 
 def sample_file(filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -158,8 +159,19 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     penultimate_url = start_url + "&DocumentStart=5310"
     penultimate_expected_number = 16
 
+
 class ZAQuestionParsing(TestCase):
 
     def test_pdf_to_xml(self):
-        pdfdata = open(self.tests_dir)
+        # PDF from http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf
+
+        command = QAScraperCommand()
+
+        pdfdata      = open(sample_file("517147_1.pdf")).read()
+        expected_xml = open(sample_file("517147_1.xml")).read()
+
+        actual_xml = command.get_question_xml_from_pdf(pdfdata)
+
+        self.assertEqual(actual_xml, expected_xml)
+
 

@@ -386,7 +386,7 @@ class Command(BaseCommand):
 
         for answer in answers:
             answer_date = answer.date
-            earliest_question_date = answer_date - timedelta( days = 365 )
+            earliest_question_date = answer_date - timedelta( days = 183 ) # 6 months
 
             if answer.number_written:
                 questions = Question.objects.filter(

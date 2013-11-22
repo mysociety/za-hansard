@@ -277,7 +277,7 @@ class Command(BaseCommand):
                             #except:
                                 #pass
 
-                            data = {
+                            data = self.strip_dict({
                                     'intro': intro.replace('<b>','').replace('</b>',''),
                                     'question': question.replace('&#204;',''),
                                     'number2': number2,
@@ -291,7 +291,7 @@ class Command(BaseCommand):
                                     'parliament': parliament,
                                     'house': house,
                                     'type': questiontype
-                                    }
+                                    })
                             # self.stdout.write("Writing object %s\n" % str(data))
                             q = Question.objects.create( **data )
                             self.stdout.write("Wrote question #%d\n" % q.id)
@@ -332,6 +332,7 @@ class Command(BaseCommand):
                     break
             else:
                 self.stderr.write('Adding answer for {0}\n'.format(detail['url']))
+                detail = self.strip_dict(detail)
                 answer = Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
@@ -546,3 +547,5 @@ class Command(BaseCommand):
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(questions)))
 
+    def strip_dict(self, d):
+        return { k: v.strip() if 'strip' in dir(v) else v for k,v in d.items() }

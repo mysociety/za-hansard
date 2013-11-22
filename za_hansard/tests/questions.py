@@ -4,22 +4,26 @@ import re
 import requests
 import shutil
 import datetime
+import json
+from django.utils.unittest import skipUnless
 
 from django.test import TestCase
 from django.template.defaultfilters import slugify
 
 from .. import question_scraper
+from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
+from ..models import Question
+
+def sample_file(filename):
+    tests_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
 
 
 class ZAAnswerTests(TestCase):
 
-    def sample_file(self, filename):
-        tests_dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
-
     def test_answer_parsing(self):
-        input_doc_file       = self.sample_file('answer_1.doc')
-        expected_output_file = self.sample_file('answer_1_expected.txt')
+        input_doc_file       = sample_file('answer_1.doc')
+        expected_output_file = sample_file('answer_1_expected.txt')
 
         text = question_scraper.extract_answer_text_from_word_document(input_doc_file)
         expected = open(expected_output_file).read().decode('UTF-8')
@@ -157,4 +161,57 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
     penultimate_url = start_url + "&DocumentStart=5310"
     penultimate_expected_number = 16
+
+
+class ZAQuestionParsing(TestCase):
+
+    pdf_source_url = 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf'
+
+    # The exact form of the XML returned depends on the version of pdftohtml
+    # used. Use the version installed onto travis as the common ground (as of
+    # this writing 0.18.4). Also run if we have this version locally.
+    pdftohtml_version = os.popen('pdftohtml -v 2>&1 | head -n 1').read().strip()
+    wanted_version = '0.18.4'
+    @skipUnless(
+        os.environ.get('TRAVIS') or wanted_version in pdftohtml_version,
+        "Not on TRAVIS, or versions don't watch ('%s' != '%s')" % (wanted_version, pdftohtml_version)
+    )
+    def test_pdf_to_xml(self):
+        command = QAScraperCommand()
+
+        pdfdata      = open(sample_file("517147_1.pdf")).read()
+        expected_xml = open(sample_file("517147_1.xml")).read()
+
+        actual_xml = command.get_question_xml_from_pdf(pdfdata)
+
+        self.assertEqual(actual_xml, expected_xml)
+
+
+    def test_xml_to_json(self):
+        # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
+
+        xmldata = open(sample_file("517147_1.xml")).read()
+        command = QAScraperCommand()
+
+        # Load xml to the database
+        command.create_questions_from_xml(xmldata, self.pdf_source_url)
+
+        # Turn questions in database into JSON. Order by id as that should
+        # reflect the processing order.
+        all_questions_as_data = []
+        for question in Question.objects.order_by('id'):
+            question_as_data = command.question_to_json_data(question)
+            all_questions_as_data.append(question_as_data)
+
+
+        expected_file = sample_file('expected_json_data_for_517147_1.json')
+        # Uncomment to write out to the expected JSON file.
+        # with open(expected_file, 'w') as writeto:
+        #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
+        #     writeto.write(re.sub(r' +$', '', json_to_write, flags=re.MULTILINE) + "\n")
+
+        expected_json = open(expected_file).read()
+        expected_data = json.loads(expected_json)
+
+        self.assertEqual(all_questions_as_data, expected_data)
 

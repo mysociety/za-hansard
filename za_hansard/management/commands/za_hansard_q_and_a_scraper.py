@@ -7,7 +7,6 @@ import dateutil.parser
 import string
 import parslepy
 import json
-from za_hansard.datejson import DateEncoder
 from lxml import etree
 import time
 
@@ -67,7 +66,7 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help='Run all of the steps',
-        ),        
+        ),
         make_option('--instance',
             type='str',
             default='default',
@@ -154,9 +153,8 @@ class Command(BaseCommand):
         self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
 
     def get_question(self, url):
-        count=0
-        pdfdata = urllib2.urlopen(url).read()
-        xmldata = question_scraper.pdftoxml(pdfdata)
+        pdfdata = self.get_question_pdf_from_url(url)
+        xmldata = self.get_question_xml_from_pdf(pdfdata)
 
         if not xmldata:
             return False
@@ -165,11 +163,25 @@ class Command(BaseCommand):
         #self.stderr.write("PDF len %d\n" % len(pdfdata))
         #self.stderr.write("XML %s\n" % xmldata)
 
+        return self.create_questions_from_xml(xmldata, url)
+
+
+    def get_question_pdf_from_url(self, url):
+        return urllib2.urlopen(url).read()
+
+
+    def get_question_xml_from_pdf(self, pdfdata):
+        return question_scraper.pdftoxml(pdfdata)
+
+
+    def create_questions_from_xml(self, xmldata, url):
+        count=0
+
         root = lxml.etree.fromstring(xmldata)
         #except Exception as e:
             #self.stderr.write("OOPS")
             #raise CommandError( '%s failed (%s)' % (url, e))
-        self.stderr.write("XML parsed...\n")
+        # self.stderr.write("XML parsed...\n")
 
         pages = list(root)
 
@@ -265,7 +277,7 @@ class Command(BaseCommand):
                                     .replace('</i>','')
                                     .replace('<b>','')
                                     .replace('</b>',''))
-                            asked=re.sub(' \[[-a-zA-Z0-9 ]+\]','',asked)
+                            asked=re.sub(r'\[.*$','',asked)
                             askedby=''
                             if pattern6.search(intro):
                                 askedby = pattern6.search(intro).group(1)
@@ -294,7 +306,7 @@ class Command(BaseCommand):
                                     })
                             # self.stdout.write("Writing object %s\n" % str(data))
                             q = Question.objects.create( **data )
-                            self.stdout.write("Wrote question #%d\n" % q.id)
+                            # self.stdout.write("Wrote question #%d\n" % q.id)
                             summer=''
                         else:
                             question = question + part
@@ -311,7 +323,7 @@ class Command(BaseCommand):
                         startquestion=True
                         summer=''
 
-        self.stdout.write( 'Saved %d\n' % count )
+        # self.stdout.write( 'Saved %d\n' % count )
         return True
 
 
@@ -435,77 +447,94 @@ class Command(BaseCommand):
                 )
 
         for question in questions:
-            answer = question.answer
-            #{
-            # "speeches": [
-            #  {
-            #   "personname": "M Johnson",
-            #   "party": "ANC",
-            #   "text": "Mr M Johnson (ANC) chaired the meeting."
-            #  },
-            #  ...
-            #  ],
-            # "date": "2013-06-21",
-            # "organization": "Agriculture, Forestry and Fisheries",
-            # "reporturl": "http://www.pmg.org.za/report/20130621-report-back-from-departments-health-trade-and-industry-and-agriculture-forestry-and-fisheries-meat-inspection",
-            # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
-            ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
-            tosave = {
-                'parent_section_titles': [
-                    'Questions',
-                    'Questions asked to ' + question.questionto,
-                ],
-                'questionto': question.questionto,
-                'title': question.date.strftime('%d %B %Y'),
-                'date': question.date,
-                'speeches': [
-                    {
-                        'personname': question.askedby,
-                        # party?
-                        'text':       question.question,
-                        'tags': ['question'],
+            question_as_json = self.question_as_json(question)
 
-
-                        # unused for import
-                        'type':       'question',
-                        'intro':      question.intro,
-                        'date':       question.date,
-                        'source':     question.source,
-                        'translated': question.translated
-                    },
-                    {
-                        'personname':   question.questionto,
-                        # party?
-                        'text':   answer.text,
-                        'tags': ['answer'],
-
-                        # unused for import
-                        'name' : answer.name,
-                        'persontitle': question.questionto,
-                        'type':   'answer',
-                        'source': answer.url,
-                        'date':   answer.date,
-                    }
-                ],
-
-                # random stuff that is NOT used by the JSON import
-                'number1': question.number1,
-                'number2': question.number2,
-                'askedby': question.askedby,
-                'type': question.type,
-                'house': question.house,
-                'parliament': question.parliament,
-            }
             filename = os.path.join(
                 settings.ANSWER_CACHE,
                 "%d.json" % question.id)
             with open(filename, 'w') as outfile:
-                json.dump(
-                    tosave,
-                    outfile,
-                    indent=1,
-                    cls=DateEncoder)
+                outfile.write(question_as_json)
             self.stdout.write('Wrote %s\n' % filename)
+
+
+    def question_to_json(self, question):
+        question_as_json_data = self.question_to_json_data(question)
+
+        return json.dumps(
+            question_as_json_data,
+            indent=1,
+            sort_keys=True
+        )
+
+
+    def question_to_json_data(self, question):
+        #{
+        # "speeches": [
+        #  {
+        #   "personname": "M Johnson",
+        #   "party": "ANC",
+        #   "text": "Mr M Johnson (ANC) chaired the meeting."
+        #  },
+        #  ...
+        #  ],
+        # "date": "2013-06-21",
+        # "organization": "Agriculture, Forestry and Fisheries",
+        # "reporturl": "http://www.pmg.org.za/report/20130621-report-back-from-departments-health-trade-and-industry-and-agriculture-forestry-and-fisheries-meat-inspection",
+        # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
+        ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
+        question_as_json = {
+            'parent_section_titles': [
+                'Questions',
+                'Questions asked to ' + question.questionto,
+            ],
+            'questionto': question.questionto,
+            'title': question.date.strftime('%d %B %Y'),
+            'date': question.date.strftime('%Y-%m-%d'),
+            'speeches': [
+                {
+                    'personname': question.askedby,
+                    # party?
+                    'text':       question.question,
+                    'tags': ['question'],
+
+
+                    # unused for import
+                    'type':       'question',
+                    'intro':      question.intro,
+                    'date':       question.date.strftime('%Y-%m-%d'),
+                    'source':     question.source,
+                    'translated': question.translated
+                },
+            ],
+
+            # random stuff that is NOT used by the JSON import
+            'number1': question.number1,
+            'number2': question.number2,
+            'askedby': question.askedby,
+            'type': question.type,
+            'house': question.house,
+            'parliament': question.parliament,
+        }
+
+        answer = question.answer
+        if answer:
+            question_as_json['speeches'].append(
+                {
+                    'personname':   question.questionto,
+                    # party?
+                    'text':   answer.text,
+                    'tags': ['answer'],
+
+                    # unused for import
+                    'name' : answer.name,
+                    'persontitle': question.questionto,
+                    'type':   'answer',
+                    'source': answer.url,
+                    'date':   answer.date.strftime('%Y-%m-%d'),
+                }
+            )
+
+        return question_as_json
 
     def import_into_sayit(self, *args, **options):
         instance = None

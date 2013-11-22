@@ -277,7 +277,7 @@ class Command(BaseCommand):
                                     .replace('</i>','')
                                     .replace('<b>','')
                                     .replace('</b>',''))
-                            asked=re.sub(' \[[-a-zA-Z0-9 ]+\]','',asked)
+                            asked=re.sub(r'\[.*$','',asked)
                             askedby=''
                             if pattern6.search(intro):
                                 askedby = pattern6.search(intro).group(1)

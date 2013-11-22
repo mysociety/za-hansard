@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pdf2xml SYSTEM "pdf2xml.dtd">
 
-<pdf2xml producer="poppler" version="0.24.1">
+<pdf2xml>
 <page number="1" position="absolute" top="0" left="0" height="1263" width="892">
 	<fontspec id="0" size="16" family="Times" color="#000000"/>
 	<fontspec id="1" size="16" family="Times" color="#000000"/>
@@ -40,7 +40,7 @@
 <text top="359" left="85" width="42" height="16" font="4"><b>Note:</b></text>
 <text top="359" left="127" width="4" height="16" font="0"> </text>
 <text top="380" left="139" width="358" height="16" font="0">1. <b>†</b>   Indicates translated version of the question. </text>
-<text top="400" left="139" width="292" height="16" font="0">2. Ì  Indicates a question for oral reply. </text>
+<text top="400" left="139" width="292" height="16" font="0">2.    Indicates a question for oral reply. </text>
 <text top="421" left="139" width="675" height="16" font="0">3. ■  Indicates a written question transferred for oral reply upon the request of the relevant </text>
 <text top="442" left="179" width="150" height="16" font="0">member (Rule 117). </text>
 <text top="461" left="446" width="3" height="11" font="10"><b> </b></text>
@@ -86,12 +86,13 @@
 <text top="120" left="316" width="320" height="19" font="12"><b>QUESTIONS FOR ORAL REPLY </b></text>
 <text top="164" left="324" width="250" height="16" font="4"><b>WEDNESDAY, 24 APRIL 2013 </b></text>
 <text top="207" left="340" width="217" height="19" font="12"><b>DEPUTY PRESIDENT </b></text>
-<text top="248" left="85" width="34" height="19" font="0">Ì5. </text>
+<text top="250" left="101" width="18" height="16" font="0">5. </text>
 <text top="250" left="139" width="419" height="16" font="0">Ms L L van der Merwe (IFP) (p 229)—Deputy President. </text>
-<text top="289" left="85" width="419" height="19" font="0">Ì6.  Mr J J McGluwa (ID) (p 229)—Deputy President. </text>
-<text top="331" left="85" width="34" height="19" font="0">Ì7. </text>
+<text top="292" left="101" width="18" height="16" font="0">6. </text>
+<text top="292" left="138" width="366" height="16" font="0">Mr J J McGluwa (ID) (p 229)—Deputy President. </text>
+<text top="334" left="101" width="18" height="16" font="0">7. </text>
 <text top="334" left="139" width="379" height="16" font="0">Ms B T Ngcobo (ANC) (p 229)—Deputy President. </text>
-<text top="373" left="85" width="34" height="19" font="0">Ì8. </text>
+<text top="376" left="101" width="18" height="16" font="0">8. </text>
 <text top="376" left="139" width="464" height="16" font="0">The Leader of the Opposition (DA) (p 230)—Deputy President. </text>
 <text top="419" left="446" width="6" height="22" font="13"> </text>
 <text top="448" left="446" width="5" height="19" font="12"><b> </b></text>
@@ -289,10 +290,7 @@
 <text top="912" left="751" width="60" height="13" font="14">NW857E </text>
 <text top="952" left="86" width="731" height="16" font="4"><b>692.  Mrs D M Ramodibe (ANC) to ask the Minister for Cooperative Governance and </b></text>
 <text top="973" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="970" left="303" width="16" height="19" font="0">Ì</text>
-<text top="970" left="303" width="16" height="19" font="0">Ì</text>
-<text top="970" left="303" width="16" height="19" font="0">Ì</text>
-<text top="970" left="303" width="510" height="19" font="0">Ì<b>105] [Question submitted for oral reply now placed for written </b></text>
+<text top="973" left="319" width="494" height="16" font="4"><b>105] [Question submitted for oral reply now placed for written </b></text>
 <text top="993" left="138" width="359" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]] </b></text>
 <text top="1035" left="139" width="26" height="16" font="0">(1) </text>
 <text top="1035" left="193" width="620" height="16" font="0">How does he ensure that issues of gender are taken into account when appointments </text>
@@ -310,10 +308,7 @@
 <text top="1197" left="85" width="369" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 12─2013 </text>
 <text top="119" left="86" width="733" height="16" font="4"><b>693.  Mrs J C Moloi-Moropa (ANC) to ask the Minister for the Public Service and </b></text>
 <text top="139" left="138" width="138" height="16" font="4"><b>Administration: [</b></text>
-<text top="136" left="277" width="16" height="19" font="0">Ì</text>
-<text top="137" left="276" width="16" height="19" font="0">Ì</text>
-<text top="137" left="277" width="16" height="19" font="0">Ì</text>
-<text top="136" left="276" width="540" height="19" font="0">Ì<b>108] [Question submitted for oral reply now placed for written </b></text>
+<text top="139" left="292" width="524" height="16" font="4"><b>108] [Question submitted for oral reply now placed for written </b></text>
 <text top="160" left="138" width="359" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]] </b></text>
 <text top="201" left="139" width="679" height="16" font="0">When will her department’s clean-up of the Persal system in the Public Service, in </text>
 <text top="222" left="138" width="590" height="16" font="0">collaboration with the National Treasury, be (a) fully realised and (b) completed? </text>
@@ -335,10 +330,7 @@
 <text top="554" left="751" width="60" height="13" font="14">NW876E </text>
 <text top="593" left="86" width="730" height="16" font="4"><b>696.  Ms C K K Mosimane (Cope) to ask the Minister for Cooperative Governance and </b></text>
 <text top="614" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="611" left="303" width="16" height="19" font="0">Ì</text>
-<text top="611" left="303" width="16" height="19" font="0">Ì</text>
-<text top="611" left="303" width="16" height="19" font="0">Ì</text>
-<text top="611" left="303" width="510" height="19" font="0">Ì<b>124] [Question submitted for oral reply now placed for written </b></text>
+<text top="614" left="319" width="494" height="16" font="4"><b>124] [Question submitted for oral reply now placed for written </b></text>
 <text top="635" left="138" width="354" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]]</b></text>
 <text top="635" left="492" width="5" height="16" font="0"> </text>
 <text top="676" left="139" width="674" height="16" font="0">Whether he was informed that the merger of Sasolburg and Parys will go ahead despite the </text>
@@ -347,10 +339,7 @@
 <text top="717" left="751" width="60" height="13" font="14">NW880E </text>
 <text top="756" left="86" width="732" height="16" font="4"><b>697.  Mr J M Matshoba (ANC) to ask the Minister for Cooperative Governance and </b></text>
 <text top="777" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="774" left="303" width="16" height="19" font="0">Ì</text>
-<text top="774" left="303" width="16" height="19" font="0">Ì</text>
-<text top="774" left="303" width="16" height="19" font="0">Ì</text>
-<text top="774" left="303" width="510" height="19" font="0">Ì<b>125] [Question submitted for oral reply now placed for written </b></text>
+<text top="777" left="319" width="494" height="16" font="4"><b>125] [Question submitted for oral reply now placed for written </b></text>
 <text top="797" left="138" width="354" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]]</b></text>
 <text top="797" left="492" width="5" height="16" font="0"> </text>
 <text top="839" left="139" width="98" height="16" font="0">Whether the </text>
@@ -364,10 +353,7 @@
 <text top="921" left="807" width="5" height="16" font="0"> </text>
 <text top="964" left="86" width="729" height="16" font="4"><b>698.  Nkosi Z M D Mandela (ANC) to ask the Minister for Cooperative Governance and </b></text>
 <text top="984" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="981" left="303" width="16" height="19" font="0">Ì</text>
-<text top="982" left="303" width="16" height="19" font="0">Ì</text>
-<text top="982" left="303" width="16" height="19" font="0">Ì</text>
-<text top="981" left="303" width="510" height="19" font="0">Ì<b>127] [Question submitted for oral reply now placed for written </b></text>
+<text top="984" left="319" width="494" height="16" font="4"><b>127] [Question submitted for oral reply now placed for written </b></text>
 <text top="1005" left="138" width="354" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]]</b></text>
 <text top="1005" left="492" width="5" height="16" font="0"> </text>
 <text top="1046" left="138" width="676" height="16" font="0">Whether he has put any measures in place to avoid the Demarcation Process Review Task </text>
@@ -383,20 +369,14 @@
 <text top="1197" left="441" width="369" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 12─2013 </text>
 <text top="119" left="86" width="732" height="16" font="4"><b>699.  Mr D W Mavunda (ANC) to ask the Minister for Cooperative Governance and </b></text>
 <text top="139" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="136" left="303" width="16" height="19" font="0">Ì</text>
-<text top="137" left="303" width="16" height="19" font="0">Ì</text>
-<text top="137" left="303" width="16" height="19" font="0">Ì</text>
-<text top="136" left="303" width="510" height="19" font="0">Ì<b>129] [Question submitted for oral reply now placed for written </b></text>
+<text top="139" left="319" width="494" height="16" font="4"><b>129] [Question submitted for oral reply now placed for written </b></text>
 <text top="160" left="138" width="354" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]]</b></text>
 <text top="160" left="492" width="5" height="16" font="0"> </text>
 <text top="201" left="138" width="562" height="16" font="0">Whether he will update the National Assembly on the situation in Madibeng? </text>
 <text top="204" left="751" width="60" height="13" font="14">NW888E </text>
 <text top="244" left="86" width="730" height="16" font="4"><b>700.  Ms M J Segale-Diswai (ANC) to ask the Minister for Cooperative Governance and </b></text>
 <text top="264" left="138" width="165" height="16" font="4"><b>Traditional Affairs: [</b></text>
-<text top="261" left="303" width="16" height="19" font="0">Ì</text>
-<text top="262" left="303" width="16" height="19" font="0">Ì</text>
-<text top="262" left="303" width="16" height="19" font="0">Ì</text>
-<text top="261" left="303" width="510" height="19" font="0">Ì<b>130] [Question submitted for oral reply now placed for written </b></text>
+<text top="264" left="319" width="494" height="16" font="4"><b>130] [Question submitted for oral reply now placed for written </b></text>
 <text top="285" left="138" width="354" height="16" font="4"><b>reply because in excess of quota [Rule 108(8)]]</b></text>
 <text top="285" left="492" width="5" height="16" font="0"> </text>
 <text top="326" left="139" width="673" height="16" font="0">What has been his findings on the state of municipalities in the country since the adoption of </text>
@@ -462,10 +442,7 @@
 <text top="286" left="751" width="60" height="13" font="14">NW895E </text>
 <text top="326" left="86" width="728" height="16" font="4"><b>705.  Mrs J D Kilian (Cope) to ask the Minister for the Public Service and Administration: </b></text>
 <text top="347" left="138" width="6" height="16" font="4"><b>[</b></text>
-<text top="344" left="144" width="16" height="19" font="0">Ì</text>
-<text top="345" left="144" width="16" height="19" font="0">Ì</text>
-<text top="345" left="144" width="16" height="19" font="0">Ì</text>
-<text top="344" left="144" width="672" height="19" font="0">Ì<b>132] [Question submitted for oral reply now placed for written reply because in </b></text>
+<text top="347" left="160" width="655" height="16" font="4"><b>132] [Question submitted for oral reply now placed for written reply because in </b></text>
 <text top="368" left="138" width="226" height="16" font="4"><b>excess of quota [Rule 108(8)]]</b></text>
 <text top="368" left="364" width="5" height="16" font="0"> </text>
 <text top="409" left="139" width="26" height="16" font="0">(1) </text>
@@ -479,10 +456,7 @@
 <text top="513" left="807" width="5" height="16" font="0"> </text>
 <text top="555" left="86" width="728" height="16" font="4"><b>706.  Mr A R Ainslie (ANC) to ask the Minister for the Public Service and Administration: </b></text>
 <text top="576" left="138" width="6" height="16" font="4"><b>[</b></text>
-<text top="573" left="144" width="16" height="19" font="0">Ì</text>
-<text top="573" left="144" width="16" height="19" font="0">Ì</text>
-<text top="573" left="144" width="16" height="19" font="0">Ì</text>
-<text top="573" left="144" width="672" height="19" font="0">Ì<b>137] [Question submitted for oral reply now placed for written reply because in </b></text>
+<text top="576" left="160" width="655" height="16" font="4"><b>137] [Question submitted for oral reply now placed for written reply because in </b></text>
 <text top="596" left="138" width="226" height="16" font="4"><b>excess of quota [Rule 108(8)]]</b></text>
 <text top="596" left="364" width="5" height="16" font="0"> </text>
 <text top="638" left="139" width="675" height="16" font="0">What measures are being taken by her department to professionalise the Public Service to </text>
@@ -1329,8 +1303,8 @@
 <text top="257" left="260" width="377" height="19" font="12"><b>PEACE AND SECURITY – CLUSTER 1 </b></text>
 <text top="301" left="85" width="415" height="16" font="1"><i>Questions standing over from Wednesday,06 March 2013</i></text>
 <text top="299" left="500" width="5" height="19" font="12"><b> </b></text>
-<text top="339" left="85" width="517" height="19" font="0">Ì43.  Mr M A Nhanha (Cope) (p 5)—Defence and Military Veterans. </text>
-<text top="381" left="85" width="521" height="19" font="0">Ì31.  Ms N R Mabedla (ANC) (p 8)—Defence and Military Veterans. </text>
+<text top="342" left="101" width="501" height="16" font="0">43.  Mr M A Nhanha (Cope) (p 5)—Defence and Military Veterans. </text>
+<text top="384" left="101" width="505" height="16" font="0">31.  Ms N R Mabedla (ANC) (p 8)—Defence and Military Veterans. </text>
 <text top="426" left="446" width="5" height="16" font="4"><b> </b></text>
 <text top="447" left="446" width="5" height="16" font="0"> </text>
 <text top="504" left="270" width="406" height="21" font="11"><b>QUESTIONS FOR WRITTEN REPLY</b></text>

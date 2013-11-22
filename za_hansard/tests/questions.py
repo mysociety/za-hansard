@@ -4,6 +4,7 @@ import re
 import requests
 import shutil
 import datetime
+from django.utils.unittest import skipUnless
 
 from django.test import TestCase
 from django.template.defaultfilters import slugify
@@ -162,6 +163,15 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
 class ZAQuestionParsing(TestCase):
 
+    # The exact form of the XML returned depends on the version of pdftohtml
+    # used. Use the version installed onto travis as the common ground (as of
+    # this writing 0.18.4). Also run if we have this version locally.
+    pdftohtml_version = os.popen('pdftohtml -v 2>&1 | head -n 1').read().strip()
+    wanted_version = '0.18.4'
+    @skipUnless(
+        os.environ.get('TRAVIS') or wanted_version in pdftohtml_version,
+        "Not on TRAVIS, or versions don't watch ('%s' != '%s')" % (wanted_version, pdftohtml_version)
+    )
     def test_pdf_to_xml(self):
         # PDF from http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf
 

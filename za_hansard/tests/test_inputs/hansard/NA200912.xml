@@ -95,8 +95,8 @@
         <prayers id="prayers">
           <p>The Speaker took the Chair and requested members to observe a moment of silence for prayers or meditation.</p>
         </prayers>
-        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports-see-col-000">
-          <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS - see col 000.</heading>
+        <debateSection id="dbs1" name="announcements-tablings-and-committee-reports">
+          <heading id="dbsh1">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS </heading>
         </debateSection>
         <debateSection id="dbs2" name="new-member">
           <heading id="dbsh2">NEW MEMBER (Announcement)</heading>

@@ -110,9 +110,18 @@ class TitleParslet(ParaParslet):
 
     @classmethod
     def match(cls, parser, p):
+
+        # title must be all upper case, e.g.:
+        #    have at least one [A-Z]
+        #    have no lower-case [a-z]
+        #
+        # we pre-process to remove "see col 0"
+
         line = re.sub('\s+', ' ', p)
-        mline = line.replace('see col', '')
-        if re.search(r'[a-z]', mline):
+        line = re.sub('[ -]+see col[ 0.]*', ' ', p)
+        if re.search(r'[a-z]', line):
+            return None
+        if not re.search(r'[A-Z]', line):
             return None
         return { 'text': line }
 

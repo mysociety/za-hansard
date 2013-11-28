@@ -961,8 +961,10 @@
             <p>That the Report be adopted.</p>
             <p>Motion agreed to.</p>
             <p>Report accordingly adopted.</p>
-            <p>The House adjourned at 17:03.</p>
           </speech>
+          <adjournment id="adjournment">
+            <p>The House adjourned at <recordedTime time="17:03:00">17:03</recordedTime></p>
+          </adjournment>
         </debateSection>
         <debateSection id="dbs46" name="announcements-tablings-and-committee-reports">
           <heading id="dbsh46">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS</heading>

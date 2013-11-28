@@ -923,8 +923,10 @@
           <speech by="#the-deputy-speaker">
             <from>The DEPUTY SPEAKER</from>
             <p>Order! Hon members, there is one last ruling that I have to make. That ruling is on the Lonmin debate and the hon Minister of Mineral Resources. My ruling at present is that I should not make this particular ruling now, because I am concerned that the Minister is not here. In most cases, if you want action to be taken, you cannot make a ruling if the person is not present. Therefore, I appeal to the hon Lekota to be patient. I will make that ruling when we come back to the House. Thank you very much.</p>
-            <p>The House adjourned at 16:42.</p>
           </speech>
+          <adjournment id="adjournment">
+            <p>The House adjourned at <recordedTime time="16:42:00">16:42</recordedTime></p>
+          </adjournment>
         </debateSection>
         <debateSection id="dbs46" name="announcements-tablings-and-committee-reports">
           <heading id="dbsh46">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS</heading>

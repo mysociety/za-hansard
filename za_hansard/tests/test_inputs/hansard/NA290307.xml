@@ -633,8 +633,10 @@
             <p>(4) recognises the importance of the rights of persons with disabilities; and</p>
             <p>(5) congratulates the Executive in taking this initiative.</p>
             <p>Agreed to.</p>
-            <p>The House adjourned at 16:48.</p>
           </speech>
+          <adjournment id="adjournment">
+            <p>The House adjourned at <recordedTime time="16:48:00">16:48</recordedTime></p>
+          </adjournment>
         </debateSection>
         <debateSection id="dbs13" name="announcements-tablings-and-committee-reports">
           <heading id="dbsh13">ANNOUNCEMENTS, TABLINGS AND COMMITTEE REPORTS</heading>

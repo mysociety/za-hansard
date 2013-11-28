@@ -214,7 +214,7 @@ class AroseParslet(ParaParslet):
         if parser.hasArisen:
             return None
 
-        ret = re.search(r'^(.*(?:rose) at )(\d+:\d+)\.?$', p)
+        ret = re.search(r'^(.*(?:rose|adjourned) at )(\d+:\d+)\.?$', p)
         if ret:
             groups = ret.groups()
             time = datetime.strptime(groups[1], '%H:%M').time()

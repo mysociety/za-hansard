@@ -22,6 +22,10 @@ from instances.models import Instance
 from za_hansard.models import PMGCommitteeReport, PMGCommitteeAppearance
 from speeches.importers.import_json import ImportJson
 
+class StopFetchingException (Exception):
+    # this is a control flow exception.
+    pass
+
 class Command(BaseCommand):
 
     help = 'Check for new sources'
@@ -56,6 +60,18 @@ class Command(BaseCommand):
             action='store_true',
             help='delete existing records (assuming --import-to-sayit)',
         ),
+        make_option('--limit',
+            default=0,
+            action='store',
+            type='int',
+            help='How far to go back (default not set means all the way)',
+            # note, this uses 'reportschecked'
+        ),
+        make_option('--fetch-to-limit',
+            default=False,
+            action='store_true',
+            help="Don't stop when reaching seen questions, continue to --limit",
+        ),
     )
 
     committees = []
@@ -69,6 +85,8 @@ class Command(BaseCommand):
     totalappearances=0 # seems to be reset later, not really a good global
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
     instance = None
+    limit = 0
+    fetch_to_limit = False
 
     def handle(self, *args, **options):
 
@@ -76,6 +94,9 @@ class Command(BaseCommand):
             self.instance = Instance.objects.get(label=options['instance'])
         except Instance.DoesNotExist:
             raise CommandError("Instance specified not found (%s)" % options['instance'])
+
+        self.limit          = options['limit']
+        self.fetch_to_limit = options['fetch_to_limit']
 
         if options['scrape_with_json']:
             options['scrape'] = True
@@ -141,24 +162,28 @@ class Command(BaseCommand):
         parsedcommittees = p.parse_fromstring(contents)
 
         self.stdout.write('Started\n')
-        for ctype in parsedcommittees['committee_types']:
-            for committee in ctype['committees']:
-                self.numcommittees = self.numcommittees + 1
+        try:
+            for ctype in parsedcommittees['committee_types']:
+                for committee in ctype['committees']:
+                    self.numcommittees = self.numcommittees + 1
 
-                try:
-                    self.processCommittee(
-                        'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
-                        committee['name'])
-                except urllib2.HTTPError:
-                    #if there is an http error, just ignore this committee this time
-                    self.stderr.write('HTTPERROR '+committee['name'])
-                    pass
-                self.updateprocess()
-                self.committees.append({
-                    "name": committee['name'],
-                    "url": committee['url'],
-                    "type": ctype['type']
-                    })
+                    try:
+                        self.processCommittee(
+                            'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
+                            committee['name'])
+                    except urllib2.HTTPError:
+                        #if there is an http error, just ignore this committee this time
+                        self.stderr.write('HTTPERROR '+committee['name'])
+                        pass
+                    finally:    
+                        self.updateprocess()
+                        self.committees.append({
+                            "name": committee['name'],
+                            "url": committee['url'],
+                            "type": ctype['type']
+                            })
+        except StopFetchingException as e:
+            self.stderr.write("STOPPED! %s\n" % e)
 
         if options['scrape_with_json']:
             with open('committees_json.json', 'w') as outfile:
@@ -331,6 +356,9 @@ class Command(BaseCommand):
 
         for report in reports['reports']:
 
+            if self.limit and (self.reportschecked > self.limit):
+                raise StopFetchingException("Reached Limit")
+
             self.updateprocess()
             if "date" in report:
                 self.reportschecked = self.reportschecked + 1
@@ -383,7 +411,11 @@ class Command(BaseCommand):
                                 processingcommitteeURL,
                                 report['date'])
 
+                        elif not self.fetch_to_limit:
+                            raise StopFetchingException("Reached previously seen report")
+
         if "next" in reports:
+
             self.processReports(
                 'http://www.pmg.org.za'+reports['next'],
                 processingcommitteeName,

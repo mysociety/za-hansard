@@ -130,7 +130,12 @@ class ParensParslet(SingleLineParslet):
     @classmethod
     def match(cls, parser, line):
         if re.match(r'\s*\([^()]+\)\.?$', line):
-            return { 'text': line.lstrip() }
+            line = line.strip()
+            # Transform, for example:  
+            #    '(Members Statement)'  -> '(Member's Statement)'
+            #    '(Ministers Response)' -> '(Minister's Response)'
+            line = re.sub( r'(\(?:Member|Minister)s (.*\)\.?)', '\g<1>\'s \g<2>', line )
+            return { 'text': line }
         return None
 
     def output(self, parser, E):

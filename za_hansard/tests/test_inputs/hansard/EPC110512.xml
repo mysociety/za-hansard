@@ -27,6 +27,7 @@
         <TLCOrganization href="http://www.parliament.gov.za/" id="za-parliament" showAs="ZA Parliament"/>
         <TLCOrganization href="http://www.mysociety.org/" id="mysociety" showAs="MySociety"/>
         <TLCPerson href="http://dummy/popit/path/the-minister-of-sport-and-recreation" id="the-minister-of-sport-and-recreation" showAs="The MINISTER OF SPORT AND RECREATION"/>
+        <TLCPerson href="http://dummy/popit/path/the-house-chairperson-mr-c-t-frolick" id="the-house-chairperson-mr-c-t-frolick" showAs="The HOUSE CHAIRPERSON (Mr C T Frolick)"/>
         <TLCPerson href="http://dummy/popit/path/mr-m-r-mdakane" id="mr-m-r-mdakane" showAs="Mr M R MDAKANE"/>
         <TLCPerson href="http://dummy/popit/path/mr-m-w-rabotapi" id="mr-m-w-rabotapi" showAs="Mr M W RABOTAPI"/>
         <TLCPerson href="http://dummy/popit/path/mr-g-p-d-mackenzie" id="mr-g-p-d-mackenzie" showAs="Mr G P D MACKENZIE"/>
@@ -36,6 +37,7 @@
         <TLCPerson href="http://dummy/popit/path/ms-g-s-sindane" id="ms-g-s-sindane" showAs="Ms G S SINDANE"/>
         <TLCPerson href="http://dummy/popit/path/the-deputy-minister-of-sport-and-recreation" id="the-deputy-minister-of-sport-and-recreation" showAs="The DEPUTY MINISTER OF SPORT AND RECREATION"/>
         <TLCPerson href="http://dummy/popit/path/mr-s-g-mmusi" id="mr-s-g-mmusi" showAs="Mr S G MMUSI"/>
+        <TLCPerson href="http://dummy/popit/path/the-temporary-chairperson-mr-j-d-thibedi" id="the-temporary-chairperson-mr-j-d-thibedi" showAs="The TEMPORARY CHAIRPERSON (Mr J D Thibedi)"/>
         <TLCPerson href="http://dummy/popit/path/mr-l-m-mphahlele" id="mr-l-m-mphahlele" showAs="Mr L M MPHAHLELE"/>
         <TLCPerson href="http://dummy/popit/path/ms-m-c-dube" id="ms-m-c-dube" showAs="Ms M C DUBE"/>
         <TLCPerson href="http://dummy/popit/path/mnr-t-d-lee" id="mnr-t-d-lee" showAs="Mnr T D LEE"/>
@@ -111,12 +113,18 @@
             <p>Our star performer, Oscar Pistorius, has set the standard for the year by winning the 2012 Laureus Sportsperson of the Year with a Disability Award.</p>
             <p>Chairperson, this is indeed an age of hope. I know that this year we have set the bar for our qualification standards higher than in previous years, to ensure that the team we send to London is a quality team that can bring more medals back to South Africa than was the case in Beijing 2008. We have done this to instil a culture of our being a winning nation.</p>
             <p>It is major sporting events, such as the Olympics, the Commonwealth Games and many world cup tournaments, that allow a country and its athletes to assess the extent to which the collective and personal investment put into the respective codes achieves success or suffers failure. [Interjections.]</p>
-            <p>The HOUSE CHAIRPERSON (Mr C T Frolick): Hon Minister, you have one minute to conclude.</p>
+          </speech>
+          <speech by="#the-house-chairperson-mr-c-t-frolick">
+            <from>The HOUSE CHAIRPERSON (Mr C T Frolick)</from>
+            <p>Hon Minister, you have one minute to conclude.</p>
           </speech>
           <speech by="#the-minister-of-sport-and-recreation">
             <from>The MINISTER OF SPORT AND RECREATION</from>
             <p>Yho! This year, 2012, marks the 20th anniversary of South Africa's readmittance into the family of the international sport community in general and the Olympics in particular. This year marks 20 years of the fighting sporting spirit and the sense of Olympism displayed by our men and women in sport battles internationally. Thank you very much!</p>
-            <p>The HOUSE CHAIRPERSON (Mr C T Frolick): Thank you, hon Minister. Before I recognise the next speaker, I just want to remind our visitors in the gallery that the taking of photos and recording of proceedings in the Chamber are not allowed. I request those who have done so to kindly erase them from their cell phones.</p>
+          </speech>
+          <speech by="#the-house-chairperson-mr-c-t-frolick">
+            <from>The HOUSE CHAIRPERSON (Mr C T Frolick)</from>
+            <p>Thank you, hon Minister. Before I recognise the next speaker, I just want to remind our visitors in the gallery that the taking of photos and recording of proceedings in the Chamber are not allowed. I request those who have done so to kindly erase them from their cell phones.</p>
           </speech>
           <speech by="#mr-m-r-mdakane">
             <from>Mr M R MDAKANE</from>
@@ -320,12 +328,18 @@
             <p>Chairperson, please allow me to elaborate on what I said. When David Beckham was nine years old he had about five pairs of soccer boots, he had about 24 soccer balls and his father was his coach at that time. His nine- year-old counterpart in South Africa had to play with a self-made soccer ball. We will all remember that boys in South Africa play with a tennis ball.]</p>
             <p>However, in most cases when you come up to those boys, you will see that the ball that they are playing with only resembles a ball. It is not actually a ball, but a tennis ball covered with plastic, and it resembles a ball. Each one of those nine-year-old boys has taken great pains to contribute a plastic bag in order to make a ball.</p>
             <p>Now, remember, I said that by then David Beckham had 24 balls. David Beckham had 24 soccer balls! [Laughter.] [Applause.] David Beckham had 24 soccer balls and six pairs of soccer boots!</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Hon member, ...</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Hon member, ...</p>
           </speech>
           <speech by="#mr-s-g-mmusi">
             <from>Mr S G MMUSI</from>
             <p>I must indicate that the disparity ...</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Hon member, those balls were far too many! [Laughter.] Mr S G MMUSI: Thank you, Chairperson. It was just an omission; I should have said "soccer balls". [Laughter.]</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Hon member, those balls were far too many! [Laughter.] Mr S G MMUSI: Thank you, Chairperson. It was just an omission; I should have said "soccer balls". [Laughter.]</p>
             <p>The disparity that we see today, which was created by apartheid, has delayed us and handicapped progress in our country. I mention this, even though some people do not want us to blame it on apartheid. However, I would like to say to the hon Groenewald it is apartheid that spent R578 on a white child and only R46 on a black child. It is apartheid that made the structural form of facilities in white areas differ from those in black areas. Furthermore, black people of the disadvantaged communities could not use those better facilities, which were found only in white residential areas.</p>
             <p>For instance, there is a stadium called the Gert Lubbe Stadium that I know in the North West. Gert Lubbe. It is a stadium that is owned by a school. [Interjections.] Now, the communities that surround that area cannot use that stadium. If members of the disadvantaged community want to use that stadium, they will be referred to the school, and the school will tell them: "Nee, meneer." ["No, sir."] It is an Afrikaans school. They will say this: "Nee, meneer, ons kan jou nie help nie. Jy moet eers met die voorsitter gaan praat, want hy is die een wat die toestemming gee."</p>
             <p>["No, sir, we can't help you. You will first have to go and speak to the chairperson, because he is the one who gives permission."]</p>
@@ -420,12 +434,18 @@
           <speech by="#mr-m-m-dikgacwi">
             <from>Mr M M DIKGACWI</from>
             <p>... Khayelitsha, Mitchell's Plain and Hanover Park being involved in ... [Inaudible.]</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Hon member, please take your seat. There is a point of order.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Hon member, please take your seat. There is a point of order.</p>
           </speech>
           <speech by="#mr-m-m-dikgacwi">
             <from>Mr M M DIKGACWI</from>
             <p>Come again?</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Take your seat. There is a point of order. Take your seat.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Take your seat. There is a point of order. Take your seat.</p>
           </speech>
           <speech by="#mr-m-m-dikgacwi">
             <from>Mr M M DIKGACWI</from>
@@ -434,7 +454,10 @@
           <speech by="#mrs-s-p-kopane">
             <from>Mrs S P KOPANE</from>
             <p>[Inaudible.]</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): I will give the ruling before the end of this sitting.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>I will give the ruling before the end of this sitting.</p>
           </speech>
           <speech by="#mr-m-m-dikgacwi">
             <from>Mr M M DIKGACWI</from>
@@ -447,7 +470,10 @@
             <p>Minister, there is a problem in regard to refugees. A club in Paarl has been suspended. For them to play, they must first pay R180 000. Where will they get that money? I went to Newlands to try to see if we could find an amicable solution. They just refused. I can't understand that.</p>
             <p>The problem lies with the administrators. When they are elected to serve, they forget about their mandate. One of the recently elected administrators in a federation said, "I'm happy that I've been elected because I'll be in a position to go to any world cup game." Is that a mandate? The mandate is to transform sport! Another thing is that if you are used to Marie biscuits and you then get Choice Assorted, you completely forget what your mandate is! We need to look at these things. If these administrators don't look after the interests of our kids, we will not get anywhere.</p>
             <p>This coach who has just been ''freed'' - I don't want to say more - used to coach the Under 21 rugby team. He won the World Cup with the Under 21s ... [Time expired.]</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Hon Minister, before I give you an opportunity to reply, let me give a ruling on the point of order put regarding the use of the words "the Premier, Mrs Refugee". The ruling is that the expression of unparliamentary remarks refers to members of this House and not to people who are not members of this House. The hon member was definitely not unparliamentary in his remarks. [Applause.]</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Hon Minister, before I give you an opportunity to reply, let me give a ruling on the point of order put regarding the use of the words "the Premier, Mrs Refugee". The ruling is that the expression of unparliamentary remarks refers to members of this House and not to people who are not members of this House. The hon member was definitely not unparliamentary in his remarks. [Applause.]</p>
           </speech>
           <speech by="#the-minister-of-sport-and-recreation">
             <from>The MINISTER OF SPORT AND RECREATION</from>
@@ -463,7 +489,10 @@
             <p>These girls will participate, like their boy counterparts in soccer, as full-time professional players. That is what we want. Come to the party! That is where we want the money to go.</p>
             <p>Secondly, in regard to extracting the truth from the facts, I want to refer to the hon member, Donald Lee. All of a sudden you are speaking about the Big Easy, Ernie Els, as if he were dead! He is still alive, and he plays golf magnificently! Let me tell you one thing that you do not know. Among the South African Sports Awards that you are so obsessed about - and you are misquoting them - we gave Ernie Els a Steve Tshwete Lifetime Achievement Award for the work he has done and the contribution that he has made to South African sport. [Applause.] Ernie Els is in the Golf Hall of Fame and he was recognised by the United States of America. You are not awakening us to the task; we are already past that! [Applause.] You have just woken up from slumberland and you speak as if this thing were new. We have been around, hon member.</p>
             <p>I understand that the problem you have is that we have been in this Ministry ...</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Order! The hon Minister's time has expired. The MINISTER OF SPORT AND RECREATION: It is 10 minutes.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Order! The hon Minister's time has expired. The MINISTER OF SPORT AND RECREATION: It is 10 minutes.</p>
           </speech>
           <speech by="#the-deputy-minister-of-sport-and-recreation">
             <from>The DEPUTY MINISTER OF SPORT AND RECREATION</from>
@@ -480,12 +509,18 @@
           <speech by="#the-minister-of-sport-and-recreation">
             <from>The MINISTER OF SPORT AND RECREATION</from>
             <p>We have it here. [Interjections.]</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Order! Hon Minister, the situation is as follows. The list you are referring to is actually a draft list; according to the final list, you were given only five minutes. On the draft list, yes, it is 10 minutes, but on the final list that I am using it is only 5 minutes. I am sorry for the inconvenience if you were not properly briefed.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Order! Hon Minister, the situation is as follows. The list you are referring to is actually a draft list; according to the final list, you were given only five minutes. On the draft list, yes, it is 10 minutes, but on the final list that I am using it is only 5 minutes. I am sorry for the inconvenience if you were not properly briefed.</p>
           </speech>
           <speech by="#an-hon-member">
             <from>An HON MEMBER</from>
             <p>Give him another five minutes.</p>
-            <p>The TEMPORARY CHAIRPERSON (Mr J D Thibedi): Order, hon member! Hon members, as I said, the time that the Minister had has expired.</p>
+          </speech>
+          <speech by="#the-temporary-chairperson-mr-j-d-thibedi">
+            <from>The TEMPORARY CHAIRPERSON (Mr J D Thibedi)</from>
+            <p>Order, hon member! Hon members, as I said, the time that the Minister had has expired.</p>
             <p>Debate concluded.</p>
           </speech>
           <adjournment id="adjournment">

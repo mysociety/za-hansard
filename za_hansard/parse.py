@@ -260,7 +260,7 @@ class SpeechParslet(ParaParslet):
 
     @classmethod
     def match(cls, parser, p):
-        name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \(\w+\))?):\s*(.*)'
+        name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \((?:\w|\s)+\))?):\s*(.*)'
         ret = re.match(name_regexp, p)
         if ret:
             (name, speech) = ret.groups()

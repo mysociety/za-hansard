@@ -485,7 +485,7 @@ class Command(BaseCommand):
         question_as_json = {
             'parent_section_titles': [
                 'Questions',
-                'Questions asked to ' + question.questionto,
+                'Questions asked to the ' + question.questionto,
             ],
             'questionto': question.questionto,
             'title': question.date.strftime('%d %B %Y'),

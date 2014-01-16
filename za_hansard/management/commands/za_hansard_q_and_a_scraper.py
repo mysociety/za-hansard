@@ -447,7 +447,7 @@ class Command(BaseCommand):
                 )
 
         for question in questions:
-            question_as_json = self.question_as_json(question)
+            question_as_json = self.question_to_json(question)
 
             filename = os.path.join(
                 settings.ANSWER_CACHE,

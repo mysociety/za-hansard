@@ -247,6 +247,7 @@ class Answer (models.Model):
     number_written = models.TextField()
     date = models.DateField()
     type = models.TextField()
+    last_sayit_import = models.DateTimeField(blank=True, null=True)
 
 class Question (models.Model):
     answer = models.ForeignKey(Answer,

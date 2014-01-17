@@ -279,10 +279,12 @@ class Question (models.Model):
         null=True, 
         on_delete=models.SET_NULL,
         )
-    answer = models.ForeignKey(Answer,
+    answer = models.ForeignKey(
+        Answer,
         null=True,
         on_delete=models.CASCADE,
-        related_name='question')
+        related_name='question',
+        )
     house = models.TextField()
     session = models.TextField()
     number1 = models.TextField()
@@ -300,8 +302,10 @@ class Question (models.Model):
     askedby = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
-    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
-        help_text='Associated Sayit section object, if imported')
+    sayit_section = models.ForeignKey(
+        Section, blank=True, null=True, on_delete=models.PROTECT,
+        help_text='Associated Sayit section object, if imported',
+        )
 
 
 #CREATE TABLE completed_documents (`url` string);

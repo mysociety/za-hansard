@@ -248,7 +248,37 @@ class Answer (models.Model):
     date = models.DateField()
     type = models.TextField()
 
+class QuestionPaper(models.Model):
+    """Models a group of questions.
+
+    Questions are published in batches, and each batch contains
+    some metadata. This is the place to store that metadata.
+    """
+    # Metadata from Questions start url table
+    document_name = models.TextField(max_length=32)
+    date_published = models.DateField()
+    house = models.CharField(max_length=64)
+    language = models.CharField(max_length=16)
+    document_number = models.IntegerField()
+    source_url = models.URLField(max_length=1000)
+
+    # Body metadata from inside the question paper file
+    # Question papers are by unique year/issue number
+    year = models.IntegerField()
+    issue_number = models.IntegerField() # within year.
+    parliament_number = models.IntegerField()
+    session_number = models.IntegerField() # Unique within parliament
+    text = models.TextField()
+
+    class Meta:
+        unique_together = ('year', 'issue_number')
+
 class Question (models.Model):
+    paper = models.ForeignKey(
+        QuestionPaper, 
+        null=True, 
+        on_delete=models.SET_NULL,
+        )
     answer = models.ForeignKey(Answer,
         null=True,
         on_delete=models.CASCADE,

@@ -83,6 +83,11 @@ class Command(BaseCommand):
             action='store_true',
             help="Don't stop when reaching seen questions, continue to --limit",
         ),
+        make_option('--rerun-matching',
+            default=False,
+            action='store_true',
+            help="Do matching, even for already matched questions",
+        ),
     )
 
     start_url_q = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=236')
@@ -356,6 +361,10 @@ class Command(BaseCommand):
         answers = Answer.objects.exclude( url = None )
         unprocessed = answers.exclude( processed_code=Answer.PROCESSED_OK )
 
+        # TODO
+        # if not options['TODO-something-about-reprocessing-on-error']:
+        unprocessed = unprocessed.exclude( processed_code=Answer.PROCESSED_PROCESSING_ERROR )
+
         self.stderr.write( "Processing %d records" % len(unprocessed) )
 
         for row in unprocessed:
@@ -375,6 +384,8 @@ class Command(BaseCommand):
                     row.text = text
                     row.save()
                 except subprocess.CalledProcessError:
+                    row.processed_code = Answer.PROCESSED_PROCESSING_ERROR
+                    row.save()
                     self.stderr.write( 'ERROR in antiword processing %d' % row.id )
                     pass
 
@@ -390,16 +401,21 @@ class Command(BaseCommand):
 
     def match_answers(self, *args, **options):
 
-        #get all the answers for processing (this should change to all not already processed)
-
-        # for row in c.execute('SELECT id,number_written,number_oral,date FROM answers'):
         answers = Answer.objects.all()
+
+        if not options['rerun_matching']:
+            answers = ( answers
+                .prefetch_related('question')
+                .filter( question__isnull=False )
+                )
 
         count = 0
 
         for answer in answers:
             answer_date = answer.date
             earliest_question_date = answer_date - timedelta( days = 183 ) # 6 months
+
+            questions = []
 
             if answer.number_written:
                 questions = Question.objects.filter(
@@ -409,18 +425,9 @@ class Command(BaseCommand):
                         date__gte = earliest_question_date
                     ).order_by('-date')
 
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
-
             # now oral (answer can be to both a written and oral question)
             # TODO refactor with above
-            if answer.number_oral:
+            elif answer.number_oral:
                 questions = Question.objects.filter(
                         number1 = answer.number_oral,
                         type = 'oral',
@@ -428,23 +435,40 @@ class Command(BaseCommand):
                         date__gte = earliest_question_date
                     ).order_by('-date')
 
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
+            if questions.exists():
+                question = questions[0]
+        
+                question.answer = answer
+                question.save()
+                answer.last_sayit_import = None # reset so that import will rerun
+                answer.save()
+                count += 1
 
         self.stdout.write('Matched %d answers\n' % count)
 
+    def get_unimported_questions(self):
+        
+        unimported_questions_only = ( Question.objects
+            .filter( answer__isnull = True )
+            .filter( sayit_section__isnull = True )
+            .all()
+            )
+
+        unimported_qa_pairs = ( Question.objects
+            .filter( answer__isnull = False )
+            .prefetch_related('answer')
+            .filter( answer__processed_code = Answer.PROCESSED_OK )
+            .filter( answer__last_sayit_import__isnull = True )
+            .all()
+            )
+
+        just_questions = Question.objects.all()
+        print "QQ %d, Q %d,  +A %d\n" % (just_questions.count(), unimported_questions_only.count(), unimported_qa_pairs.count() )
+
+        return unimported_questions_only | unimported_qa_pairs # union
+
     def qa_to_json(self, *args, **options):
-        questions = (Question.objects
-                .filter( answer__isnull = False)
-                .prefetch_related('answer')
-                .filter(answer__processed_code = Answer.PROCESSED_OK)
-                )
+        questions = self.get_unimported_questions()
 
         for question in questions:
             question_as_json = self.question_to_json(question)
@@ -456,6 +480,7 @@ class Command(BaseCommand):
                 outfile.write(question_as_json)
             self.stdout.write('Wrote %s\n' % filename)
 
+        print "Wrote %d .json files\n" % len(questions)
 
     def question_to_json(self, question):
         question_as_json_data = self.question_to_json_data(question)
@@ -468,20 +493,7 @@ class Command(BaseCommand):
 
 
     def question_to_json_data(self, question):
-        #{
-        # "speeches": [
-        #  {
-        #   "personname": "M Johnson",
-        #   "party": "ANC",
-        #   "text": "Mr M Johnson (ANC) chaired the meeting."
-        #  },
-        #  ...
-        #  ],
-        # "date": "2013-06-21",
-        # "organization": "Agriculture, Forestry and Fisheries",
-        # "reporturl": "http://www.pmg.org.za/report/20130621-report-back-from-departments-health-trade-and-industry-and-agriculture-forestry-and-fisheries-meat-inspection",
-        # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
-        ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
+
         question_as_json = {
             'parent_section_titles': [
                 'Questions',
@@ -496,7 +508,6 @@ class Command(BaseCommand):
                     # party?
                     'text':       question.question,
                     'tags': ['question'],
-
 
                     # unused for import
                     'type':       'question',
@@ -536,6 +547,7 @@ class Command(BaseCommand):
 
         return question_as_json
 
+
     def import_into_sayit(self, *args, **options):
         instance = None
         try:
@@ -543,14 +555,11 @@ class Command(BaseCommand):
         except Instance.NotFound:
             raise CommandError("Instance specified not found (%s)" % options['instance'])
 
-        questions = (Question.objects
-                .filter( sayit_section = None ) # not already imported
-                .filter( answer__isnull = False)
-                .prefetch_related('answer')
-                .filter(answer__processed_code = Answer.PROCESSED_OK)
-                )
+        questions = self.get_unimported_questions()
 
-        sections = []
+        created_sections  = []
+        appended_sections = []
+
         for question in questions:
             path = os.path.join(
                 settings.ANSWER_CACHE,
@@ -559,22 +568,45 @@ class Command(BaseCommand):
                 continue
 
             importer = ImportJson( instance=instance,
-                popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
+                popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/',
+                do_not_import_duplicate=True )
+
             #try:
             self.stderr.write("TRYING %s\n" % path)
+
+            # TODO, we need to be able to tell the importer to only import the
+            # Answer (e.g. if Question already imported)
+            # This might be best implemented with a "do-not-import-duplicates"
+            # flag within ImportJson? (as per above TODO)
+
             section = importer.import_document(path)
-            sections.append(section)
-            question.sayit_section = section
-            question.last_sayit_import = datetime.now().date()
-            question.save()
+
+            date_now = datetime.now().date()
+
+            if section == question.sayit_section:
+                # presumably the Answer will get added subsequently
+                pass
+            else:
+                created_sections.append(section)
+                question.sayit_section = section
+                question.last_sayit_import = date_now
+                question.save()
+
+            if question.answer:
+                if not question.answer.last_sayit_import:
+                    appended_sections.append(section)
+                question.answer.last_sayit_import = date_now
+                question.answer.save()
+
             #except Exception as e:
                 #self.stderr.write('WARN: failed to import %d: %s' %
                     #(question.id, str(e)))
 
-        self.stdout.write( str( [s.id for s in sections] ) )
-        self.stdout.write( '\n' )
-        self.stdout.write('Imported %d / %d sections\n' %
-            (len(sections), len(questions)))
+        self.stdout.write( str( [s.id for s in created_sections] ) )
+        self.stdout.write( '\n=======\n' )
+        self.stdout.write( str( [s.id for s in appended_sections] ) )
+        self.stdout.write('Imported %d / %d / %d sections\n' %
+            (len(created_sections), len(appended_sections), len(questions)))
 
     def strip_dict(self, d):
         return { k: v.strip() if 'strip' in dir(v) else v for k,v in d.items() }

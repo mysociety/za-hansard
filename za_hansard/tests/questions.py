@@ -1,5 +1,5 @@
 from mock import patch
-import os
+import os, sys
 import re
 import requests
 import shutil
@@ -11,8 +11,11 @@ from django.test import TestCase
 from django.template.defaultfilters import slugify
 
 from .. import question_scraper
+from ..models import Question, Answer
+
+from django.core import management
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
-from ..models import Question
+
 
 def sample_file(filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +38,84 @@ class ZAAnswerTests(TestCase):
 
         self.assertEqual(text, expected)
 
+    def test_q_a_upload(self):
+        today = datetime.datetime.now().date()
+        q1 = Question.objects.create(
+            house = 'NCOP',
+            session = 'FOURTH',
+            number1 = 'dummy',
+            number2 = 'dummy',
+            date = today,
+            title = 'Question One',
+            question = 'Why did the chicken cross the road?',
+            questionto = 'Farmer Giles',
+            source = 'http://example.com/chicken',
+            askedby = 'KnickerBocker',
+            translated = 0,
+            # document = '',
+            # type = 'oral',
+            # intro = '',
+            # parliament = ''
+            )
+        q2 = Question.objects.create(
+            house = 'NCOP',
+            session = 'FOURTH',
+            number1 = 'dummy',
+            number2 = 'dummy',
+            date = today,
+            title = 'Question Two',
+            question = 'Why did the chicken cross the Moebius Strip?',
+            questionto = 'Farmer Bunce',
+            source = 'http://example.com/chicken',
+            askedby = 'Bertrand Russel',
+            translated = 0,
+            )
 
+        def save_and_import():
+            management.call_command('za_hansard_q_and_a_scraper', save=True)
+            management.call_command('za_hansard_q_and_a_scraper', import_into_sayit=True)
+
+        def check_question(question, expected_speeches_count, description):
+            question = Question.objects.get(id=question.id)
+
+            sayit_section = question.sayit_section
+            self.assertTrue( sayit_section, 'Sayit section imported' )
+
+            speeches = sayit_section.speech_set.all()
+
+            print >> sys.stderr, [ s.text for s in speeches ]
+            self.assertEqual( 
+                len(speeches), 
+                expected_speeches_count, 
+                '%s (expected %d, got %d)' % 
+                    (description, expected_speeches_count, len(speeches)))
+
+        save_and_import()
+        check_question( q1, 1, 'Just question' )
+        check_question( q2, 1, 'Just question' )
+
+        a1 = Answer.objects.create(
+            number_oral = 'dummy',
+            text = 'To get to the other side.',
+            processed_code = Answer.PROCESSED_OK,
+            name = 'Farmer Giles',
+            # language = 
+            # url = models.TextField()
+            # house = models.TextField()
+            # number_written = models.TextField()
+            date = datetime.datetime.now(),
+            # type = models.TextField()
+            # last_sayit_import = models.DateTimeField(blank=True, null=True)
+            )
+
+        q1.answer = a1
+        q1.save()
+
+        save_and_import()
+            # this should update first section, leaving the second alone
+
+        check_question( q1, 2, 'With matched answer' )
+        check_question( q2, 1, 'Still just question' )
 
 class ZAIteratorBaseMixin(object):
 

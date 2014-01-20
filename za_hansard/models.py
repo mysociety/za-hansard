@@ -228,10 +228,12 @@ class Answer (models.Model):
     PROCESSED_PENDING    = 0
     PROCESSED_OK         = 1
     PROCESSED_HTTP_ERROR = 2
+    PROCESSED_PROCESSING_ERROR = 3
     PROCESSED_CHOICES = (
         ( PROCESSED_PENDING,    'pending' ),
         ( PROCESSED_OK,         'OK' ),
         ( PROCESSED_HTTP_ERROR, 'HTTP error' ),
+        ( PROCESSED_PROCESSING_ERROR, 'Processing error' ),
     )
 
     # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT,

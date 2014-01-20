@@ -137,6 +137,9 @@ TEMPLATE_DIRS = (
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+# This stops nose from catching the output and therefore hanging on pdb.set_trace
+NOSE_ARGS = ['--nocapture']
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',

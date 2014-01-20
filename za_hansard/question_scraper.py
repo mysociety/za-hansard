@@ -6,10 +6,13 @@ import subprocess
 import tempfile
 import warnings
 import datetime
+import lxml.etree
 
 import parslepy
 
 from django.core.exceptions import ImproperlyConfigured
+
+from za_hansard.models import Question
 
 # from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
 # Copied rather than included as the scraperwiki __init__.py was having trouble
@@ -203,3 +206,184 @@ class AnswerDetailIterator(BaseDetailIterator):
                     raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
                 self.next_list_url = next_url
                 break
+
+class QuestionPaperParser(object):
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def get_questions(self):
+        url = self.kwargs['url']
+
+        pdfdata = self.get_question_pdf_from_url(url)
+        xmldata = self.get_question_xml_from_pdf(pdfdata)
+
+        if not xmldata:
+            return False
+
+        #self.stderr.write("URL %s\n" % url)
+        #self.stderr.write("PDF len %d\n" % len(pdfdata))
+        #self.stderr.write("XML %s\n" % xmldata)
+
+        return self.create_questions_from_xml(xmldata, url)
+
+
+    def get_question_pdf_from_url(self, url):
+        return urllib2.urlopen(url).read()
+
+
+    def get_question_xml_from_pdf(self, pdfdata):
+        return pdftoxml(pdfdata)
+
+
+    def create_questions_from_xml(self, xmldata, url):
+        count=0
+
+        root = lxml.etree.fromstring(xmldata)
+        #except Exception as e:
+            #self.stderr.write("OOPS")
+            #raise CommandError( '%s failed (%s)' % (url, e))
+        # self.stderr.write("XML parsed...\n")
+
+        pages = list(root)
+
+        inquestion = 0
+        intro      = ''
+        question   = ''
+        number1    = ''
+        number2    = ''
+        started    = 0
+        questiontype = ''
+        translated = 0
+        document   = ''
+        house      = ''
+        session    = ''
+        date       = ''
+        questionto = '' #for multi line question intros
+        startintro = False
+        startquestion = False
+        details1   = False
+        details2   = False
+        summer     = ''
+        questions  = []
+        parliament = ''
+
+        pattern  = re.compile("(&#204;){0,1}[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z() ]+ to ask [-a-zA-Z]+")
+        pattern2 = re.compile("(N|C)(W|O)[0-9]+E")
+        pattern3 = re.compile("[0-9]+")
+        pattern4 = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
+        pattern5 = re.compile("[a-zA-Z]+ SESSION, [a-zA-Z]+ PARLIAMENT")
+        pattern6 = re.compile("[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z]+ {1,2}([-a-zA-z ]+) \(")
+
+        for page in pages:
+            for el in list(page): #for el in list(page)[:300]:
+                if el.tag == "text":
+                    part=re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
+                    summer=summer+part.replace('<b>','').replace('</b>','')
+                    if not details1 or not details2:
+
+                        if not details1 and pattern5.search(summer): #search for session and parliament numbers
+
+                            session = pattern5.search(summer).group(0).partition(' SESSION')[0]
+                            parliament = (
+                                    pattern5
+                                    .search(summer)
+                                    .group(0)
+                                    .partition('SESSION, ')[2]
+                                    .partition(' PARLIAMENT')[0])
+                            details1=True
+
+                        if house=='' and 'NATIONAL ASSEMBLY' in summer:
+                            house = 'National Assembly'
+                            details2=True
+
+                        if house=='' and 'NATIONAL COUNCIL OF PROVINCES' in summer:
+                            house = 'National Council of Provinces'
+                            details2 = True
+
+                    if pattern4.search(part):
+                        date=pattern4.search(part).group(0)
+
+                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or
+                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or
+                       pattern4.search(part)):
+                        continue
+
+                    if startquestion and not startintro:
+                        if pattern.search(summer) or pattern2.search(part):
+                            if pattern2.search(part):
+                                number2=part.replace('<b>','').replace('</b>','')
+                            startquestion=False
+                            numbertmp=pattern3.findall(intro)
+                            if numbertmp:
+                                number1=numbertmp[0]
+                            else:
+                                number1=''
+
+                            if '&#8224;' in intro:
+                                translated=1
+                            else:
+                                translated=0
+                            if '&#204;' in intro:
+                                questiontype='oral'
+                            else:
+                                questiontype='written'
+                            intro=intro.replace('&#8224;','')
+                            intro=intro.replace('&#204;','')
+                            asked=(
+                                    intro
+                                    .partition(' to ask the ')[2]
+                                    .replace(':','')
+                                    .replace('.','')
+                                    .replace('<i>','')
+                                    .replace('</i>','')
+                                    .replace('<b>','')
+                                    .replace('</b>',''))
+                            asked=re.sub(r'\[.*$','',asked)
+                            askedby=''
+                            if pattern6.search(intro):
+                                askedby = pattern6.search(intro).group(1)
+
+                            parsed_date = None
+                            #try:
+                                # Friday, 20 September 2013
+                            parsed_date = datetime.datetime.strptime(date, '%A, %d %B %Y')
+                            #except:
+                                #pass
+
+                            data = strip_dict({
+                                    'intro': intro.replace('<b>','').replace('</b>',''),
+                                    'question': question.replace('&#204;',''),
+                                    'number2': number2,
+                                    'number1': number1,
+                                    'source': url,
+                                    'questionto': asked,
+                                    'askedby': askedby,
+                                    'date': parsed_date,
+                                    'translated': translated,
+                                    'session': session,
+                                    'parliament': parliament,
+                                    'house': house,
+                                    'type': questiontype
+                                    })
+                            # self.stdout.write("Writing object %s\n" % str(data))
+                            q = Question.objects.create( **data )
+                            # self.stdout.write("Wrote question #%d\n" % q.id)
+                            summer=''
+                        else:
+                            question = question + part
+                    if startintro:
+                        if "<b>" in part:
+                            intro=intro+part.replace('<b>','').replace('</b>','')
+                        else:
+                            startintro=False
+                            question=part
+
+                    if pattern.search(summer):
+                        intro = pattern.search(summer).group(0) + summer.partition(pattern.search(summer).group(0))[2]
+                        startintro=True
+                        startquestion=True
+                        summer=''
+
+        # self.stdout.write( 'Saved %d\n' % count )
+        return True
+

@@ -178,12 +178,18 @@ class ZAQuestionParsing(TestCase):
         "Not on TRAVIS, or versions don't watch ('%s' != '%s')" % (wanted_version, pdftohtml_version)
     )
     def test_pdf_to_xml(self):
-        command = QAScraperCommand()
-
         pdfdata      = open(sample_file("517147_1.pdf")).read()
         expected_xml = open(sample_file("517147_1.xml")).read()
 
-        actual_xml = command.get_question_xml_from_pdf(pdfdata)
+        qp_parser = question_scraper.QuestionPaperParser(
+            name='TEST NAME',
+            date=datetime.date.today(),
+            house='TEST HOUSE',
+            language='TEST LANGUAGE',
+            url=self.pdf_source_url,
+            document_number=517147,
+            )
+        actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
 
         self.assertEqual(actual_xml, expected_xml)
 
@@ -192,10 +198,19 @@ class ZAQuestionParsing(TestCase):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
 
         xmldata = open(sample_file("517147_1.xml")).read()
-        command = QAScraperCommand()
 
+        qp_parser = question_scraper.QuestionPaperParser(
+            name='TEST NAME',
+            date='19 April 2013',
+            house='National Assembly',
+            language='TEST LANGUAGE',
+            url=self.pdf_source_url,
+            document_number=517147,
+            )
         # Load xml to the database
-        command.create_questions_from_xml(xmldata, self.pdf_source_url)
+        qp_parser.create_questions_from_xml(xmldata, self.pdf_source_url)
+
+        command = QAScraperCommand()
 
         # Turn questions in database into JSON. Order by id as that should
         # reflect the processing order.
@@ -215,4 +230,3 @@ class ZAQuestionParsing(TestCase):
         expected_data = json.loads(expected_json)
 
         self.assertEqual(all_questions_as_data, expected_data)
-

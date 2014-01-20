@@ -1,13 +1,10 @@
 import urllib2
-import lxml.etree
 import sys
 import re, os
-import lxml.html
 import dateutil.parser
 import string
 import parslepy
 import json
-from lxml import etree
 import time
 
 import subprocess
@@ -27,6 +24,9 @@ from instances.models import Instance
 # command and put into a module where it can be more easily tested and
 # separated. This is the start of that process.
 from ... import question_scraper
+
+def strip_dict(d):
+    return { k: v.strip() if 'strip' in dir(v) else v for k, v in d.items() }
 
 class Command(BaseCommand):
 
@@ -119,6 +119,16 @@ class Command(BaseCommand):
         count = 0
         errors = 0
 
+        # detail here is a dictionary of the form:
+        # {
+        # "name":     row['cell'][0]['contents'],
+        # "language": row['cell'][6]['contents'],
+        # "url":      self.base_url + url,
+        # "house":    row['cell'][4]['contents'],
+        # "date":     row['cell'][2]['contents'],
+        # "type":     types[2]
+        # }
+        
         for detail in details:
             count+=1
             print "Document ", count
@@ -134,7 +144,7 @@ class Command(BaseCommand):
                 else:
                     try:
                         self.stderr.write('Processing %s' % source_url)
-                        pages = self.get_question( source_url )
+                        question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
                         self.stderr.write( str(e) )
                         errors += 1
@@ -151,180 +161,6 @@ class Command(BaseCommand):
                 break
 
         self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
-
-    def get_question(self, url):
-        pdfdata = self.get_question_pdf_from_url(url)
-        xmldata = self.get_question_xml_from_pdf(pdfdata)
-
-        if not xmldata:
-            return False
-
-        #self.stderr.write("URL %s\n" % url)
-        #self.stderr.write("PDF len %d\n" % len(pdfdata))
-        #self.stderr.write("XML %s\n" % xmldata)
-
-        return self.create_questions_from_xml(xmldata, url)
-
-
-    def get_question_pdf_from_url(self, url):
-        return urllib2.urlopen(url).read()
-
-
-    def get_question_xml_from_pdf(self, pdfdata):
-        return question_scraper.pdftoxml(pdfdata)
-
-
-    def create_questions_from_xml(self, xmldata, url):
-        count=0
-
-        root = lxml.etree.fromstring(xmldata)
-        #except Exception as e:
-            #self.stderr.write("OOPS")
-            #raise CommandError( '%s failed (%s)' % (url, e))
-        # self.stderr.write("XML parsed...\n")
-
-        pages = list(root)
-
-        inquestion = 0
-        intro      = ''
-        question   = ''
-        number1    = ''
-        number2    = ''
-        started    = 0
-        questiontype = ''
-        translated = 0
-        document   = ''
-        house      = ''
-        session    = ''
-        date       = ''
-        questionto = '' #for multi line question intros
-        startintro = False
-        startquestion = False
-        details1   = False
-        details2   = False
-        summer     = ''
-        questions  = []
-        parliament = ''
-
-        pattern  = re.compile("(&#204;){0,1}[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z() ]+ to ask [-a-zA-Z]+")
-        pattern2 = re.compile("(N|C)(W|O)[0-9]+E")
-        pattern3 = re.compile("[0-9]+")
-        pattern4 = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
-        pattern5 = re.compile("[a-zA-Z]+ SESSION, [a-zA-Z]+ PARLIAMENT")
-        pattern6 = re.compile("[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z]+ {1,2}([-a-zA-z ]+) \(")
-
-        for page in pages:
-            for el in list(page): #for el in list(page)[:300]:
-                if el.tag == "text":
-                    part=re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
-                    summer=summer+part.replace('<b>','').replace('</b>','')
-                    if not details1 or not details2:
-
-                        if not details1 and pattern5.search(summer): #search for session and parliament numbers
-
-                            session = pattern5.search(summer).group(0).partition(' SESSION')[0]
-                            parliament = (
-                                    pattern5
-                                    .search(summer)
-                                    .group(0)
-                                    .partition('SESSION, ')[2]
-                                    .partition(' PARLIAMENT')[0])
-                            details1=True
-
-                        if house=='' and 'NATIONAL ASSEMBLY' in summer:
-                            house = 'National Assembly'
-                            details2=True
-
-                        if house=='' and 'NATIONAL COUNCIL OF PROVINCES' in summer:
-                            house = 'National Council of Provinces'
-                            details2 = True
-
-                    if pattern4.search(part):
-                        date=pattern4.search(part).group(0)
-
-                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or
-                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or
-                       pattern4.search(part)):
-                        continue
-
-                    if startquestion and not startintro:
-                        if pattern.search(summer) or pattern2.search(part):
-                            if pattern2.search(part):
-                                number2=part.replace('<b>','').replace('</b>','')
-                            startquestion=False
-                            numbertmp=pattern3.findall(intro)
-                            if numbertmp:
-                                number1=numbertmp[0]
-                            else:
-                                number1=''
-
-                            if '&#8224;' in intro:
-                                translated=1
-                            else:
-                                translated=0
-                            if '&#204;' in intro:
-                                questiontype='oral'
-                            else:
-                                questiontype='written'
-                            intro=intro.replace('&#8224;','')
-                            intro=intro.replace('&#204;','')
-                            asked=(
-                                    intro
-                                    .partition(' to ask the ')[2]
-                                    .replace(':','')
-                                    .replace('.','')
-                                    .replace('<i>','')
-                                    .replace('</i>','')
-                                    .replace('<b>','')
-                                    .replace('</b>',''))
-                            asked=re.sub(r'\[.*$','',asked)
-                            askedby=''
-                            if pattern6.search(intro):
-                                askedby = pattern6.search(intro).group(1)
-
-                            parsed_date = None
-                            #try:
-                                # Friday, 20 September 2013
-                            parsed_date = datetime.strptime(date, '%A, %d %B %Y')
-                            #except:
-                                #pass
-
-                            data = self.strip_dict({
-                                    'intro': intro.replace('<b>','').replace('</b>',''),
-                                    'question': question.replace('&#204;',''),
-                                    'number2': number2,
-                                    'number1': number1,
-                                    'source': url,
-                                    'questionto': asked,
-                                    'askedby': askedby,
-                                    'date': parsed_date,
-                                    'translated': translated,
-                                    'session': session,
-                                    'parliament': parliament,
-                                    'house': house,
-                                    'type': questiontype
-                                    })
-                            # self.stdout.write("Writing object %s\n" % str(data))
-                            q = Question.objects.create( **data )
-                            # self.stdout.write("Wrote question #%d\n" % q.id)
-                            summer=''
-                        else:
-                            question = question + part
-                    if startintro:
-                        if "<b>" in part:
-                            intro=intro+part.replace('<b>','').replace('</b>','')
-                        else:
-                            startintro=False
-                            question=part
-
-                    if pattern.search(summer):
-                        intro = pattern.search(summer).group(0) + summer.partition(pattern.search(summer).group(0))[2]
-                        startintro=True
-                        startquestion=True
-                        summer=''
-
-        # self.stdout.write( 'Saved %d\n' % count )
-        return True
 
 
     def scrape_answers(self, *args, **options):
@@ -344,7 +180,7 @@ class Command(BaseCommand):
                     break
             else:
                 self.stderr.write('Adding answer for {0}\n'.format(detail['url']))
-                detail = self.strip_dict(detail)
+                detail = strip_dict(detail)
                 answer = Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
@@ -580,5 +416,3 @@ class Command(BaseCommand):
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(questions)))
 
-    def strip_dict(self, d):
-        return { k: v.strip() if 'strip' in dir(v) else v for k,v in d.items() }

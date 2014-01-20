@@ -482,55 +482,59 @@ class Command(BaseCommand):
         # "reporturl": "http://www.pmg.org.za/report/20130621-report-back-from-departments-health-trade-and-industry-and-agriculture-forestry-and-fisheries-meat-inspection",
         # "title": "Report back from Departments of Health, Trade and Industry, and Agriculture, Forestry and Fisheries on meat inspection services and labelling in South Africa",
         ## "committeeurl": "http://www.pmg.org.za/committees/Agriculture,%20Forestry%20and%20Fisheries"
+
+        # As of Python 2.7.3, time.strftime can't be trusted to preserve
+        # unicodeness, hence the extra calls to unicode.
+
         question_as_json = {
-            'parent_section_titles': [
-                'Questions',
-                'Questions asked to the ' + question.questionto,
+            u'parent_section_titles': [
+                u'Questions',
+                u'Questions asked to the ' + question.questionto,
             ],
-            'questionto': question.questionto,
-            'title': question.date.strftime('%d %B %Y'),
-            'date': question.date.strftime('%Y-%m-%d'),
-            'speeches': [
+            u'questionto': question.questionto,
+            u'title': unicode(question.date.strftime(u'%d %B %Y')),
+            u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
+            u'speeches': [
                 {
-                    'personname': question.askedby,
+                    u'personname': question.askedby,
                     # party?
-                    'text':       question.question,
-                    'tags': ['question'],
+                    u'text': question.question,
+                    u'tags': [u'question'],
 
 
                     # unused for import
-                    'type':       'question',
-                    'intro':      question.intro,
-                    'date':       question.date.strftime('%Y-%m-%d'),
-                    'source':     question.source,
-                    'translated': question.translated
+                    u'type': u'question',
+                    u'intro': question.intro,
+                    u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
+                    u'source': question.source,
+                    u'translated': question.translated,
                 },
             ],
 
             # random stuff that is NOT used by the JSON import
-            'number1': question.number1,
-            'number2': question.number2,
-            'askedby': question.askedby,
-            'type': question.type,
-            'house': question.house,
-            'parliament': question.parliament,
+            u'number1': question.number1,
+            u'number2': question.number2,
+            u'askedby': question.askedby,
+            u'type': question.type,
+            u'house': question.house,
+            u'parliament': question.parliament,
         }
 
         answer = question.answer
         if answer:
-            question_as_json['speeches'].append(
+            question_as_json[u'speeches'].append(
                 {
-                    'personname':   question.questionto,
+                    u'personname': question.questionto,
                     # party?
-                    'text':   answer.text,
-                    'tags': ['answer'],
+                    u'text': answer.text,
+                    u'tags': [u'answer'],
 
                     # unused for import
-                    'name' : answer.name,
-                    'persontitle': question.questionto,
-                    'type':   'answer',
-                    'source': answer.url,
-                    'date':   answer.date.strftime('%Y-%m-%d'),
+                    u'name' : answer.name,
+                    u'persontitle': question.questionto,
+                    u'type': u'answer',
+                    u'source': answer.url,
+                    u'date': unicode(answer.date.strftime(u'%Y-%m-%d')),
                 }
             )
 

@@ -223,10 +223,8 @@ class QuestionPaperParser(object):
 
         self.create_questions_from_xml(xmldata, url)
 
-
     def get_question_pdf_from_url(self, url):
-        return urllib2.urlopen(url).read()
-
+        return requests.get(url).content
 
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)

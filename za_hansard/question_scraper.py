@@ -1,5 +1,5 @@
 import distutils.spawn
-import os, sys
+import os
 import re
 import requests
 import subprocess

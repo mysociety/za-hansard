@@ -236,14 +236,16 @@ class QuestionPaperParser(object):
 
         question_re = re.compile(
             ur"""
-              ([0-9]+)\.?\s+ # Question number
-              [-a-zA-z]+\s+([-\w\s]+) # Name of question asker, dropping the title
-              \([\w\s]+\)
-              \ to\ ask\ the\ 
-              ([-a-zA-z0-9(), ]+): # Askee
-              (\u2020)?
-              (.*?) # The question itself.
-              ([NC][WO]\d+E) # Number 2
+              (?P<intro>
+                (?P<number1>[0-9]+)\.?\s+ # Question number
+                [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
+                \([\w\s]+\)
+                \ to\ ask\ the\ 
+                (?P<questionto>[-a-zA-z0-9(), ]+):
+              )# Intro
+              (?P<translated>\u2020)?
+              (?P<question>.*?) # The question itself.
+              (?P<number2>[NC][WO]\d+E) # Number 2
             """,
             re.UNICODE | re.VERBOSE)
 

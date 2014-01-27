@@ -269,7 +269,7 @@ class QuestionPaperParser(object):
 
         text = lxml.etree.fromstring(xmldata)
         text_bits = [
-            re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
+            re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
             for el in text.iterfind('.//text')
             ]
 

@@ -243,8 +243,8 @@ class QuestionPaperParser(object):
                 \ to\ ask\ the\ 
                 (?P<questionto>[-a-zA-z0-9(), ]+):
               )# Intro
-              (?P<translated>\u2020)?
-              (?P<question>.*?) # The question itself.
+              (?P<translated>\u2020)?\s*
+              (?P<question>.*?)\s* # The question itself.
               (?P<number2>[NC][WO]\d+E) # Number 2
             """,
             re.UNICODE | re.VERBOSE)

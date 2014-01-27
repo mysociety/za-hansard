@@ -249,7 +249,8 @@ class QuestionPaperParser(object):
             """,
             re.UNICODE | re.VERBOSE)
 
-        date_re = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
+        # FIXME - can this be replaced with a call to dateutil?
+        date_re = re.compile(ur"(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY), \d{1,2} (JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER) \d{4}")
         session_re = re.compile(
             ur"\[No\s*(?P<issue_number>\d+)\u2014(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
             re.UNICODE)
@@ -275,11 +276,10 @@ class QuestionPaperParser(object):
 
         text = lxml.etree.fromstring(xmldata)
 
-        summer = ''
         question_paper = QuestionPaper(
             document_name=self.kwargs['name'],
             date_published=self.kwargs['date'],
-            house=self.kwargs['house'],
+            house=house,
             language=self.kwargs['language'],
             document_number=self.kwargs['document_number'], #FIXME - where is this in the table?
             source_url=self.kwargs['url'],
@@ -302,11 +302,16 @@ class QuestionPaperParser(object):
 
         if session_match:
             question_paper.session_number = text_to_int.get(session_match.group('session'))
-            question_paper.parliament_number = text_to_int.get(session_match.group('parliament'))
+            parliament = session_match.group('parliament')
+            question_paper.parliament_number = text_to_int.get(parliament)
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
         else:
             print "Failed to find session, etc."
+
+            
+        # FIXME - currently getting this from external metadata, but perhaps check
+        # inside the document for consistency.
 
         if 'NATIONAL ASSEMBLY' in new_text:
             question_paper.house = 'National Assembly'
@@ -315,7 +320,15 @@ class QuestionPaperParser(object):
         else:
             print "Failed to find house."
 
-        date_match = date_re.search(summer)
+        start_pos = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text).end()
+        # You might think that ending at the start of the summary of questions not yet replied to is a good
+        # thing, but there are a couple of random questions right at the end of the file
+        # which it would be good to catch.
+        # end_pos = re.search(ur'SUMMARY OF QUESTIONS NOT YET REPLIED TO', new_text).start()
+        
+        interesting_text = new_text[start_pos:]#end_pos]
+
+        date_match = date_re.search(interesting_text)
 
         if date_match:
             date = datetime.datetime.strptime(date_match.group(0), '%A, %d %B %Y')
@@ -324,7 +337,7 @@ class QuestionPaperParser(object):
 
         question_paper.save()
 
-        for match in question_re.finditer(new_text):
+        for match in question_re.finditer(interesting_text):
             match_dict = match.groupdict()
 
             match_dict[u'paper'] = question_paper
@@ -338,9 +351,9 @@ class QuestionPaperParser(object):
 
             # FIXME - Should be removed when we properly integrate QuestionPaper
             match_dict[u'source'] = question_paper.source_url
-            match_dict[u'date'] = question_paper.date_published
+            match_dict[u'date'] = date
             match_dict[u'session'] = session
             match_dict[u'parliament'] = parliament
-            match_dict[u'house'] = house
+            match_dict[u'house'] = question_paper.house
 
             Question.objects.create(**match_dict)

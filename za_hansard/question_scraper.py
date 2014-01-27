@@ -284,8 +284,11 @@ class QuestionPaperParser(object):
             text=text,
             )
 
-        new_text = ''.join(text_bits)
-        new_text = new_text.replace('</b><b>', '')
+        new_text = u''.join(text_bits)
+        new_text = re.sub(ur'</?i>', '', new_text)
+        new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
+        new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
+
         split_text = startqn_re.split(new_text)
 
         for match in question_re.finditer(new_text):

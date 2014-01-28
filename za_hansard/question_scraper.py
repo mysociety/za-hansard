@@ -241,7 +241,8 @@ class QuestionPaperParser(object):
                 [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
                 \s+\([\w\s]+\)
                 \ to\ ask\ the\ 
-                (?P<questionto>[-\w\s(),: ]+):
+                (?P<questionto>[-\w\s(),:]+):
+                [-\w\s(),\[\]]*?
               ) # Intro
               (?P<translated>\u2020)?\s*</b>\s*
               (?P<question>.*?)\s* # The question itself.

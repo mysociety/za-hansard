@@ -132,7 +132,8 @@ class ZAQuestionIteratorTests(ZAIteratorBaseMixin, TestCase):
             'language': u'Afrikaans',
             'name': u'QC130920.i28A',
             'type': 'pdf',
-            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20130926/541835_1.pdf'
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20130926/541835_1.pdf',
+            'document_number': 541835,
         }),
     )
 
@@ -155,7 +156,7 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
             'number_oral': '',
             'number_written': u'2356',
             'type': 'doc',
-            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc'
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc',
         }),
     )
 

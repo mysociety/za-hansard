@@ -299,8 +299,11 @@ class QuestionPaperParser(object):
         # helpful if we could always have the colon on the same side of it.
         new_text = new_text.replace('</b>:', ':</b>')
 
+        # Sanity check on house
+        assert house.upper() in new_text
+
         match = question_re.findall(new_text)
-        
+
         session_match = session_re.search(new_text)
 
         if session_match:
@@ -310,17 +313,6 @@ class QuestionPaperParser(object):
             question_paper.year = int(session_match.group('year'))
         else:
             print "Failed to find session, etc."
-
-            
-        # FIXME - currently getting this from external metadata, but perhaps check
-        # inside the document for consistency.
-
-        if 'NATIONAL ASSEMBLY' in new_text:
-            question_paper.house = 'National Assembly'
-        elif 'NATIONAL COUNCIL OF PROVINCES' in new_text:
-            question_paper.house = 'National Council of Provinces'
-        else:
-            print "Failed to find house."
 
         start_pos = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text).end()
         # You might think that ending at the start of the summary of questions not yet replied to is a good

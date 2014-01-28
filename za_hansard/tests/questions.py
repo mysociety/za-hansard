@@ -184,7 +184,7 @@ class ZAQuestionParsing(TestCase):
         qp_parser = question_scraper.QuestionPaperParser(
             name='TEST NAME',
             date=datetime.date.today(),
-            house='TEST HOUSE',
+            house='National Assembly',
             language='TEST LANGUAGE',
             url=self.pdf_source_url,
             document_number=517147,

@@ -296,8 +296,12 @@ class QuestionPaperParser(object):
         new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
         new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 
-        match = question_re.findall(new_text)
+        # As we're using the </b> to tell us when the intro is over, it would be
+        # helpful if we could always have the colon on the same side of it.
+        new_text = new_text.replace('</b>:', ':</b>')
 
+        match = question_re.findall(new_text)
+        
         session_match = session_re.search(new_text)
 
         if session_match:

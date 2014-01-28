@@ -1392,6 +1392,35 @@
   "type": "written"
  },
  {
+  "askedby": "D A Schäfer", 
+  "date": "2013-04-19", 
+  "house": "National Assembly", 
+  "number1": "720", 
+  "number2": "NW926E", 
+  "parent_section_titles": [
+   "Questions", 
+   "Questions asked to the Minister of Police"
+  ], 
+  "parliament": "FOURTH", 
+  "questionto": "Minister of Police", 
+  "speeches": [
+   {
+    "date": "2013-04-19", 
+    "intro": "720. Mrs D A Schäfer (DA) to ask the Minister of Police:", 
+    "personname": "D A Schäfer", 
+    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "tags": [
+     "question"
+    ], 
+    "text": "(1) What is the status of the investigation by the Directorate for Priority Crime Investigation into the so-called brown envelope and Hip Hop case (details furnished); (2) has the investigation been finalised; if so, what are the relevant details; if not, what are the reasons for the delay in finalising the case; (3) whether the docket has been referred to the Director of Public Prosecutions in (a) Cape Town or (b) any other office; if not, why not; if so, (i) when, (ii) by whom and (iii) to whom;  (4) has a CAS number been allocated to this investigation; if so, what is the number; if not, why not?", 
+    "translated": 0, 
+    "type": "question"
+   }
+  ], 
+  "title": "19 April 2013", 
+  "type": "written"
+ },
+ {
   "askedby": "A T Lovemore",
   "date": "2013-04-19",
   "house": "National Assembly",

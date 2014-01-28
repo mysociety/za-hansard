@@ -123,14 +123,18 @@ class QuestionDetailIterator(BaseDetailIterator):
         for row in page['papers']:
             if len(row['cell']) == 11:
                 url = row['cell'][8]['url']
-                types = url.partition(".")
+                root, ext = os.path.splitext(os.path.split(url)[1])
                 self.details.append({
-                    "name":     row['cell'][0]['contents'],
+                    "name": row['cell'][0]['contents'],
                     "language": row['cell'][6]['contents'],
-                    "url":      self.base_url + url,
-                    "house":    row['cell'][4]['contents'],
-                    "date":     row['cell'][2]['contents'],
-                    "type":     types[2]
+                    "url": self.base_url + url,
+                    "house": row['cell'][4]['contents'],
+                    "date": row['cell'][2]['contents'],
+                    "type": ext[1:],
+
+                    # This is also in the pdf's metadata, but it's easier to
+                    # get it from here
+                    "document_number": int(root.split('_')[0]),
                     })
 
         # check for next page of links (or None if not found)
@@ -275,7 +279,7 @@ class QuestionPaperParser(object):
             date_published=self.kwargs['date'],
             house=house,
             language=self.kwargs['language'],
-            document_number=self.kwargs['document_number'], #FIXME - where is this in the table?
+            document_number=self.kwargs['document_number'],
             source_url=self.kwargs['url'],
             text=text,
             )

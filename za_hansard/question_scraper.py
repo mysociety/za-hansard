@@ -112,7 +112,7 @@ class QuestionDetailIterator(BaseDetailIterator):
 
     def get_details(self):
 
-        print 'Questions (%s)\n' % self.next_list_url
+        print 'Questions (%s)' % self.next_list_url
 
         contents = self.url_get( self.next_list_url )
 

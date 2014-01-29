@@ -167,17 +167,18 @@ class AnswerDetailIterator(BaseDetailIterator):
         for row in page['papers']:
             if len(row['cell']) == 11:
                 url = row['cell'][8]['url']
+                document_name = row['cell'][0]['contents']
                 types = url.partition(".")
                 number_oral = ''
                 number_written = ''
                 #check for written/oral question numbers
                 # (using apparent convention - a question can have one of each number)
-                if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', row['cell'][0]['contents']):
+                if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', document_name):
                     number_oral = re.match(
-                        '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', row['cell'][0]['contents']).group(1)
-                if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', row['cell'][0]['contents']):
+                        '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', document_name).group(1)
+                if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', document_name):
                     number_written = re.match(
-                        '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', row['cell'][0]['contents']).group(1)
+                        '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', document_name).group(1)
             
                 date = row['cell'][2]['contents']
                 parsed_date = None
@@ -189,7 +190,7 @@ class AnswerDetailIterator(BaseDetailIterator):
 
                 self.details.append(dict(
                     number_oral = number_oral,
-                    name = row['cell'][0]['contents'],
+                    name = document_name,
                     language = row['cell'][6]['contents'],
                     url = 'http://www.parliament.gov.za/live/'+url,
                     house = row['cell'][4]['contents'],

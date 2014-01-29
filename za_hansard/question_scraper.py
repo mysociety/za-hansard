@@ -320,6 +320,9 @@ class QuestionPaperParser(object):
         else:
             print "Failed to find session, etc."
 
+        # FIXME - This causes an error on files with only oral questions.
+        # We haven't actually collected any oral questions yet, but when we do,
+        # this will need sorting out.
         start_pos = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text).end()
         # You might think that ending at the start of the summary of questions not yet replied to is a good
         # thing, but there are a couple of random questions right at the end of the file

@@ -165,9 +165,11 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
 
 class ZAQuestionParsing(TestCase):
-
-    pdf_source_url = 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf'
-
+    test_data = (
+        ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
+        # ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
+        )
+    
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of
     # this writing 0.18.4). Also run if we have this version locally.
@@ -179,55 +181,58 @@ class ZAQuestionParsing(TestCase):
         "Not on TRAVIS, or versions don't watch ('%s' != '%s')" % (wanted_version, pdftohtml_version)
     )
     def test_pdf_to_xml(self):
-        pdfdata      = open(sample_file("517147_1.pdf")).read()
-        expected_xml = open(sample_file("517147_1.xml")).read()
+        for filename_root, source_url, house, date_published in self.test_data:
+            pdfdata = open(sample_file(filename_root + ".pdf")).read()
+            expected_xml = open(sample_file(filename_root + ".xml")).read()
 
-        qp_parser = question_scraper.QuestionPaperParser(
-            name='TEST NAME',
-            date=datetime.date.today(),
-            house='National Assembly',
-            language='TEST LANGUAGE',
-            url=self.pdf_source_url,
-            document_number=517147,
-            )
-        actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
+            qp_parser = question_scraper.QuestionPaperParser(
+                name='TEST NAME',
+                date=date_published,
+                house=house,
+                language='TEST LANGUAGE',
+                url=source_url,
+                document_number=int(filename_root.split('_')[0]),
+                )
+            actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
+            # import pdb;pdb.set_trace()
 
-        self.assertEqual(actual_xml, expected_xml)
-
+            self.assertEqual(actual_xml, expected_xml, "Failed on {}".format(filename_root))
 
     def test_xml_to_json(self):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
 
-        xmldata = open(sample_file("517147_1.xml")).read()
+        for filename_root, source_url, house, date_published in self.test_data:
 
-        qp_parser = question_scraper.QuestionPaperParser(
-            name='TEST NAME',
-            date='19 April 2013',
-            house='National Assembly',
-            language='TEST LANGUAGE',
-            url=self.pdf_source_url,
-            document_number=517147,
-            )
-        # Load xml to the database
-        qp_parser.create_questions_from_xml(xmldata, self.pdf_source_url)
+            xmldata = open(sample_file(filename_root + ".xml")).read()
 
-        command = QAScraperCommand()
+            qp_parser = question_scraper.QuestionPaperParser(
+                name='TEST NAME',
+                date=date_published,
+                house=house,
+                language='TEST LANGUAGE',
+                url=source_url,
+                document_number=int(filename_root.split('_')[0]),
+                )
+            # Load xml to the database
+            qp_parser.create_questions_from_xml(xmldata, source_url)
 
-        # Turn questions in database into JSON. Order by id as that should
-        # reflect the processing order.
-        all_questions_as_data = []
-        for question in Question.objects.order_by('id'):
-            question_as_data = command.question_to_json_data(question)
-            all_questions_as_data.append(question_as_data)
+            command = QAScraperCommand()
+
+            # Turn questions in database into JSON. Order by id as that should
+            # reflect the processing order.
+            all_questions_as_data = []
+            for question in Question.objects.order_by('id'):
+                question_as_data = command.question_to_json_data(question)
+                all_questions_as_data.append(question_as_data)
 
 
-        expected_file = sample_file('expected_json_data_for_517147_1.json')
-        # Uncomment to write out to the expected JSON file.
-        # with open(expected_file, 'w') as writeto:
-        #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
-        #     writeto.write(re.sub(r' +$', '', json_to_write, flags=re.MULTILINE) + "\n")
+            expected_file = sample_file('expected_json_data_for_{}.json'.format(filename_root))
+            # Uncomment to write out to the expected JSON file.
+            # with open(expected_file, 'w') as writeto:
+            #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
+            #     writeto.write(re.sub(r' +$', '', json_to_write, flags=re.MULTILINE) + "\n")
 
-        expected_json = open(expected_file).read()
-        expected_data = json.loads(expected_json)
+            expected_json = open(expected_file).read()
+            expected_data = json.loads(expected_json)
 
-        self.assertEqual(all_questions_as_data, expected_data)
+            self.assertEqual(all_questions_as_data, expected_data)

@@ -1,5 +1,6 @@
 import distutils.spawn
 import os
+import sys
 import re
 import requests
 import subprocess
@@ -305,6 +306,9 @@ class QuestionPaperParser(object):
         # helpful if we could always have the colon on the same side of it.
         new_text = new_text.replace('</b>:', ':</b>')
 
+        # Sanity check on number of questions
+        expected_question_count = new_text.count('to ask the')
+
         # Sanity check on house
         assert house.upper() in new_text
 
@@ -355,4 +359,13 @@ class QuestionPaperParser(object):
             # FIXME - Should be removed when we properly integrate QuestionPaper
             match_dict[u'date'] = date
 
-            Question.objects.create(**match_dict)
+            questions.append(Question(**match_dict))
+
+        sys.stdout.write(' found {} questions'.format(len(questions)))
+
+        if len(questions) != expected_question_count:
+            sys.stdout.write(" expected {} - SUSPICIOUS".format(expected_question_count))
+        
+        sys.stdout.write('\n')
+            
+        Question.objects.bulk_create(questions)

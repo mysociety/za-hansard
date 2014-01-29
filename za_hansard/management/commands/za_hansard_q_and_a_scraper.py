@@ -144,7 +144,7 @@ class Command(BaseCommand):
                         break
                 else:
                     try:
-                        self.stdout.write('PROCESSING\n')
+                        self.stdout.write('PROCESSING')
                         question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
                         self.stderr.write('ERROR handling {}: {}\n'.format(source_url, str(e)))

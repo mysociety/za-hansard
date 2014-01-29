@@ -131,31 +131,31 @@ class Command(BaseCommand):
         
         for detail in details:
             count+=1
-            print "Document ", count
 
             source_url = detail['url']
+            sys.stdout.write(
+                "{count:5} {url} ".format(count=count, url=source_url))
 
             if detail['language']=='English' and detail['type']=='pdf':
                 if QuestionPaper.objects.filter(source_url=source_url).exists():
-                    self.stderr.write('Already exists\n')
+                    self.stdout.write('SKIPPING as file already handled\n')
                     if not options['fetch_to_limit']:
-                        self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
+                        self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                         break
                 else:
                     try:
-                        self.stderr.write('Processing %s' % source_url)
+                        self.stdout.write('PROCESSING\n')
                         question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
-                        self.stderr.write( str(e) )
+                        self.stderr.write('ERROR handling {}: {}\n'.format(source_url, str(e)))
                         errors += 1
                         pass
 
             elif detail['language']=='English':
-                self.stderr.write('%s is not a pdf\n' % source_url)
-
+                self.stdout.write('SKIPPING as not a pdf\n')
             else:
-                pass
                 # presumably non-English
+                sys.stdout.write('SKIPPING presumably not English\n')
 
             if options['limit'] and count >= options['limit']:
                 break

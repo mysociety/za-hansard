@@ -241,7 +241,7 @@ class QuestionPaperParser(object):
           (?P<intro>
             (?P<number1>\d+)\.?\s+ # Question number
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
-            \s+\([\w\s]+\) # Party
+            \s+\([-\w\s]+\) # Party
             \ to\ ask\ the\ 
             (?P<questionto>[-\w\s(),:]+):
             [-\w\s(),\[\]]*?
@@ -253,6 +253,13 @@ class QuestionPaperParser(object):
         re.UNICODE | re.VERBOSE)
     
     def create_questions_from_xml(self, xmldata, url):
+        """
+        # Shows the need for - in the constituency
+        >>> qn = '144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?   CW187E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        ('144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', '144', 'D B Feldman', 'Minister of Defence and Military Veterans', None, 'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', 'CW187E')
+        """
         house = self.kwargs['house']
         date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y')
 

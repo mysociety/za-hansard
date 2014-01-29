@@ -16,7 +16,7 @@ from optparse import make_option
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
-from za_hansard.models import Question, Answer
+from za_hansard.models import Question, Answer, QuestionPaper
 from speeches.importers.import_json import ImportJson
 from instances.models import Instance
 
@@ -134,9 +134,9 @@ class Command(BaseCommand):
             print "Document ", count
 
             source_url = detail['url']
-            if detail['language']=='English' and detail['type']=='pdf':
 
-                if Question.objects.filter( source=source_url ).count():
+            if detail['language']=='English' and detail['type']=='pdf':
+                if QuestionPaper.objects.filter(source_url=source_url).exists():
                     self.stderr.write('Already exists\n')
                     if not options['fetch_to_limit']:
                         self.stderr.write("Stopping as '--fetch-to-limit' not given\n")

@@ -236,6 +236,7 @@ class QuestionPaperParser(object):
 
     def create_questions_from_xml(self, xmldata, url):
         house = self.kwargs['house']
+        date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y')
 
         question_re = re.compile(
             ur"""
@@ -277,7 +278,7 @@ class QuestionPaperParser(object):
 
         question_paper = QuestionPaper(
             document_name=self.kwargs['name'],
-            date_published=self.kwargs['date'],
+            date_published=date_published,
             house=house,
             language=self.kwargs['language'],
             document_number=self.kwargs['document_number'],

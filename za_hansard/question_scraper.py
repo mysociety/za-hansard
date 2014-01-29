@@ -283,7 +283,7 @@ class QuestionPaperParser(object):
             language=self.kwargs['language'],
             document_number=self.kwargs['document_number'],
             source_url=self.kwargs['url'],
-            text=text,
+            text=lxml.etree.tostring(text, pretty_print=True),
             )
 
         # pdftoxml produces an xml document with one <page> per page

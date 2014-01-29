@@ -263,7 +263,7 @@ class QuestionPaper(models.Model):
     source_url = models.URLField(max_length=1000)
 
     # Body metadata from inside the question paper file
-    # Question papers are by unique year/issue number
+    # Question papers are by unique year/issue number/house
     year = models.IntegerField()
     issue_number = models.IntegerField() # within year.
     parliament_number = models.IntegerField()
@@ -271,7 +271,7 @@ class QuestionPaper(models.Model):
     text = models.TextField()
 
     class Meta:
-        unique_together = ('year', 'issue_number')
+        unique_together = ('year', 'issue_number', 'house')
 
 int_to_text = {
     1: 'FIRST',

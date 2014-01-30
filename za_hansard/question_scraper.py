@@ -244,7 +244,7 @@ class QuestionPaperParser(object):
             \s+\([-\w\s]+\) # Party
             \ to\ ask\ the\ 
             (?P<questionto>[-\w\s(),:]+):
-            [-\w\s(),\[\]]*?
+            [-\u2013\w\s(),\[\]/]*?
           ) # Intro
           (?P<translated>\u2020)?\s*</b>\s*
           (?P<question>.*?)\s* # The question itself.
@@ -259,6 +259,12 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
         ('144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', '144', 'D B Feldman', 'Minister of Defence and Military Veterans', None, 'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', 'CW187E')
+
+        # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
+        >>> qn = u'409.  Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'409.  Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
         """
         house = self.kwargs['house']
         date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y')

@@ -168,7 +168,11 @@ class ZAQuestionParsing(TestCase):
     test_data = (
         ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
         ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
+        ('548302_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20131107/548302_1.pdf', 'National Council of Provinces', '1 November 2013'),
         )
+
+    # FIXME - 548302_1 should really be getting a better date for its last three questions.
+    # FIXME - relatedly, oral questions which are transferred could collect their oral question number.
     
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of
@@ -194,7 +198,6 @@ class ZAQuestionParsing(TestCase):
                 document_number=int(filename_root.split('_')[0]),
                 )
             actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
-            # import pdb;pdb.set_trace()
 
             self.assertEqual(actual_xml, expected_xml, "Failed on {}".format(filename_root))
 

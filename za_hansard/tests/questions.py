@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 
 from .. import question_scraper
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
-from ..models import Question
+from ..models import Question, QuestionPaper
 
 def sample_file(filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -167,7 +167,7 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 class ZAQuestionParsing(TestCase):
     test_data = (
         ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
-        # ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
+        ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
         )
     
     # The exact form of the XML returned depends on the version of pdftohtml
@@ -202,7 +202,6 @@ class ZAQuestionParsing(TestCase):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
 
         for filename_root, source_url, house, date_published in self.test_data:
-
             xmldata = open(sample_file(filename_root + ".xml")).read()
 
             qp_parser = question_scraper.QuestionPaperParser(
@@ -221,10 +220,11 @@ class ZAQuestionParsing(TestCase):
             # Turn questions in database into JSON. Order by id as that should
             # reflect the processing order.
             all_questions_as_data = []
-            for question in Question.objects.order_by('id'):
+            question_paper = QuestionPaper.objects.get(source_url=source_url)
+
+            for question in question_paper.question_set.all():
                 question_as_data = command.question_to_json_data(question)
                 all_questions_as_data.append(question_as_data)
-
 
             expected_file = sample_file('expected_json_data_for_{}.json'.format(filename_root))
             # Uncomment to write out to the expected JSON file.
@@ -234,5 +234,8 @@ class ZAQuestionParsing(TestCase):
 
             expected_json = open(expected_file).read()
             expected_data = json.loads(expected_json)
+
+            all_questions_as_data.sort()
+            expected_data.sort()
 
             self.assertEqual(all_questions_as_data, expected_data)

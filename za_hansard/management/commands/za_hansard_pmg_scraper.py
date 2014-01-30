@@ -1,5 +1,6 @@
 import parslepy
 import urllib2
+import httplib
 import re
 import pprint
 import csv
@@ -311,9 +312,20 @@ class Command(BaseCommand):
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
-    def processReports(self, url,processingcommitteeName,processingcommitteeURL):
+    def processReports(self, url,processingcommitteeName,processingcommitteeURL, retries=3):
         #get reports on this page, process them, proceed to next page
-        page=urllib2.urlopen(url)
+
+        try:
+            page=urllib2.urlopen(url)
+        except httplib.BadStatusLine:
+            if retries:
+                print >> sys.stderr, "Got BadStatusLine error, sleeping and retrying"
+                time.sleep(1)
+                self.processReports( url, processingcommitteeName, processingcommitteeURL, retries-1 )
+            else:
+                raise Exception("Cannot connect to server (BadStatusLine error) and max retries exceeded")
+            
+
         contents = page.read()
 
         reports_rules = {

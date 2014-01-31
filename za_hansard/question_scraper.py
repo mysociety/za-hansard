@@ -241,7 +241,7 @@ class QuestionPaperParser(object):
           (?P<intro>
             (?P<number1>\d+)\.?\s+ # Question number
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
-            \s+\([-\w\s]+\) # Party
+            \s+\([-\w\s]+\)? # Party
             \s+to\s+ask\s+the\s+
             (?P<questionto>[-\w\s(),:]+):
             [-\u2013\w\s(),\[\]/]*?
@@ -271,6 +271,12 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
         (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
+
+        # Cope with missing close bracket
+        >>> qn = u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:</b> Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009? NW1922E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E')
 
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'

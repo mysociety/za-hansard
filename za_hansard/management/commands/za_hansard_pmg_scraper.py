@@ -475,7 +475,7 @@ class Command(BaseCommand):
                         ]}
 
 
-            filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
+            filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % report.id)
             with open(filename, 'w') as outfile:
                 json.dump(tosave, outfile, indent=1, cls=DateEncoder)
 

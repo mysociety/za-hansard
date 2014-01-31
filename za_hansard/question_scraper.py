@@ -242,7 +242,7 @@ class QuestionPaperParser(object):
             (?P<number1>\d+)\.?\s+ # Question number
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
             \s+\([-\w\s]+\) # Party
-            \ to\ ask\ the\ 
+            \s+to\s+ask\s+the\s+
             (?P<questionto>[-\w\s(),:]+):
             [-\u2013\w\s(),\[\]/]*?
           ) # Intro
@@ -261,16 +261,16 @@ class QuestionPaperParser(object):
         # Checks for question_re
 
         # Shows the need for - in the constituency
-        >>> qn = '144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?   CW187E'
+        >>> qn = '144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
-        ('144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', '144', 'D B Feldman', 'Minister of Defence and Military Veterans', None, 'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', 'CW187E')
+        ('144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', '144', 'D B Feldman', 'Minister of Defence and Military Veterans', None, 'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', 'CW187E')
 
         # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
-        >>> qn = u'409.  Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
+        >>> qn = u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
-        (u'409.  Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
+        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
 
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'
@@ -329,12 +329,15 @@ class QuestionPaperParser(object):
         new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
         new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 
+        # Replace all whitespace with single spaces.
+        new_text = re.sub(r'\s+', ' ', new_text)
+
         # As we're using the </b> to tell us when the intro is over, it would be
         # helpful if we could always have the colon on the same side of it.
         new_text = new_text.replace('</b>:', ':</b>')
 
         # Sanity check on number of questions
-        expected_question_count = new_text.count('to ask the')
+        expected_question_count = len(re.findall(r'to\s+ask\s+the', new_text))
 
         # Sanity check on house
         assert house.upper() in new_text

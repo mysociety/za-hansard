@@ -251,9 +251,15 @@ class QuestionPaperParser(object):
           (?P<number2>[NC][WO]\d+E) # Number 2
         """,
         re.UNICODE | re.VERBOSE)
-    
+
+    session_re = re.compile(
+        ur"\[No\s*(?P<issue_number>\d+)\s*[\u2013\u2014]\s*(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
+        re.UNICODE | re.IGNORECASE)
+
     def create_questions_from_xml(self, xmldata, url):
         """
+        # Checks for question_re
+
         # Shows the need for - in the constituency
         >>> qn = '144.  Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?   CW187E'
         >>> match = QuestionPaperParser.question_re.match(qn)
@@ -265,15 +271,22 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
         (u'409.  Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
+
+        # Checks for session_re
+        >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'
+        >>> match = QuestionPaperParser.session_re.match(session_string)
+        >>> match.groups()
+        (u'37', u'2013', u'FIFTH', u'FOURTH')
+        >>> session_string = u'[No 20 \u2013 2009] First Session, Fourth Parliament'
+        >>> match = QuestionPaperParser.session_re.match(session_string)
+        >>> match.groups()
+        (u'20', u'2009', u'First', u'Fourth')
         """
         house = self.kwargs['house']
         date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y')
 
         # FIXME - can this be replaced with a call to dateutil?
         date_re = re.compile(ur"(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY), \d{1,2} (JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER) \d{4}")
-        session_re = re.compile(
-            ur"\[No\s*(?P<issue_number>\d+)\u2014(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
-            re.UNICODE)
 
         text_to_int = {
             'FIRST': 1,
@@ -326,13 +339,11 @@ class QuestionPaperParser(object):
         # Sanity check on house
         assert house.upper() in new_text
 
-        match = question_re.findall(new_text)
-
-        session_match = session_re.search(new_text)
+        session_match = self.session_re.search(new_text)
 
         if session_match:
-            question_paper.session_number = text_to_int.get(session_match.group('session'))
-            question_paper.parliament_number = text_to_int.get(session_match.group('parliament'))
+            question_paper.session_number = text_to_int.get(session_match.group('session').upper())
+            question_paper.parliament_number = text_to_int.get(session_match.group('parliament').upper())
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
         else:

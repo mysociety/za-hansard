@@ -241,7 +241,7 @@ class QuestionPaperParser(object):
           (?P<intro>
             (?P<number1>\d+)\.?\s+ # Question number
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
-            \s+\([-\w\s]+\)? # Party
+            \s+\((?P<party>[-\w\s]+)\)?
             \s+to\s+ask\s+the\s+
             (?P<questionto>[-\w\s(),:]+):
             [-\u2013\w\s(),\[\]/]*?
@@ -260,23 +260,23 @@ class QuestionPaperParser(object):
         """
         # Checks for question_re
 
-        # Shows the need for - in the constituency
-        >>> qn = '144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
+        # Shows the need for - in the party
+        >>> qn = u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
-        ('144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', '144', 'D B Feldman', 'Minister of Defence and Military Veterans', None, 'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', 'CW187E')
+        (u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', u'144', u'D B Feldman', u'COPE-Gauteng', u'Minister of Defence and Military Veterans', None, u'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', u'CW187E')
 
         # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
         >>> qn = u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
-        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
+        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'DA-WC', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
 
         # Cope with missing close bracket
         >>> qn = u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:</b> Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009? NW1922E'
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
-        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E')
+        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E')
 
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'
@@ -394,6 +394,11 @@ class QuestionPaperParser(object):
 
             # FIXME - Should be removed when we properly integrate QuestionPaper
             match_dict[u'date'] = date
+
+            # Party isn't actually stored in the question, so drop it before saving
+            # Perhaps we can eventually use it to make sure we have the right person.
+            # (and to tidy up the missing parenthesis.)
+            match_dict.pop(u'party')
 
             questions.append(Question(**match_dict))
 

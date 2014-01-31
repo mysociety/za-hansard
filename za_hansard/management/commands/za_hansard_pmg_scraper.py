@@ -396,6 +396,7 @@ class Command(BaseCommand):
                                 report['date'])
 
         if "next" in reports:
+            time.sleep(1)
             self.processReports(
                 'http://www.pmg.org.za'+reports['next'],
                 processingcommitteeName,

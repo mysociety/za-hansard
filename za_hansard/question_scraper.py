@@ -240,8 +240,8 @@ class QuestionPaperParser(object):
         ur"""
           (?P<intro>
             (?P<number1>\d+)\.?\s+ # Question number
-            [-a-zA-z]+\s+(?P<askedby>[-\w\s]+) # Name of question asker, dropping the title
-            \s+\((?P<party>[-\w\s]+)\)?
+            [-a-zA-z]+\s+(?P<askedby>[-\w\s]+?) # Name of question asker, dropping the title
+            \s*\((?P<party>[-\w\s]+)\)?
             \s+to\s+ask\s+the\s+
             (?P<questionto>[-\w\s(),:]+):
             [-\u2013\w\s(),\[\]/]*?
@@ -277,6 +277,12 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
         (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E')
+
+        # Check we cope with no space before party in parentheses
+        >>> qn = u'1569. Mr M Swart(DA) to ask the Minister of Finance: </b>Test question? NW1975E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'Test question?', u'NW1975E')
 
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'

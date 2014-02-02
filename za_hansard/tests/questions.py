@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from mock import patch
 import os
 import re
@@ -5,6 +7,7 @@ import requests
 import shutil
 import datetime
 import json
+import lxml.etree
 from django.utils.unittest import skipUnless
 
 from django.test import TestCase
@@ -169,6 +172,7 @@ class ZAQuestionParsing(TestCase):
         ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
         ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
         ('548302_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20131107/548302_1.pdf', 'National Council of Provinces', '1 November 2013'),
+        ('184530_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/184530_1.pdf', 'National Assembly', '9 October 2009'),
         )
 
     # FIXME - 548302_1 should really be getting a better date for its last three questions.
@@ -242,3 +246,127 @@ class ZAQuestionParsing(TestCase):
             expected_data.sort()
 
             self.assertEqual(all_questions_as_data, expected_data)
+
+    
+    def test_page_header_removal(self):
+        tests = [
+
+        # 559662_1
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="522" height="16" font="0"><i>Friday, 13 December 2013</i>] 272 </text>
+<text top="1197" left="83" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 37─2013 </text>
+<text top="118" left="85" width="125" height="16" font="1">[No 37—2013] F</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="118" left="85" width="125" height="16" font="1">[No 37—2013] F</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="750" height="16" font="1"> 273 </text>
+<text top="80" left="607" width="205" height="16" font="1">[<i>Friday, 13 December 2013 </i></text>
+<text top="1197" left="364" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 37─2013 </text>
+<text top="119" left="85" width="36" height="16" font="4"><b>152. </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="85" width="36" height="16" font="4"><b>152. </b></text>
+</page>"""),
+
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="531" height="16" font="0"><i>Friday, 1 November 2013</i>] 248 </text>
+<text top="1197" left="85" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 33─2013 </text>
+<text top="118" left="85" width="125" height="16" font="1">[No 33—2013] F</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="118" left="85" width="125" height="16" font="1">[No 33—2013] F</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="750" height="16" font="1"> 249 </text>
+<text top="80" left="616" width="197" height="16" font="1">[<i>Friday, 1 November 2013 </i></text>
+<text top="1197" left="364" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 33─2013 </text>
+<text top="119" left="85" width="36" height="16" font="4"><b>438. </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="85" width="36" height="16" font="4"><b>438. </b></text>
+</page>"""),
+         
+        (ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="446" width="366" height="16" font="0">239 [<i>Friday, 19 April 2013 </i></text>
+<text top="1197" left="441" width="369" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 12─2013 </text>
+<text top="119" left="86" width="36" height="16" font="4"><b>676. </b></text>
+</page>""",
+         ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="86" width="36" height="16" font="4"><b>676. </b></text>
+</page>"""),
+         
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">533</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="131" width="253" height="12" font="3">[No 20 – 2009] First Session, Fourth Parliament</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="131" width="253" height="12" font="3">[No 20 – 2009] First Session, Fourth Parliament</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">534</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="4" height="13" font="7"><b> </b></text>
+<text top="199" left="350" width="250" height="13" font="7"><b>QUESTIONS FOR WRITTEN REPLY </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="4" height="13" font="7"><b> </b></text>
+<text top="199" left="350" width="250" height="13" font="7"><b>QUESTIONS FOR WRITTEN REPLY </b></text>
+</page>"""),
+
+        (ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">535</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="21" height="13" font="4">(4) </text>
+</page>""",
+         ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="21" height="13" font="4">(4) </text>
+</page>"""),
+        ]
+
+        for input, expected in tests:
+            page = lxml.etree.fromstring(input)
+            question_scraper.remove_headers_from_page(page)
+
+            self.assertEqual(lxml.etree.tostring(page, encoding='unicode'), expected)
+
+# 517147_1
+

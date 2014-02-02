@@ -170,6 +170,7 @@ class ZAQuestionParsing(TestCase):
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of
     # this writing 0.18.4). Also run if we have this version locally.
+    # FIXME - Note that the version currently on our servers is 0.12.4 (as of 2014-02-02)
     pdftohtml_version = os.popen('pdftohtml -v 2>&1 | head -n 1').read().strip()
     wanted_version = '0.18.4'
     @skipUnless(

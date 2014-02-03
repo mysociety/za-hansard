@@ -271,7 +271,7 @@ class QuestionPaper(models.Model):
     text = models.TextField()
 
     class Meta:
-        unique_together = ('year', 'issue_number', 'house')
+        unique_together = ('year', 'issue_number', 'house', 'parliament_number')
 
 int_to_text = {
     1: 'FIRST',

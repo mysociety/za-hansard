@@ -57,6 +57,11 @@ class Command(BaseCommand):
             action='store_true',
             help='delete existing records (assuming --import-to-sayit)',
         ),
+        make_option('--retries',
+            type='int',
+            default=3,
+            help='Number of retries to make each http request (default 3)'
+        ),
     )
 
     committees = []
@@ -77,6 +82,8 @@ class Command(BaseCommand):
             self.instance = Instance.objects.get(label=options['instance'])
         except Instance.DoesNotExist:
             raise CommandError("Instance specified not found (%s)" % options['instance'])
+
+        self.retries = options['retries']
 
         if options['scrape_with_json']:
             options['scrape'] = True
@@ -100,7 +107,7 @@ class Command(BaseCommand):
             "form(#content input)": [{"value":"@value","name":"@name"}],
             }
 
-        page=urllib2.urlopen('http://www.pmg.org.za/user/login')
+        page=self.open_url_with_retries('http://www.pmg.org.za/user/login')
         contents = page.read()
         p = parslepy.Parselet(login_rules)
         login_data = p.parse_fromstring(contents)
@@ -120,10 +127,10 @@ class Command(BaseCommand):
             }
         encodedata = urllib.urlencode(data)
         req = urllib2.Request('http://www.pmg.org.za/user/login', encodedata)
-        resp = urllib2.urlopen(req)
+        resp = self.open_url_with_retries(req)
         contents = resp.read()
 
-        page=urllib2.urlopen('http://www.pmg.org.za/committees')
+        page=self.open_url_with_retries('http://www.pmg.org.za/committees')
         contents = page.read()
 
         committees_rules = {
@@ -178,6 +185,18 @@ class Command(BaseCommand):
         self.stdout.write('Committee %d, Checked %d Reports, Processed %d, %d Appearances\n'
             % (self.numcommittees, self.reportschecked, self.reportsprocessed, self.appearancesadded))
 
+    def open_url_with_retries(self, url):
+        for i in range(0, self.retries):
+            try:
+                page=urllib2.urlopen(url)
+                return page
+            except Exception as e:
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                time.sleep(1)
+
+        # we didn't ever return, so
+        raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
+
     def processReport(self, row, url,committeeName,committeeURL,meetingDate):
         #get the appearances in the report
 
@@ -190,7 +209,7 @@ class Command(BaseCommand):
             "chairperson": "div.field-field-chairperson",
             "paragraphs(.field-field-minutes p.MsoNormal)": ["."]
             }
-        page=urllib2.urlopen(url)
+        page=self.open_url_with_retries(url)
         contents = page.read()
         p = parslepy.Parselet(report_rules)
         report = p.parse_fromstring(contents)
@@ -312,20 +331,13 @@ class Command(BaseCommand):
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
-    def processReports(self, url,processingcommitteeName,processingcommitteeURL, retries=3):
+        # finally sleep, to minimize load on PMG servers
+        time.sleep(1)
+
+    def processReports(self, url,processingcommitteeName,processingcommitteeURL):
         #get reports on this page, process them, proceed to next page
 
-        try:
-            page=urllib2.urlopen(url)
-        except httplib.BadStatusLine:
-            if retries:
-                print >> sys.stderr, "Got BadStatusLine error, sleeping and retrying"
-                time.sleep(1)
-                self.processReports( url, processingcommitteeName, processingcommitteeURL, retries-1 )
-            else:
-                raise Exception("Cannot connect to server (BadStatusLine error) and max retries exceeded")
-            
-
+        page=self.open_url_with_retries(url)
         contents = page.read()
 
         reports_rules = {
@@ -396,7 +408,6 @@ class Command(BaseCommand):
                                 report['date'])
 
         if "next" in reports:
-            time.sleep(1)
             self.processReports(
                 'http://www.pmg.org.za'+reports['next'],
                 processingcommitteeName,
@@ -404,7 +415,7 @@ class Command(BaseCommand):
 
     def processCommittee(self, url,processingcommitteeName):
         #opens the committee, gets the memberrs, starts retrieving reports
-        page=urllib2.urlopen(url)
+        page=self.open_url_with_retries(url)
         contents = page.read()
 
         members_rules = {

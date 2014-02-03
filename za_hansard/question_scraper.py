@@ -41,6 +41,13 @@ def pdftoxml(pdfdata):
     #xmlfin = open(tmpxml)
     xmldata = xmlin.read()
     xmlin.close()
+
+    # pdftohtml version 0.18.4 occasionally produces bad markup of the form <b>...<i>...</b> </i>
+    # Since ee don't actually need <i> tags, we may as well get rid of them all now, which will fix this.
+    # Note that we're working with a byte string version of utf-8 encoded data here.
+
+    xmldata = re.sub(r'</?i>', '', xmldata)
+
     return xmldata
 
 
@@ -412,7 +419,8 @@ class QuestionPaperParser(object):
             ]
 
         new_text = u''.join(text_bits)
-        new_text = re.sub(ur'</?i>', '', new_text)
+
+        # We may as well git rid of bolding or unbolding around whitespace.
         new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
         new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 

@@ -312,6 +312,9 @@ class Command(BaseCommand):
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
+        # finally sleep, to minimize load on PMG servers
+        time.sleep(1)
+
     def processReports(self, url,processingcommitteeName,processingcommitteeURL, retries=3):
         #get reports on this page, process them, proceed to next page
 
@@ -396,7 +399,6 @@ class Command(BaseCommand):
                                 report['date'])
 
         if "next" in reports:
-            time.sleep(1)
             self.processReports(
                 'http://www.pmg.org.za'+reports['next'],
                 processingcommitteeName,

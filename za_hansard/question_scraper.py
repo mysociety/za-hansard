@@ -307,7 +307,7 @@ class QuestionPaperParser(object):
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+?) # Name of question asker, dropping the title
             \s*\((?P<party>[-\w\s]+)\)?
             \s+to\s+ask\s+the\s+
-            (?P<questionto>[-\w\s(),:]+):
+            (?P<questionto>[-\w\s(),:.]+)[:.]
             [-\u2013\w\s(),\[\]/]*?
           ) # Intro
           (?P<translated>\u2020)?\s*</b>\s*
@@ -347,6 +347,12 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.question_re.match(qn)
         >>> match.groups()
         (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'Test question?', u'NW1975E')
+
+        # Check we cope with a dot after the askee instead of a colon.
+        >>> qn = u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning </b>Test question? NW2224E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning', u'1875', u'G G Hill-Lewis', u'DA', u'Minister in the Presidency', None, u'Test question?', u'NW2224E')
 
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'

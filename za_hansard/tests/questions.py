@@ -169,9 +169,14 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
 class ZAQuestionParsing(TestCase):
     test_data = (
-        ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
         ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
+        ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
         ('548302_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20131107/548302_1.pdf', 'National Council of Provinces', '1 November 2013'),
+
+        # Interesting because of the pdftohtml bad xml problem.
+        ('529998_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130812/529998_1.pdf', 'National Assembly', '8 August 2013'),
+        ('458606_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/458606_1.pdf', 'National Council of Provinces', '14 September 2012'),
+
         ('184530_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/184530_1.pdf', 'National Assembly', '9 October 2009'),
         )
 

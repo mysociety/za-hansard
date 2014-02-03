@@ -147,7 +147,7 @@ class Command(BaseCommand):
                         self.stdout.write('PROCESSING')
                         question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
-                        self.stderr.write('ERROR handling {}: {}\n'.format(source_url, str(e)))
+                        self.stdout.write('ERROR handling {}: {}\n'.format(source_url, str(e)))
                         errors += 1
                         pass
 
@@ -160,7 +160,7 @@ class Command(BaseCommand):
             if options['limit'] and count >= options['limit']:
                 break
 
-        self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
+        self.stdout.write( "Processed %d documents (%d errors)\n" % (count, errors) )
 
 
     def scrape_answers(self, *args, **options):

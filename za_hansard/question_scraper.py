@@ -289,10 +289,15 @@ class QuestionPaperParser(object):
         url = self.kwargs['url']
 
         pdfdata = self.get_question_pdf_from_url(url)
+
+        if not pdfdata:
+            return
+
         xmldata = self.get_question_xml_from_pdf(pdfdata)
 
         if not xmldata:
-            return False
+            sys.stdout.write(' SKIPPING - Got no XML data\n')
+            return
 
         #self.stderr.write("URL %s\n" % url)
         #self.stderr.write("PDF len %d\n" % len(pdfdata))
@@ -301,7 +306,13 @@ class QuestionPaperParser(object):
         self.create_questions_from_xml(xmldata, url)
 
     def get_question_pdf_from_url(self, url):
-        return requests.get(url).content
+        response = requests.get(url)
+
+        if response.status_code == requests.codes.ok:
+            return response.content
+        else:
+            sys.stdout.write(' SKIPPING - Bad response\n')
+
 
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)
@@ -445,7 +456,10 @@ class QuestionPaperParser(object):
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
         else:
-            print "Failed to find session, etc."
+            sys.stdout.write("BAILING OUT: Failed to find session, etc.\n")
+            # Bail out without saving any questions so that we at least continue and work
+            # on other question papers.
+            return
 
         # FIXME - This causes an error on files with only oral questions.
         # We haven't actually collected any oral questions yet, but when we do,

@@ -464,7 +464,22 @@ class QuestionPaperParser(object):
         # FIXME - This causes an error on files with only oral questions.
         # We haven't actually collected any oral questions yet, but when we do,
         # this will need sorting out.
-        start_pos = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text).end()
+        start_pos_match = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text)
+        
+        if not start_pos_match:
+            sys.stdout.write(" CONTINUING - Cannot find 'QUESTIONS FOR WRITTEN REPLY'\n")
+            # Quick check to see if there were written question like number2s in the file
+            
+            expected_written_count = len(re.findall(ur'[NC]W\d+E', new_text))
+            if expected_written_count:
+                sys.stdout.write(
+                    '      WARNING - Looks like there are {} written questions here\n'
+                    .format(expected_written_count)
+                    )
+            return
+
+        start_pos = start_pos_match.end()
+
         # You might think that ending at the start of the summary of questions not yet replied to is a good
         # thing, but there are a couple of random questions right at the end of the file
         # which it would be good to catch.

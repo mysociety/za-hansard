@@ -86,6 +86,7 @@
         <TLCPerson href="http://dummy/popit/path/mr-g-t-snell" id="mr-g-t-snell" showAs="Mr G T SNELL"/>
         <TLCPerson href="http://dummy/popit/path/mr-m-i-malale" id="mr-m-i-malale" showAs="Mr M I MALALE"/>
         <TLCPerson href="http://dummy/popit/path/mnr-a-p-van-der-westhuizen" id="mnr-a-p-van-der-westhuizen" showAs="Mnr A P VAN DER WESTHUIZEN"/>
+        <TLCPerson href="http://dummy/popit/path/the-house-chairperson-mr-c-t-frolick" id="the-house-chairperson-mr-c-t-frolick" showAs="The HOUSE CHAIRPERSON (Mr C T Frolick)"/>
         <TLCPerson href="http://dummy/popit/path/mr-a-m-mpontshane" id="mr-a-m-mpontshane" showAs="Mr A M MPONTSHANE"/>
         <TLCPerson href="http://dummy/popit/path/ms-n-gina" id="ms-n-gina" showAs="Ms N GINA"/>
         <TLCPerson href="http://dummy/popit/path/ms-b-n-dambuza" id="ms-b-n-dambuza" showAs="Ms B N DAMBUZA"/>
@@ -802,7 +803,11 @@
             <p>We agreed in the committee that the Minister would deal with the issues relating to the parity of benefits for college-employed employees and state employees in the context of the changes that were advanced by that Bill.</p>
             <p>There is a need for the upgrading of the skills base of lecturers in the FET sector. There is a need to enhance the programmes or vocational choices that are available in the sector to attract students. All of us in the committee never had any problems on these matters. We may have to hear about whatever issues of grandstanding there were that may emerge from the process, as attested to by the mumblings on the other side.</p>
             <p>We therefore, as a committee, recommend that the House adopt this Bill with the amendments, as suggested by the NCOP. Thank you very much. [Applause.]</p>
-            <p>There was no debate. The CHIEF WHIP OF THE MAJORITY PARTY: Hon House Chair, hon Deputy President, I move:</p>
+            <p>There was no debate.</p>
+          </speech>
+          <speech by="#the-chief-whip-of-the-majority-party">
+            <from>The CHIEF WHIP OF THE MAJORITY PARTY</from>
+            <p>Hon House Chair, hon Deputy President, I move:</p>
             <p>That the Bill be passed.</p>
             <p>Declarations of vote:</p>
           </speech>
@@ -830,7 +835,10 @@
             <p>The problems encountered with the Sector Education and Training Authorities are a case in point. The Seta problems have increased rather than been resolved after they were placed under the control of the national department - under the leadership of former communist Mr Blade Nzimande. [Laughter.] [Interjections.]</p>
             <p>The National Student Financial Aid Scheme is another example. This financial aid scheme for students encountered problems that became worse after the former communist and his department effectively appropriated powers ... [Interjections.]</p>
             <p>Mrs M T Kubayi: I rise on a point of order, House Chair. I think the member who is speaking before us is not articulating the amendments to the Bill. We are dealing with the amendments to the Further Education and Training Bill, not with whether people are communists or not. Can we stick to that?</p>
-            <p>The HOUSE CHAIRPERSON (Mr C T Frolick): Your point is noted. Hon member, let us stick to the Bill that is before us.</p>
+          </speech>
+          <speech by="#the-house-chairperson-mr-c-t-frolick">
+            <from>The HOUSE CHAIRPERSON (Mr C T Frolick)</from>
+            <p>Your point is noted. Hon member, let us stick to the Bill that is before us.</p>
             <p>Mr B M Bhanga: Our sense is that while the intentions of government may be good, what is contained in the Bill, proposed by the former Marxist, is going to take us in exactly the opposite direction. [Interjections.] With all that in mind, we as Cope cannot support this Bill. [Applause.]</p>
           </speech>
           <speech by="#mr-a-m-mpontshane">

@@ -253,6 +253,9 @@ class SpeechParslet(ParaParslet):
     speech = None
     id = None
 
+    # class member
+    name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \((?:\w|\s)+\))?):\s*(.*)'
+
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name')
         self.speech = kwargs.pop('speech')
@@ -260,8 +263,7 @@ class SpeechParslet(ParaParslet):
 
     @classmethod
     def match(cls, parser, p):
-        name_regexp = r'((?:[A-Z][a-z]+ )[A-Z -]+(?: \(\w+\))?):\s*(.*)'
-        ret = re.match(name_regexp, p)
+        ret = re.match(cls.name_regexp, p)
         if ret:
             (name, speech) = ret.groups()
             id = parser.getOrCreateSpeaker(name) # TODO match with popit here
@@ -324,6 +326,10 @@ class ZAHansardParser(object):
         self.hasPrayers = False
         self.subSectionCount = 0
         self.speakers = {}
+        self.chunking_counter = 1
+
+    def increment_chunking(self):
+        self.chunking_counter += 1
 
     @classmethod
     def parse(cls, document_path):
@@ -346,29 +352,40 @@ class ZAHansardParser(object):
         # lines = imap(cleanLine, iter(antiword.stdout.readline, b''))
         lines = imap(cleanLine, iter(stdoutdata.split('\n')))
 
-        def break_paras(line):
-            # FIRST we handle exceptions:
-            # NB: these lines should probably actually be included with their respective heading
-            # if re.match( r'\s*\((Member\'?s? [sS]tatement|Minister\'s? [Rr]esponse\))', line ):
-            if re.match( r'\s*\([^)]+\)$', line ) and not re.match( r'\s*\([Tt]ranslation', line ):
-                return line # distinct from True or False, but a True value
+        def make_break_paras(obj):
+            name_regexp = SpeechParslet.name_regexp
 
-            # An ALL CAPS heading might be on the first line of a new page and therefore not be separated
-            # by blank lines
-            if re.match( r'\s*[A-Z]+', line ) and not re.search( r'[a-z]', line ):
-                return "TITLE"
+            def break_paras(line):
+                # FIRST we handle exceptions:
+                # NB: these lines should probably actually be included with their respective heading
+                # if re.match( r'\s*\((Member\'?s? [sS]tatement|Minister\'s? [Rr]esponse\))', line ):
+                if re.match( r'\s*\([^)]+\)$', line ) and not re.match( r'\s*\([Tt]ranslation', line ):
+                    return line # distinct from True or False, but a True value
 
-            # FINALLY we just swap between True and False for full and blank lines, to chunk into paragraphs
-            return len(line) > 0
+                # An ALL CAPS heading might be on the first line of a new page and therefore not be separated
+                # by blank lines
+                if re.match( r'\s*[A-Z]+', line ) and not re.search( r'[a-z]', line ):
+                    return "TITLE"
+
+                if re.match( name_regexp, line ):
+                    # we update our True value to make sure that badly chunked paragraphs still get separated
+                    # out into speakers!
+                    obj.increment_chunking()
+
+                # FINALLY we just swap between (incremental) True and zero values
+                # for full and blank lines, to chunk into paragraphs
+                return (obj.chunking_counter if len(line) > 0 else 0)
+
+            return break_paras
 
         fst = lambda(a,_): a
         snd = lambda(_,b): b
 
-        groups = groupby(lines, break_paras)
+        obj = ZAHansardParser()
+
+        groups = groupby(lines, make_break_paras(obj))
         nonEmpty = ifilter(fst, groups)
         paras = imap(snd, nonEmpty)
-
-        obj = ZAHansardParser()
 
         E = obj.E
         # TODO: instead of ctime use other metadata from source document?

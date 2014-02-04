@@ -65,6 +65,7 @@ class Command(BaseCommand):
             type='int',
             default=3,
             help='Number of retries to make each http request (default 3)'
+        ),
         make_option('--limit',
             default=0,
             action='store',

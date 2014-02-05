@@ -298,16 +298,94 @@ class Question (models.Model):
         on_delete=models.CASCADE,
         related_name='question',
         )
-    number1 = models.TextField()
-    number2 = models.TextField()
+
+
+    # number1 - order questions published
+    # Strts at 1 for calendar year, separate sequences for oral, written for both NA and NCOP
+
+    # Questions for written answer and questions for oral answer both have
+    # sequence numbers. It looks like these are probably the order the questions
+    # were asked in. The sequences are unique for each house for written/oral and
+    # restart on 1 each year.
+    
+    # At least one of these two numbers should be non-null, and it's possible
+    # for both to be non-null if a question is transferred from oral to written
+    # or vice-versa.
+    written_number = models.IntegerField(null=True)
+    oral_number = models.IntegerField(null=True)
+
+    # Questions are also referred to by an identifier of the form
+    # [NC][OW]\d+[AEX]
+    # The meaning of the parts of this identifier is as follows:
+    #  - [NC] - tells you the house the question was asked in. See 'house' below.
+    #  - [OW] - tells you whether the question is for oral or written answer.
+    #           Questions can sometimes be transferred between being oral or
+    #           written. When this happens, they may be referred to by the new
+    #           identifier with everything the same except the O/W.
+    #  - \d+  - (number below) Every question to a particular house in a
+    #           particular year gets given another number. This number doesn't
+    #           change when the question is translated or has [OW] changed.
+    #  - [AEX]- Afrikaans/English/Xhosa. The language the question is currently
+    #           being displayed in. Translations of the question will have a
+    #           different [AEX] in the identifier.
+    
+    # Note that we also store the number, house, and answer_type separately.
+    identifier = models.CharField(max_length=10)
+
+    # From the identifier discussed above.
+    id_number = models.IntegerField()
+
+    # 'N' or 'C', where 'N' is National Assembly and 'C' is NCOP.
+    # This is in the identifier above. It should correspond to the house
+    # on the referenced QuestionPaper.
+    house = models.CharField(
+        max_length=1,
+        choices=(
+            ('N', 'National Assembly'),
+            ('C', 'National Council of Provinces'),
+            )
+        )
+
+    answer_type = models.CharField(
+        max_length=1,
+        choices=(
+            ('O', 'Oral Answer'),
+            ('W', 'Written Answer'),
+            )
+        )
+
+    # Date the question was asked on. Not to be confused with the date the
+    # question was published, which is date_published on the QuestionPaper.
     date = models.DateField()
-    title = models.TextField()
+
+    # This should always be the year from the date above, but is worth
+    # storing separately so that we can easily have uniqueness constraints
+    # on it.
+    year = models.IntegerField()
+
+    # FIXME - is this useful to store/easy to get?
+    date_transferred = models.DateField(null=True)
+
+    # FIXME - was this the title for the question asker?
+    # title = models.TextField()
+
+    # The actual text of the question.
     question = models.TextField()
+
+    # Text of the person the question is asked of
     questionto = models.TextField()
-    translated = models.IntegerField()
-    document = models.TextField()
-    type = models.TextField()
+
+    # Is the question a translation of one originally asked in another language.
+    # Currently we are only storing questions in English.
+    translated = models.BooleanField()
+
+    # oral/written number, asker and askee as as string, for example:
+    # '144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:'
+    # '152. Mr D A Worth (DA-FS) to ask the Minister of Defence and Military Veterans:'
+    # '254. Mr R A Lees (DA-KZN) to ask the Minister of Rural Development and Land Reform:'
     intro = models.TextField()
+    
+    # Name of the person asking the question.
     askedby = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
@@ -316,5 +394,13 @@ class Question (models.Model):
         help_text='Associated Sayit section object, if imported',
         )
 
+    class Meta:
+        unique_together = ('written_number', 'house', 'year')
+        unique_together = ('oral_number', 'house', 'year')
+        unique_together = ('id_number', 'house', 'year')
+
+        # FIXME - Other things it would be nice to constrain that will have to
+        # be done in postgres directly, I think.
+        # 1) At least one of written_number and oral_number must be non-null.
 
 #CREATE TABLE completed_documents (`url` string);

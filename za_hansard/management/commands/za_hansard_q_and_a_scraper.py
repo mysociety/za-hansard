@@ -342,18 +342,18 @@ class Command(BaseCommand):
                     u'type': u'question',
                     u'intro': question.intro,
                     u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
-                    u'source': question.source,
+                    u'source': question.paper.source_url,
                     u'translated': question.translated,
                 },
             ],
 
             # random stuff that is NOT used by the JSON import
-            u'number1': question.number1,
-            u'number2': question.number2,
+            u'oral_number': question.oral_number,
+            u'written_number': question.written_number,
+            u'identifier': question.identifier,
             u'askedby': question.askedby,
-            u'type': question.type,
-            u'house': question.house,
-            u'parliament': question.parliament,
+            u'answer_type': question.answer_type,
+            u'parliament': question.paper.parliament_number,
         }
 
         answer = question.answer

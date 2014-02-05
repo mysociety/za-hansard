@@ -152,7 +152,7 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     start_url = "http://www.parliament.gov.za/live/content.php?Category_ID=248"
     expected_details = (
         (0, {
-            'date': datetime.datetime(2013, 10, 3, 0, 0),
+            'date': datetime.date(2013, 10, 3),
             'house': u'National Assembly',
             'language': u'English',
             'name': u'RNW2356-131003',
@@ -180,8 +180,7 @@ class ZAQuestionParsing(TestCase):
         ('184530_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/184530_1.pdf', 'National Assembly', '9 October 2009'),
         )
 
-    # FIXME - 548302_1 should really be getting a better date for its last three questions.
-    # FIXME - relatedly, oral questions which are transferred could collect their oral question number.
+    # FIXME - Oral questions which are transferred could collect their oral question number.
     
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of

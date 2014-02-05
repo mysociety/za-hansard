@@ -123,6 +123,7 @@ class QuestionDetailIterator(BaseDetailIterator):
 
         print 'Questions (%s)' % self.next_list_url
 
+        # FIXME - Cope with an HTTP error, etc here.
         contents = self.url_get( self.next_list_url )
 
         p = parslepy.Parselet(self.question_parsing_rules)
@@ -192,7 +193,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                 date = row['cell'][2]['contents']
                 parsed_date = None
                 try:
-                    parsed_date = datetime.datetime.strptime(date, '%d %B %Y')
+                    parsed_date = datetime.datetime.strptime(date, '%d %B %Y').date()
                 except:
                     warnings.warn("Failed to parse date (%s)" % date)
                     continue
@@ -218,12 +219,12 @@ class AnswerDetailIterator(BaseDetailIterator):
                 self.next_list_url = next_url
                 break
 
-page_header_regex= re.compile(ur"\s*(?:{}|{})\s*".format(
+
+page_header_regex = re.compile(ur"\s*(?:{}|{})\s*".format(
         ur'(?:\d+ \[)?[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4}(?:\] \d+)? INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+[─-]\d{4}',
         ur'[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4} INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+\s*[─-]\s*\d{4} \d+',
         )
                                )
-    
 
 def remove_headers_from_page(page):
     ur"""Remove unwanted headers at top of page.
@@ -281,6 +282,7 @@ def remove_headers_from_page(page):
             page.remove(text_el)
             break
 
+
 class QuestionPaperParser(object):
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -318,60 +320,12 @@ class QuestionPaperParser(object):
         return pdftoxml(pdfdata)
 
 
-    question_re = re.compile(
-        ur"""
-          (?P<intro>
-            (?P<number1>\d+)\.?\s+ # Question number
-            [-a-zA-z]+\s+(?P<askedby>[-\w\s]+?) # Name of question asker, dropping the title
-            \s*\((?P<party>[-\w\s]+)\)?
-            \s+to\s+ask\s+the\s+
-            (?P<questionto>[-\w\s(),:.]+)[:.]
-            [-\u2013\w\s(),\[\]/]*?
-          ) # Intro
-          (?P<translated>\u2020)?\s*</b>\s*
-          (?P<question>.*?)\s* # The question itself.
-          (?P<number2>[NC][WO]\d+E) # Number 2
-        """,
-        re.UNICODE | re.VERBOSE)
-
     session_re = re.compile(
         ur"\[No\s*(?P<issue_number>\d+)\s*[\u2013\u2014]\s*(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
         re.UNICODE | re.IGNORECASE)
 
-    def create_questions_from_xml(self, xmldata, url):
+    def get_question_paper(self, chunk):
         """
-        # Checks for question_re
-
-        # Shows the need for - in the party
-        >>> qn = u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
-        >>> match.groups()
-        (u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', u'144', u'D B Feldman', u'COPE-Gauteng', u'Minister of Defence and Military Veterans', None, u'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', u'CW187E')
-
-        # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
-        >>> qn = u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
-        >>> match.groups()
-        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'DA-WC', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E')
-
-        # Cope with missing close bracket
-        >>> qn = u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:</b> Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009? NW1922E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
-        >>> match.groups()
-        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E')
-
-        # Check we cope with no space before party in parentheses
-        >>> qn = u'1569. Mr M Swart(DA) to ask the Minister of Finance: </b>Test question? NW1975E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
-        >>> match.groups()
-        (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'Test question?', u'NW1975E')
-
-        # Check we cope with a dot after the askee instead of a colon.
-        >>> qn = u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning </b>Test question? NW2224E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
-        >>> match.groups()
-        (u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning', u'1875', u'G G Hill-Lewis', u'DA', u'Minister in the Presidency', None, u'Test question?', u'NW2224E')
-
         # Checks for session_re
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'
         >>> match = QuestionPaperParser.session_re.match(session_string)
@@ -382,11 +336,6 @@ class QuestionPaperParser(object):
         >>> match.groups()
         (u'20', u'2009', u'First', u'Fourth')
         """
-        house = self.kwargs['house']
-        date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y')
-
-        # FIXME - can this be replaced with a call to dateutil?
-        date_re = re.compile(ur"(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY), \d{1,2} (JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER) \d{4}")
 
         text_to_int = {
             'FIRST': 1,
@@ -402,7 +351,8 @@ class QuestionPaperParser(object):
             'TENTH': 10,
             }
 
-        text = lxml.etree.fromstring(xmldata)
+        house = self.kwargs['house']
+        date_published = datetime.datetime.strptime(self.kwargs['date'], '%d %B %Y').date()
 
         question_paper = QuestionPaper(
             document_name=self.kwargs['name'],
@@ -411,44 +361,10 @@ class QuestionPaperParser(object):
             language=self.kwargs['language'],
             document_number=self.kwargs['document_number'],
             source_url=self.kwargs['url'],
-            text=lxml.etree.tostring(text, pretty_print=True),
+            text='', #lxml.etree.tostring(chunk, pretty_print=True),
             )
 
-        pages = text.iter('page')
-        
-        for page in pages:
-            remove_headers_from_page(page)
-
-        # pdftoxml produces an xml document with one <page> per page
-        # of the original and <text> elements inside those. We're 
-        # not actually interested in the pagination here so we may
-        # as well just look at all the text elements.
-
-        text_bits = [
-            re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
-            for el in text.iterfind('.//text')
-            ]
-
-        new_text = u''.join(text_bits)
-
-        # We may as well git rid of bolding or unbolding around whitespace.
-        new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
-        new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
-
-        # Replace all whitespace with single spaces.
-        new_text = re.sub(r'\s+', ' ', new_text)
-
-        # As we're using the </b> to tell us when the intro is over, it would be
-        # helpful if we could always have the colon on the same side of it.
-        new_text = new_text.replace('</b>:', ':</b>')
-
-        # Sanity check on number of questions
-        expected_question_count = len(re.findall(r'to\s+ask\s+the', new_text))
-
-        # Sanity check on house
-        assert house.upper() in new_text
-
-        session_match = self.session_re.search(new_text)
+        session_match = self.session_re.search(chunk)
 
         if session_match:
             question_paper.session_number = text_to_int.get(session_match.group('session').upper())
@@ -456,62 +372,97 @@ class QuestionPaperParser(object):
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
         else:
-            sys.stdout.write("BAILING OUT: Failed to find session, etc.\n")
+            sys.stdout.write("\nBAILING OUT: Failed to find session, etc.\n")
             # Bail out without saving any questions so that we at least continue and work
             # on other question papers.
             return
 
-        # FIXME - This causes an error on files with only oral questions.
-        # We haven't actually collected any oral questions yet, but when we do,
-        # this will need sorting out.
-        start_pos_match = re.search(ur'QUESTIONS FOR WRITTEN REPLY', new_text)
-        
-        if not start_pos_match:
-            sys.stdout.write(" CONTINUING - Cannot find 'QUESTIONS FOR WRITTEN REPLY'\n")
-            # Quick check to see if there were written question like number2s in the file
-            
-            expected_written_count = len(re.findall(ur'[NC]W\d+E', new_text))
-            if expected_written_count:
-                sys.stdout.write(
-                    '      WARNING - Looks like there are {} written questions here\n'
-                    .format(expected_written_count)
-                    )
-            return
+        try:
+            old_qp = QuestionPaper.objects.get(
+                year=question_paper.year,
+                issue_number=question_paper.issue_number,
+                house=question_paper.house,
+                parliament_number=question_paper.parliament_number,
+                )
+            # FIXME - We need to be able to cope with reprints of question papers.
+            sys.stdout.write("\nBAILING OUT: Question Paper {} too similar to\n".format(question_paper.source_url))
+            sys.stdout.write("                            {}\n".format(old_qp.source_url))
+        except QuestionPaper.DoesNotExist:
+            question_paper.save()
+            return question_paper
 
-        start_pos = start_pos_match.end()
+    question_re = re.compile(
+        ur"""
+          (?P<intro>
+            (?P<number1>\d+)\.?\s+ # Question number
+            [-a-zA-z]+\s+(?P<askedby>[-\w\s]+?) # Name of question asker, dropping the title
+            \s*\((?P<party>[-\w\s]+)\)?
+            \s+to\s+ask\s+the\s+
+            (?P<questionto>[-\w\s(),:.]+)[:.]
+            [-\u2013\w\s(),\[\]/]*?
+          ) # Intro
+          (?P<translated>\u2020)?\s*</b>\s*
+          (?P<question>.*?)\s* # The question itself.
+          (?P<identifier>(?P<house>[NC])(?P<answer_type>[WO])(?P<id_number>\d+)E) # Number 2
+        """,
+        re.UNICODE | re.VERBOSE)
 
-        # You might think that ending at the start of the summary of questions not yet replied to is a good
-        # thing, but there are a couple of random questions right at the end of the file
-        # which it would be good to catch.
-        # end_pos = re.search(ur'SUMMARY OF QUESTIONS NOT YET REPLIED TO', new_text).start()
-        
-        interesting_text = new_text[start_pos:]#end_pos]
+    def get_questions_from_chunk(self, date, chunk):
+        """
+        # Checks for question_re
 
-        date_match = date_re.search(interesting_text)
+        # Shows the need for - in the party
+        >>> qn = u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', u'144', u'D B Feldman', u'COPE-Gauteng', u'Minister of Defence and Military Veterans', None, u'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', u'CW187E', u'C', u'W', u'187')
 
-        if date_match:
-            date = datetime.datetime.strptime(date_match.group(0), '%A, %d %B %Y')
-        else:
-            print "Failed to find date"
+        # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
+        >>> qn = u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'DA-WC', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E', u'C', u'W', u'603')
 
-        question_paper.save()
+        # Cope with missing close bracket
+        >>> qn = u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:</b> Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009? NW1922E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E', u'N', u'W', u'1922')
 
+        # Check we cope with no space before party in parentheses
+        >>> qn = u'1569. Mr M Swart(DA) to ask the Minister of Finance: </b>Test question? NW1975E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'Test question?', u'NW1975E', u'N', u'W', u'1975')
+
+        # Check we cope with a dot after the askee instead of a colon.
+        >>> qn = u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning </b>Test question? NW2224E'
+        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match.groups()
+        (u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning', u'1875', u'G G Hill-Lewis', u'DA', u'Minister in the Presidency', None, u'Test question?', u'NW2224E', u'N', u'W', u'2224')
+        """
         questions = []
 
-        for match in self.question_re.finditer(interesting_text):
+        for match in self.question_re.finditer(chunk):
             match_dict = match.groupdict()
 
-            match_dict[u'paper'] = question_paper
+            answer_type = match_dict[u'answer_type']
+            number1 = match_dict.pop('number1')
+
+            if answer_type == 'O':
+                match_dict[u'oral_number'] = number1
+            elif answer_type == 'W':
+                match_dict[u'written_number'] = number1
+            else:
+                print "Unrecognized answer_type: {}".format(answer_type)
+
+            match_dict[u'paper'] = self.question_paper
 
             match_dict[u'translated'] = bool(match_dict[u'translated'])
             match_dict[u'questionto'] = match_dict[u'questionto'].replace(':', '')
 
-            # FIXME - Note that the staging server has not a single question marked as oral
-            #         questiontype = 'oral' if '&#204;' in intro else 'written'
-            match_dict[u'type'] = u'written'
-
-            # FIXME - Should be removed when we properly integrate QuestionPaper
             match_dict[u'date'] = date
+            match_dict[u'year'] = date.year
 
             # Party isn't actually stored in the question, so drop it before saving
             # Perhaps we can eventually use it to make sure we have the right person.
@@ -519,6 +470,88 @@ class QuestionPaperParser(object):
             match_dict.pop(u'party')
 
             questions.append(Question(**match_dict))
+        
+        return questions
+
+
+    # FIXME - can this be replaced with a call to dateutil?
+    date_re = re.compile(ur"\s*<b>\s*(?P<day_of_week>MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY),\s*(?P<day>\d{1,2})\s*(?P<month>JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s*(?P<year>\d{4})\s*</b>\s*")
+
+    def chunkify(self, root):
+        """
+        >>> date_str = ur'<b>FRIDAY, 2 AUGUST 2013 </b>'
+        >>> match = QuestionPaperParser.date_re.match(date_str)
+        >>> match.groups()
+        (u'FRIDAY', u'2', u'AUGUST', u'2013')
+        
+        """
+        text_bits = [
+            re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
+            for el in root.iterfind('.//text')
+            ]
+
+        # Let's split text_bits up by dates
+        chunk = []
+        date = None
+
+        chunks = []
+
+        while text_bits:
+            text_bit = text_bits.pop(0)
+            date_match = self.date_re.match(text_bit)
+
+            if not date_match:
+                chunk.append(text_bit)
+            
+            if date_match or not text_bits:
+                text = u''.join(chunk)
+
+                # We may as well git rid of bolding or unbolding around whitespace.
+                text = re.sub(ur'</b>(\s*)<b>', ur'\1', text)
+                text = re.sub(ur'<b>(\s*)</b>', ur'\1', text)
+
+                # Replace all whitespace with single spaces.
+                text = re.sub(r'\s+', ' ', text)
+
+                # As we're using the </b> to tell us when the intro is over, it would be
+                # helpful if we could always have the colon on the same side of it.
+                text = text.replace('</b>:', ':</b>')
+
+                chunks.append((date, text))
+
+                if text_bits:
+                    chunk = []
+                    date_str = "{day_of_week}, {day} {month} {year}".format(**date_match.groupdict())
+                    date = datetime.datetime.strptime(date_str, "%A, %d %B %Y").date()
+
+        intro_chunk = chunks.pop(0)[1]
+
+        return intro_chunk, chunks
+
+
+    def create_questions_from_xml(self, xmldata, url):
+        # Sanity check on number of questions
+        expected_question_count = len(re.findall(r'[NC][OW]\d+E', xmldata))
+
+        text = lxml.etree.fromstring(xmldata)
+
+        pages = text.iter('page')
+        
+        for page in pages:
+            remove_headers_from_page(page)
+
+        intro_chunk, chunks = self.chunkify(text)
+
+        self.question_paper = self.get_question_paper(intro_chunk)
+        
+        # Bail out if we didn't get a question paper
+        if not self.question_paper:
+            return
+
+        questions = []
+
+        for date, chunk in chunks:
+            questions.extend(self.get_questions_from_chunk(date, chunk))
 
         sys.stdout.write(' found {} questions'.format(len(questions)))
 
@@ -527,4 +560,24 @@ class QuestionPaperParser(object):
         
         sys.stdout.write('\n')
             
-        Question.objects.bulk_create(questions)
+        # Question.objects.bulk_create(questions)
+        for question in questions:
+            try:
+                existing_question = Question.objects.get(
+                    id_number=question.id_number,
+                    house=question.house,
+                    year=question.year,
+                )
+                if existing_question.paper.date_published > question.paper.date_published:
+                    # FIXME - in future real life, these duplicates will be bad.
+                    # we need to be able to cope with a revised question or a question
+                    # changing from oral to written, etc.
+                    if question.identifier != existing_question.identifier:
+                        sys.stdout.write("IDENTIFIER CHANGE: {} already exists as {} - keeping original version\n".format(question.identifier, existing_question.identifier))
+                    else:
+                        sys.stdout.write("DUPLICATE: {} already exists - keeping original version\n".format(question.identifier, existing_question.identifier))
+                        
+                else:
+                    sys.stdout.write("BAD DUPLICATE: {} already exists as {} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
+            except Question.DoesNotExist:
+                question.save()

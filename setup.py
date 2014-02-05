@@ -22,7 +22,7 @@ setup(
     author_email='hakim@mysociety.org',
     url='https://github.com/mysociety/za-hansard',
     packages=find_packages(exclude=["example_project"]),
-    package_data={'za_hansard': ['tests/test_inputs/*/*']},
+    package_data={'za_hansard': ['tests/test_inputs/*/*/*/*']},
     include_package_data=True,
     install_requires=install_requires(),
     classifiers=[

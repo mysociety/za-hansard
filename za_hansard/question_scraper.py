@@ -242,10 +242,17 @@ class AnswerDetailIterator(BaseDetailIterator):
                     type=types[2],
                     ))
 
-                document_data['date'] = datetime.datetime.strptime(
-                    document_data.pop('date_string'),
-                    '%y%m%d',
-                    )
+                try:
+                    document_data['date'] = datetime.datetime.strptime(
+                        document_data.pop('date_string'),
+                        '%y%m%d',
+                        ).date()
+                except:
+                    sys.stdout.write(
+                        "BAILING on {} - problem converting date\n"
+                        .format(document_name)
+                        )
+                    continue
                 document_data['year'] = document_data['date'].year
 
                 self.details.append(document_data)

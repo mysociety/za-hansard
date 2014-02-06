@@ -609,6 +609,10 @@ class QuestionPaperParser(object):
             
         # Question.objects.bulk_create(questions)
         for question in questions:
+            # FIXME - As a temporary fix, let's ignore any questions which aren't for written
+            # answer.
+            if not question.written_number:
+                continue
             try:
                 existing_question = Question.objects.get(
                     id_number=question.id_number,

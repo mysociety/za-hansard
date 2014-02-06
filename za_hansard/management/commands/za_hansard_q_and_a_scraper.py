@@ -14,8 +14,9 @@ from datetime import datetime, date, timedelta
 from optparse import make_option
 
 from django.conf import settings
-
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
+
 from za_hansard.models import Question, Answer, QuestionPaper
 from speeches.importers.import_json import ImportJson
 from instances.models import Instance
@@ -46,7 +47,7 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help='Process answers (step 3)',
-        ),
+                    ),
         make_option('--match-answers',
             default=False,
             action='store_true',
@@ -164,45 +165,64 @@ class Command(BaseCommand):
 
 
     def scrape_answers(self, *args, **options):
-
         start_url = self.start_url_a[0] + self.start_url_a[1]
         details = question_scraper.AnswerDetailIterator(start_url)
 
         count = 0
 
         for detail in details:
-            count+=1
+            count += 1
+            detail = strip_dict(detail)
 
-            if Answer.objects.filter( url = detail['url'] ).exists():
-                self.stderr.write('Already exists\n')
+            url = detail['url']
+            if Answer.objects.filter(url=url).exists():
+                self.stdout.write('Answer {} already exists\n'.format(url))
                 if not options['fetch_to_limit']:
-                    self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
+                    self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                     break
             else:
-                self.stderr.write('Adding answer for {0}\n'.format(detail['url']))
-                detail = strip_dict(detail)
-                answer = Answer.objects.create(**detail)
+                existing_answers = Answer.objects.filter(
+                    house=detail['house'],
+                    year=detail['year'],
+                    )
+                
+                if detail['oral_number']:
+                    existing_answers = existing_answers.filter(oral_number=detail['oral_number'])
+                if detail['written_number']:
+                    existing_answers = existing_answers.filter(written_number=detail['written_number'])
+
+                if existing_answers.exists():
+                    # import pdb;pdb.set_trace()
+                    # FIXME - We should work out which answer to keep rather than
+                    # just keeping what we already have.
+                    self.stdout.write(
+                        'DUPLICATE: answer for {} O{} W{} {} already exists\n'.format(
+                            detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
+                            )
+                        )
+                else:
+                    # self.stdout.write('Adding answer for {0}\n'.format(url))
+                    answer = Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
                 break
 
-
     def process_answers(self, *args, **options):
+        answers = Answer.objects.exclude(url=None)
+        unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
 
-        answers = Answer.objects.exclude( url = None )
-        unprocessed = answers.exclude( processed_code=Answer.PROCESSED_OK )
-
-        self.stderr.write( "Processing %d records" % len(unprocessed) )
+        self.stdout.write("Processing %d records" % len(unprocessed))
 
         for row in unprocessed:
             self.stdout.write('.')
+
             try:
-                download = urllib2.urlopen( row.url )
+                download = urllib2.urlopen(row.url)
                 filename = os.path.join(
                         settings.ANSWER_CACHE,
                         '%d.%s' % (row.id, row.type))
-                save = open( filename, 'wb' )
-                save.write( download.read() )
+                save = open(filename, 'wb')
+                save.write(download.read())
                 save.close()
 
                 try:
@@ -211,69 +231,50 @@ class Command(BaseCommand):
                     row.text = text
                     row.save()
                 except subprocess.CalledProcessError:
-                    self.stderr.write( 'ERROR in antiword processing %d' % row.id )
-                    pass
+                    self.stdout.write('ERROR in antiword processing %d' % row.id)
 
             except urllib2.HTTPError:
                 row.processed_code = Answer.PROCESSED_HTTP_ERROR
                 row.save()
-                self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
-                pass
+                self.stderr.write('ERROR HTTPError while processing %d' % row.id)
 
             except urllib2.URLError:
-                self.stderr.write( 'ERROR URLError while processing %d' % row.id )
-                pass
+                self.stderr.write('ERROR URLError while processing %d' % row.id)
 
     def match_answers(self, *args, **options):
+        # FIXME - should change to a subset of all answers.
+        for answer in Answer.objects.all():
+            written_q = Q(written_number=answer.written_number)
+            oral_q = Q(oral_number=answer.oral_number)
+            
+            if answer.written_number and answer.oral_number:
+                query = written_q | oral_q
+            elif answer.written_number:
+                query = written_q
+            elif answer.oral_number:
+                query = oral_q
+            else:
+                sys.stdout.write(
+                    "Answer {} {}has no written or oral number - SKIPPING\n"
+                    .format(answer.id, answer.document_name)
+                    )
+                continue
+            
+            try:
+                question = Question.objects.get(
+                    query,
+                    year=answer.year,
+                    house=answer.house,
+                    )
+            except Question.DoesNotExist:
+                sys.stdout.write(
+                    "No question found for {} {}"
+                    .format(answer.id, answer.document_name)
+                    )
+                continue
 
-        #get all the answers for processing (this should change to all not already processed)
-
-        # for row in c.execute('SELECT id,number_written,number_oral,date FROM answers'):
-        answers = Answer.objects.all()
-
-        count = 0
-
-        for answer in answers:
-            answer_date = answer.date
-            earliest_question_date = answer_date - timedelta( days = 183 ) # 6 months
-
-            if answer.number_written:
-                questions = Question.objects.filter(
-                        number1 = answer.number_written,
-                        type = 'written',
-                        date__lte = answer_date,
-                        date__gte = earliest_question_date
-                    ).order_by('-date')
-
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
-
-            # now oral (answer can be to both a written and oral question)
-            # TODO refactor with above
-            if answer.number_oral:
-                questions = Question.objects.filter(
-                        number1 = answer.number_oral,
-                        type = 'oral',
-                        date__lte = answer_date,
-                        date__gte = earliest_question_date
-                    ).order_by('-date')
-
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
-
-        self.stdout.write('Matched %d answers\n' % count)
+            question.answer = answer
+            question.save()
 
     def qa_to_json(self, *args, **options):
         questions = (Question.objects

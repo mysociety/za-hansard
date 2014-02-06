@@ -153,11 +153,13 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     expected_details = (
         (0, {
             'date': datetime.date(2013, 10, 3),
-            'house': u'National Assembly',
+            'date_published': datetime.date(2013, 10, 3),
+            'year': 2013,
+            'house': u'N',
             'language': u'English',
-            'name': u'RNW2356-131003',
-            'number_oral': '',
-            'number_written': u'2356',
+            'document_name': u'RNW2356-131003',
+            'oral_number': None,
+            'written_number': u'2356',
             'type': 'doc',
             'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc',
         }),

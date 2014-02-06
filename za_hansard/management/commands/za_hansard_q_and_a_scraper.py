@@ -231,15 +231,15 @@ class Command(BaseCommand):
                     row.text = text
                     row.save()
                 except subprocess.CalledProcessError:
-                    self.stdout.write('ERROR in antiword processing %d' % row.id)
+                    self.stdout.write('ERROR in antiword processing %d\n' % row.id)
 
             except urllib2.HTTPError:
                 row.processed_code = Answer.PROCESSED_HTTP_ERROR
                 row.save()
-                self.stderr.write('ERROR HTTPError while processing %d' % row.id)
+                self.stderr.write('ERROR HTTPError while processing %d\n' % row.id)
 
             except urllib2.URLError:
-                self.stderr.write('ERROR URLError while processing %d' % row.id)
+                self.stderr.write('ERROR URLError while processing %d\n' % row.id)
 
     def match_answers(self, *args, **options):
         # FIXME - should change to a subset of all answers.
@@ -255,7 +255,7 @@ class Command(BaseCommand):
                 query = oral_q
             else:
                 sys.stdout.write(
-                    "Answer {} {}has no written or oral number - SKIPPING\n"
+                    "Answer {} {} has no written or oral number - SKIPPING\n"
                     .format(answer.id, answer.document_name)
                     )
                 continue

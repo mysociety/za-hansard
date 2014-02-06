@@ -51,7 +51,6 @@ def pdftoxml(pdfdata):
     return xmldata
 
 
-
 ensure_executable_found("antiword")
 def extract_answer_text_from_word_document(filename):
     text = check_output_wrapper(['antiword', filename]).decode('unicode-escape')
@@ -93,8 +92,7 @@ class BaseDetailIterator(object):
         return self
 
     def next(self):
-    
-        # If needed and possible try to fetch more urls from the next list page
+            # If needed and possible try to fetch more urls from the next list page
         while len(self.details) == 0 and self.next_list_url:
             self.get_details()
     
@@ -157,65 +155,100 @@ class QuestionDetailIterator(BaseDetailIterator):
                 self.next_list_url = next_url
                 break
 
-
 class AnswerDetailIterator(BaseDetailIterator):
-
     answer_parsing_rules = {
         "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
         "next(table.tableOrange_sep table table td a)": [{"contents":".","url":"@href"}]
     }
 
-    def get_details(self):
+    # RNW2562-131119
+    # RNW1120A-130820
+    # RNO11W1497-130923
+    # RNO204-130822
+    # RNW1836-130917.Annexure
+    # RNOP13-131107
+    # RNW1143B-131127
+    # RNW3153--131202
+    # RNw2116-130822
+    # RNo203-130822
+    # RNW41-130326 AMENDED
+    # RNO130314
+    # RNW3148-121219 LAPSED
+    # RNW2680-1212114
 
-        print 'Answers (%s)\n' % self.next_list_url
+    # DP? Deputy President?
+    # RNODP05-130424
+
+    known_bad_document_names = (
+    # Bad Dates
+    'RNW2949-1311114',
+    'RNW1920-13823',
+    )
+
+    document_name_regex = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})$')
+
+    def get_details(self):
+        sys.stdout.write('Answers {}\n'.format(self.next_list_url))
         
-        contents = self.url_get( self.next_list_url )
-        
-        p = parslepy.Parselet(self.answer_parsing_rules)
-        page = p.parse_fromstring(contents)
+        contents = self.url_get(self.next_list_url)
+        page = parslepy.Parselet(self.answer_parsing_rules).parse_fromstring(contents)
         
         for row in page['papers']:
             if len(row['cell']) == 11:
                 url = row['cell'][8]['url']
-                document_name = row['cell'][0]['contents']
                 types = url.partition(".")
-                number_oral = ''
-                number_written = ''
-                #check for written/oral question numbers
-                # (using apparent convention - a question can have one of each number)
-                if re.match('[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', document_name):
-                    number_oral = re.match(
-                        '[A-Za-z0-9]+[oO]([0-9]+)[ wW-]', document_name).group(1)
-                if re.match('[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', document_name):
-                    number_written = re.match(
-                        '[A-Za-z0-9]+[wW]([0-9]+)[ oO-]', document_name).group(1)
-            
-                date = row['cell'][2]['contents']
-                parsed_date = None
+                date_published = row['cell'][2]['contents'].strip()
                 try:
-                    parsed_date = datetime.datetime.strptime(date, '%d %B %Y').date()
+                    date_published = datetime.datetime.strptime(date_published, '%d %B %Y').date()
                 except:
-                    warnings.warn("Failed to parse date (%s)" % date)
+                    warnings.warn("Failed to parse date (%s)" % date_published)
+                    date_published = None
                     continue
 
-                self.details.append(dict(
-                    number_oral = number_oral,
-                    name = document_name,
-                    language = row['cell'][6]['contents'],
-                    url = 'http://www.parliament.gov.za/live/'+url,
-                    house = row['cell'][4]['contents'],
-                    number_written = number_written,
-                    date = parsed_date,
-                    type = types[2],
-                ))
+                document_name = row['cell'][0]['contents'].strip().upper()
+
+                try:
+                    document_data = self.document_name_regex.match(document_name).groupdict()
+                except:
+                    if document_name not in self.known_bad_document_names: 
+                        sys.stdout.write('SKIPPING bad document_name {}\n'
+                                         .format(document_name))
+                    continue
+
+                # The President and vice Deputy President have their own
+                # oral question sequences.
+                president = document_data.pop('president')
+
+                if president == 'P':
+                    document_data['president_number'] = document_data.pop('oral_number')
+                if president == 'DP':
+                    document_data['dp_number'] = document_data.pop('oral_number')
+                
+                document_data.update(dict(
+                    document_name=document_name,
+                    date_published=date_published,
+                    language=row['cell'][6]['contents'],
+                    url=self.base_url + url,                    
+                    type=types[2],
+                    ))
+
+                document_data['date'] = datetime.datetime.strptime(
+                    document_data.pop('date_string'),
+                    '%y%m%d',
+                    )
+                document_data['year'] = document_data['date'].year
+
+                self.details.append(document_data)
         
         # check for next page of links (or None if not found)
         self.next_list_url = None
         for cell in page['next']:
             if cell['contents'] == 'Next':
                 next_url = self.base_url + cell['url']
+                
                 if self.next_list_url == next_url:
                     raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
+
                 self.next_list_url = next_url
                 break
 
@@ -368,9 +401,17 @@ class QuestionPaperParser(object):
 
         if session_match:
             question_paper.session_number = text_to_int.get(session_match.group('session').upper())
-            question_paper.parliament_number = text_to_int.get(session_match.group('parliament').upper())
+            parliament_number = question_paper.parliament_number = text_to_int.get(session_match.group('parliament').upper())
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
+            
+            if parliament_number < 4:
+                sys.stdout.write(
+                    '\nBAILING OUT: Parliament {} is too long ago\n'
+                    .format(parliament_number)
+                    )
+                return
+                
         else:
             sys.stdout.write("\nBAILING OUT: Failed to find session, etc.\n")
             # Bail out without saving any questions so that we at least continue and work
@@ -382,7 +423,7 @@ class QuestionPaperParser(object):
                 year=question_paper.year,
                 issue_number=question_paper.issue_number,
                 house=question_paper.house,
-                parliament_number=question_paper.parliament_number,
+                parliament_number=parliament_number,
                 )
             # FIXME - We need to be able to cope with reprints of question papers.
             sys.stdout.write("\nBAILING OUT: Question Paper {} too similar to\n".format(question_paper.source_url))
@@ -450,12 +491,18 @@ class QuestionPaperParser(object):
             number1 = match_dict.pop('number1')
 
             if answer_type == 'O':
-                match_dict[u'oral_number'] = number1
+                if re.search('to ask the Deputy President', match_dict['intro'], flags=re.IGNORECASE):
+                    match_dict[u'dp_number'] = number1
+                elif re.search('to ask the President', match_dict['intro'], flags=re.IGNORECASE):
+                    match_dict[u'president_number'] = number1
+                else:
+                    match_dict[u'oral_number'] = number1
             elif answer_type == 'W':
                 match_dict[u'written_number'] = number1
             else:
-                print "Unrecognized answer_type: {}".format(answer_type)
-
+                sys.stdout.write("SKIPPING: Unrecognised answer type for {}\n".format(match_dict['identifier']))
+                continue
+                
             match_dict[u'paper'] = self.question_paper
 
             match_dict[u'translated'] = bool(match_dict[u'translated'])

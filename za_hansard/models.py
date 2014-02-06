@@ -222,31 +222,64 @@ class PMGCommitteeAppearance(models.Model):
         related_name='appearances')
     text            = models.TextField()
 
-class Answer (models.Model):
-
-    # Various values that the processed_code can have
-    PROCESSED_PENDING    = 0
-    PROCESSED_OK         = 1
-    PROCESSED_HTTP_ERROR = 2
-    PROCESSED_CHOICES = (
-        ( PROCESSED_PENDING,    'pending' ),
-        ( PROCESSED_OK,         'OK' ),
-        ( PROCESSED_HTTP_ERROR, 'HTTP error' ),
+house_choices = (
+    ('N', 'National Assembly'),
+    ('C', 'National Council of Provinces'),
     )
 
-    # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT,
-    # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT,
-    # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
-    number_oral = models.TextField()
+class Answer (models.Model):
+    # Various values that the processed_code can have
+    PROCESSED_PENDING = 0
+    PROCESSED_OK = 1
+    PROCESSED_HTTP_ERROR = 2
+
+    PROCESSED_CHOICES = (
+        ( PROCESSED_PENDING, 'pending'),
+        ( PROCESSED_OK, 'OK' ),
+        ( PROCESSED_HTTP_ERROR, 'HTTP error'),
+    )
+
+    #------------------------------------------------------------
+    document_name = models.TextField()
+
+    # The next few fields are all inferred from document_name
+
+    # At least one of number_oral and number_written must be non-null
+    # They both could be non-null if the question was at some point transferred.
+    oral_number = models.IntegerField(null=True, db_index=True)
+    written_number = models.IntegerField(null=True, db_index=True)
+
+    # The president and vice president get their own question number sequences for
+    # oral questions.
+    president_number = models.IntegerField(null=True, db_index=True)
+    dp_number = models.IntegerField(null=True, db_index=True)
+
+    date = models.DateField()
+    year = models.IntegerField(db_index=True)
+    house = models.CharField(max_length=1, choices=house_choices, db_index=True)
+    #------------------------------------------------------------
+    
     text = models.TextField()
-    processed_code = models.IntegerField( null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES )
+    processed_code = models.IntegerField(null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES, db_index=True)
     name = models.TextField()
     language = models.TextField()
-    url = models.TextField()
-    house = models.TextField()
-    number_written = models.TextField()
-    date = models.DateField()
+    url = models.TextField(db_index=True)
+    date_published = models.DateField()
     type = models.TextField()
+
+    class Meta:
+        unique_together = (
+            ('oral_number', 'house', 'year'),
+            ('written_number', 'house', 'year'),
+            ('president_number', 'house', 'year'),
+            ('dp_number', 'house', 'year'),
+            )
+
+        # FIXME - When we have Django 1.5 we can have these indices...
+        # index_together = (
+        #     ('oral_number', 'house', 'year'),
+        #     ('written_number', 'house', 'year'),
+        #     )
 
 class QuestionPaper(models.Model):
     """Models a group of questions.
@@ -272,6 +305,7 @@ class QuestionPaper(models.Model):
 
     class Meta:
         unique_together = ('year', 'issue_number', 'house', 'parliament_number')
+        # index_together = ('year', 'issue_number', 'house', 'parliament_number')
 
 int_to_text = {
     1: 'FIRST',
@@ -308,11 +342,16 @@ class Question (models.Model):
     # were asked in. The sequences are unique for each house for written/oral and
     # restart on 1 each year.
     
-    # At least one of these two numbers should be non-null, and it's possible
-    # for both to be non-null if a question is transferred from oral to written
+    # At least one of these four numbers should be non-null, and it's possible
+    # for more than one to be non-null if a question is transferred from oral to written
     # or vice-versa.
-    written_number = models.IntegerField(null=True)
-    oral_number = models.IntegerField(null=True)
+    written_number = models.IntegerField(null=True, db_index=True)
+    oral_number = models.IntegerField(null=True, db_index=True)
+
+    # The president and vice president get their own question number sequences for
+    # oral questions.
+    president_number = models.IntegerField(null=True, db_index=True)
+    dp_number = models.IntegerField(null=True, db_index=True)
 
     # Questions are also referred to by an identifier of the form
     # [NC][OW]\d+[AEX]
@@ -330,21 +369,14 @@ class Question (models.Model):
     #           different [AEX] in the identifier.
     
     # Note that we also store the number, house, and answer_type separately.
-    identifier = models.CharField(max_length=10)
+    identifier = models.CharField(max_length=10, db_index=True)
 
     # From the identifier discussed above.
-    id_number = models.IntegerField()
+    id_number = models.IntegerField(db_index=True)
 
-    # 'N' or 'C', where 'N' is National Assembly and 'C' is NCOP.
     # This is in the identifier above. It should correspond to the house
     # on the referenced QuestionPaper.
-    house = models.CharField(
-        max_length=1,
-        choices=(
-            ('N', 'National Assembly'),
-            ('C', 'National Council of Provinces'),
-            )
-        )
+    house = models.CharField(max_length=1, choices=house_choices, db_index=True)
 
     answer_type = models.CharField(
         max_length=1,
@@ -361,7 +393,7 @@ class Question (models.Model):
     # This should always be the year from the date above, but is worth
     # storing separately so that we can easily have uniqueness constraints
     # on it.
-    year = models.IntegerField()
+    year = models.IntegerField(db_index=True)
 
     # FIXME - is this useful to store/easy to get?
     date_transferred = models.DateField(null=True)
@@ -395,10 +427,19 @@ class Question (models.Model):
         )
 
     class Meta:
-        unique_together = ('written_number', 'house', 'year')
-        unique_together = ('oral_number', 'house', 'year')
-        unique_together = ('id_number', 'house', 'year')
-
+        unique_together = (
+            ('written_number', 'house', 'year'),
+            ('oral_number', 'house', 'year'),
+            ('president_number', 'house', 'year'),
+            ('dp_number', 'house', 'year'),
+            ('id_number', 'house', 'year'),
+            )
+        # index_together(
+        #     ('written_number', 'house', 'year'),
+        #     ('oral_number', 'house', 'year'),
+        #     ('id_number', 'house', 'year'),
+        #     )
+            
         # FIXME - Other things it would be nice to constrain that will have to
         # be done in postgres directly, I think.
         # 1) At least one of written_number and oral_number must be non-null.

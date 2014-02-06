@@ -637,4 +637,20 @@ class QuestionPaperParser(object):
                 else:
                     sys.stdout.write("BAD DUPLICATE: {} already exists as {} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
             except Question.DoesNotExist:
+                if Question.objects.filter(
+                    written_number=question.written_number,
+                    house=question.house,
+                    year=question.year,
+                    ).exists():
+                    sys.stdout.write(
+                        "DUPLICATE written_number {} {} {} - SKIPPING\n"
+                        .format(question.written_number, question.house, question.year)
+                        )
+
+                    # Interesting failures here:
+                    # 998 - a typo, should have been 898
+                    # 3641 - number repeated for questions with two identifiers by the same person NW4421E NW4422E
+                    continue
+
                 question.save()
+

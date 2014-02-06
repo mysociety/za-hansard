@@ -613,6 +613,12 @@ class QuestionPaperParser(object):
             # answer.
             if not question.written_number:
                 continue
+
+            # FIXME - Another temporary fix - disregard any question which was written and is
+            # becoming oral
+            if re.search(r'\[Written Question No', question.intro, re.IGNORECASE):
+                continue
+            
             try:
                 existing_question = Question.objects.get(
                     id_number=question.id_number,

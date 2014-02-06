@@ -215,6 +215,11 @@ class AnswerDetailIterator(BaseDetailIterator):
                                          .format(document_name))
                     continue
 
+                # FIXME - Temporary fix for launch
+                # drop anything which doesn't have a written_number
+                if not document_data['written_number']:
+                    continue
+
                 # The President and vice Deputy President have their own
                 # oral question sequences.
                 president = document_data.pop('president')

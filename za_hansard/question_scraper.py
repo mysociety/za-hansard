@@ -176,6 +176,11 @@ class AnswerDetailIterator(BaseDetailIterator):
     # RNW3148-121219 LAPSED
     # RNW2680-1212114
 
+    # FIXME Cope with written and oral in the opposite order
+    # RNW855O134-091015
+    # Cope with spaces around the -
+    # RNW26 - 090224
+
     # DP? Deputy President?
     # RNODP05-130424
 

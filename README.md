@@ -4,11 +4,16 @@ ZA-Hansard
 A parser for South African Hansards, as published at
 http://www.parliament.gov.za/live/content.php?Category_ID=119
 
+Also has management commands for parsing committee minutes
+and parliamentary Questions/Answers.
+
 [![Build Status](https://travis-ci.org/mysociety/za-hansard.png)](https://travis-ci.org/mysociety/za-hansard)
 
 Documentation
 -------------
 Documentation (a work in progress) can be found at: http://mysociety.github.com/za-hansard/
+
+See also https://github.com/mysociety/pombola/blob/master/docs/south_africa.md
 
 Installation
 ------------

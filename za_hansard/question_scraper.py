@@ -253,6 +253,11 @@ class AnswerDetailIterator(BaseDetailIterator):
                         .format(document_name)
                         )
                     continue
+
+                # We don't want anything from before the 2009 election.
+                if document_data['date'] < datetime.date(2009, 4, 22):
+                    continue
+
                 document_data['year'] = document_data['date'].year
 
                 self.details.append(document_data)

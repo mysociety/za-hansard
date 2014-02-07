@@ -34,10 +34,19 @@ class Command(BaseCommand):
         make_option('--limit',
             default=0,
             type='int',
-            help='Limit last entry to check'),
-        )
+            help='Limit last entry to check',
+        ),
+        make_option('--historical-limit',
+            default='2009-04-22',
+            type='str',
+            help='Limit earliest historical entry to check (in yyyy-mm-dd format, default 2009-04-22)',
+        ),
+    )
 
     def handle(self, *args, **options):
+
+        self.historical_limit = datetime.datetime.strptime(options['historical_limit'], '%Y-%m-%d').date()
+
         sources = self.retrieve_sources(options['start_offset'], options)
         sources.reverse()
         sources_db = [Source.objects.get_or_create(**source) for source in sources]
@@ -113,9 +122,14 @@ class Command(BaseCommand):
                     document_name   = s['document_name'],
                     document_number = s['document_number']).exists():
                     if not options['check_all']:
+                        print "Reached seen document. Stopping.\n"
                         return scraped
-                else:
-                    scraped.append(s)
+                if s['defaults']['date'] < self.historical_limit:
+                    print "Reached historical limit. Stopping.\n"
+                    return scraped
+
+                # otherwise
+                scraped.append(s)
 
             if pend < (options['limit'] or ptotal):
                 # NB following isn't phrased as a tail call, could rewrite if

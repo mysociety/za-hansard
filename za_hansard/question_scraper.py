@@ -143,9 +143,6 @@ class QuestionDetailIterator(BaseDetailIterator):
                 self.next_list_url = next_url
                 break
 
-        return True
-
-
 
 class AnswerDetailIterator(BaseDetailIterator):
 
@@ -224,7 +221,7 @@ class QuestionPaperParser(object):
         #self.stderr.write("PDF len %d\n" % len(pdfdata))
         #self.stderr.write("XML %s\n" % xmldata)
 
-        return self.create_questions_from_xml(xmldata, url)
+        self.create_questions_from_xml(xmldata, url)
 
 
     def get_question_pdf_from_url(self, url):

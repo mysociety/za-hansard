@@ -234,7 +234,7 @@ class QuestionPaperParser(object):
         session = ''
         parliament = ''
 
-        startqn_re = re.compile(
+        question_re = re.compile(
             ur"""
               ([0-9]+)\.?\s+ # Question number
               [-a-zA-z]+\s+([-\w\s]+) # Name of question asker, dropping the title
@@ -242,6 +242,8 @@ class QuestionPaperParser(object):
               \ to\ ask\ the\ 
               ([-a-zA-z0-9(), ]+): # Askee
               (\u2020)?
+              (.*?) # The question itself.
+              ([NC][WO]\d+E) # Number 2
             """,
             re.UNICODE | re.VERBOSE)
 
@@ -268,10 +270,6 @@ class QuestionPaperParser(object):
         # as well just look at all the text elements.
 
         text = lxml.etree.fromstring(xmldata)
-        text_bits = [
-            re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
-            for el in text.iterfind('.//text')
-            ]
 
         summer = ''
         question_paper = QuestionPaper(
@@ -284,12 +282,17 @@ class QuestionPaperParser(object):
             text=text,
             )
 
+        text_bits = [
+            re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
+            for el in text.iterfind('.//text')
+            ]
+
         new_text = u''.join(text_bits)
         new_text = re.sub(ur'</?i>', '', new_text)
         new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
         new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 
-        split_text = startqn_re.split(new_text)
+        match = question_re.findall(new_text)
 
         for match in question_re.finditer(new_text):
             match_dict = match.groupdict()

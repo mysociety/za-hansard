@@ -166,7 +166,7 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     )
 
     penultimate_url = start_url + "&DocumentStart=5310"
-    penultimate_expected_number = 16
+    penultimate_expected_number = 6
 
 
 class ZAQuestionParsing(TestCase):

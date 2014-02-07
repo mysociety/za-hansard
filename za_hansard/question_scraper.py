@@ -12,7 +12,7 @@ import parslepy
 
 from django.core.exceptions import ImproperlyConfigured
 
-from za_hansard.models import Question
+from za_hansard.models import Question, QuestionPaper
 
 # from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
 # Copied rather than included as the scraperwiki __init__.py was having trouble
@@ -229,156 +229,85 @@ class QuestionPaperParser(object):
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)
 
-
     def create_questions_from_xml(self, xmldata, url):
-        count=0
-
-        root = lxml.etree.fromstring(xmldata)
-        #except Exception as e:
-            #self.stderr.write("OOPS")
-            #raise CommandError( '%s failed (%s)' % (url, e))
-        # self.stderr.write("XML parsed...\n")
-
-        pages = list(root)
-
-        inquestion = 0
-        intro      = ''
-        question   = ''
-        number1    = ''
-        number2    = ''
-        started    = 0
-        questiontype = ''
-        translated = 0
-        document   = ''
-        house      = ''
-        session    = ''
-        date       = ''
-        questionto = '' #for multi line question intros
-        startintro = False
-        startquestion = False
-        details1   = False
-        details2   = False
-        summer     = ''
-        questions  = []
+        house = self.kwargs['house']
+        session = ''
         parliament = ''
 
-        pattern  = re.compile("(&#204;){0,1}[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z() ]+ to ask [-a-zA-Z]+")
-        pattern2 = re.compile("(N|C)(W|O)[0-9]+E")
-        pattern3 = re.compile("[0-9]+")
-        pattern4 = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
-        pattern5 = re.compile("[a-zA-Z]+ SESSION, [a-zA-Z]+ PARLIAMENT")
-        pattern6 = re.compile("[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z]+ {1,2}([-a-zA-z ]+) \(")
+        startqn_re = re.compile(
+            ur"""
+              ([0-9]+)\.?\s+ # Question number
+              [-a-zA-z]+\s+([-\w\s]+) # Name of question asker, dropping the title
+              \([\w\s]+\)
+              \ to\ ask\ the\ 
+              ([-a-zA-z0-9(), ]+): # Askee
+              (\u2020)?
+            """,
+            re.UNICODE | re.VERBOSE)
 
-        for page in pages:
-            for el in list(page): #for el in list(page)[:300]:
-                if el.tag == "text":
-                    part=re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
-                    summer=summer+part.replace('<b>','').replace('</b>','')
-                    if not details1 or not details2:
+        date_re = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
+        session_re = re.compile("\[No\s*(?P<issue_number>\d+)&#8212;(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT")
 
-                        if not details1 and pattern5.search(summer): #search for session and parliament numbers
+        text_to_int = {
+            'FIRST': 1,
+            'SECOND': 2,
+            'THIRD': 3,
+            'FOURTH': 4,
+            'FOURH': 4, # Yes, really.
+            'FIFTH': 5,
+            'SIXTH': 6,
+            'SEVENTH': 7,
+            'EIGHTH': 8,
+            'NINTH': 9,
+            'TENTH': 10,
+            }
 
-                            session = pattern5.search(summer).group(0).partition(' SESSION')[0]
-                            parliament = (
-                                    pattern5
-                                    .search(summer)
-                                    .group(0)
-                                    .partition('SESSION, ')[2]
-                                    .partition(' PARLIAMENT')[0])
-                            details1=True
+        # pdftoxml produces an xml document with one <page> per page
+        # of the original and <text> elements inside those. We're 
+        # not actually interested in the pagination here so we may
+        # as well just look at all the text elements.
 
-                        if house=='' and 'NATIONAL ASSEMBLY' in summer:
-                            house = 'National Assembly'
-                            details2=True
+        text = lxml.etree.fromstring(xmldata)
+        text_bits = [
+            re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
+            for el in text.iterfind('.//text')
+            ]
 
-                        if house=='' and 'NATIONAL COUNCIL OF PROVINCES' in summer:
-                            house = 'National Council of Provinces'
-                            details2 = True
+        summer = ''
+        question_paper = QuestionPaper(
+            document_name=self.kwargs['name'],
+            date_published=self.kwargs['date'],
+            house=self.kwargs['house'],
+            language=self.kwargs['language'],
+            document_number=self.kwargs['document_number'], #FIXME - where is this in the table?
+            source_url=self.kwargs['url'],
+            text=text,
+            )
 
-                    if pattern4.search(part):
-                        date=pattern4.search(part).group(0)
+        new_text = u''.join(text_bits)
+        new_text = re.sub(ur'</?i>', '', new_text)
+        new_text = re.sub(ur'</b>(\s*)<b>', ur'\1', new_text)
+        new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 
-                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or
-                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or
-                       pattern4.search(part)):
-                        continue
+        split_text = startqn_re.split(new_text)
 
-                    if startquestion and not startintro:
-                        if pattern.search(summer) or pattern2.search(part):
-                            if pattern2.search(part):
-                                number2=part.replace('<b>','').replace('</b>','')
-                            startquestion=False
-                            numbertmp=pattern3.findall(intro)
-                            if numbertmp:
-                                number1=numbertmp[0]
-                            else:
-                                number1=''
+        for match in question_re.finditer(new_text):
+            match_dict = match.groupdict()
 
-                            if '&#8224;' in intro:
-                                translated=1
-                            else:
-                                translated=0
-                            if '&#204;' in intro:
-                                questiontype='oral'
-                            else:
-                                questiontype='written'
-                            intro=intro.replace('&#8224;','')
-                            intro=intro.replace('&#204;','')
-                            asked=(
-                                    intro
-                                    .partition(' to ask the ')[2]
-                                    .replace(':','')
-                                    .replace('.','')
-                                    .replace('<i>','')
-                                    .replace('</i>','')
-                                    .replace('<b>','')
-                                    .replace('</b>',''))
-                            asked=re.sub(r'\[.*$','',asked)
-                            askedby=''
-                            if pattern6.search(intro):
-                                askedby = pattern6.search(intro).group(1)
+            match_dict[u'paper'] = question_paper
 
-                            parsed_date = None
-                            #try:
-                                # Friday, 20 September 2013
-                            parsed_date = datetime.datetime.strptime(date, '%A, %d %B %Y')
-                            #except:
-                                #pass
+            match_dict[u'translated'] = bool(match_dict[u'translated'])
+            match_dict[u'questionto'] = match_dict[u'questionto'].replace(':', '')
 
-                            data = strip_dict({
-                                    'intro': intro.replace('<b>','').replace('</b>',''),
-                                    'question': question.replace('&#204;',''),
-                                    'number2': number2,
-                                    'number1': number1,
-                                    'source': url,
-                                    'questionto': asked,
-                                    'askedby': askedby,
-                                    'date': parsed_date,
-                                    'translated': translated,
-                                    'session': session,
-                                    'parliament': parliament,
-                                    'house': house,
-                                    'type': questiontype
-                                    })
-                            # self.stdout.write("Writing object %s\n" % str(data))
-                            q = Question.objects.create( **data )
-                            # self.stdout.write("Wrote question #%d\n" % q.id)
-                            summer=''
-                        else:
-                            question = question + part
-                    if startintro:
-                        if "<b>" in part:
-                            intro=intro+part.replace('<b>','').replace('</b>','')
-                        else:
-                            startintro=False
-                            question=part
+            # FIXME - Note that the staging server has not a single question marked as oral
+            #         questiontype = 'oral' if '&#204;' in intro else 'written'
+            match_dict[u'type'] = u'written'
 
-                    if pattern.search(summer):
-                        intro = pattern.search(summer).group(0) + summer.partition(pattern.search(summer).group(0))[2]
-                        startintro=True
-                        startquestion=True
-                        summer=''
+            # FIXME - Should be removed when we properly integrate QuestionPaper
+            match_dict[u'source'] = question_paper.source_url
+            match_dict[u'date'] = question_paper.date_published
+            match_dict[u'session'] = session
+            match_dict[u'parliament'] = parliament
+            match_dict[u'house'] = house
 
-        # self.stdout.write( 'Saved %d\n' % count )
-        return True
-
+            Question.objects.create(**match_dict)

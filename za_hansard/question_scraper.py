@@ -242,8 +242,8 @@ class QuestionPaperParser(object):
                 \s+\([\w\s]+\)
                 \ to\ ask\ the\ 
                 (?P<questionto>[-\w\s(),: ]+):
-              )# Intro
-              (?P<translated>\u2020)?\s*
+              ) # Intro
+              (?P<translated>\u2020)?\s*</b>\s*
               (?P<question>.*?)\s* # The question itself.
               (?P<number2>[NC][WO]\d+E) # Number 2
             """,

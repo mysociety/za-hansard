@@ -273,10 +273,23 @@ class QuestionPaper(models.Model):
     class Meta:
         unique_together = ('year', 'issue_number')
 
+int_to_text = {
+    1: 'FIRST',
+    2: 'SECOND',
+    3: 'THIRD',
+    4: 'FOURTH',
+    5: 'FIFTH',
+    6: 'SIXTH',
+    7: 'SEVENTH',
+    8: 'EIGHTH',
+    9: 'NINTH',
+    10: 'TENTH',
+    }
+
 class Question (models.Model):
     paper = models.ForeignKey(
         QuestionPaper, 
-        null=True, 
+        null=True, # FIXME - eventually, this should not be nullable.
         on_delete=models.SET_NULL,
         )
     answer = models.ForeignKey(
@@ -285,20 +298,16 @@ class Question (models.Model):
         on_delete=models.CASCADE,
         related_name='question',
         )
-    house = models.TextField()
-    session = models.TextField()
     number1 = models.TextField()
     number2 = models.TextField()
     date = models.DateField()
     title = models.TextField()
     question = models.TextField()
     questionto = models.TextField()
-    source = models.TextField()
     translated = models.IntegerField()
     document = models.TextField()
     type = models.TextField()
     intro = models.TextField()
-    parliament = models.TextField()
     askedby = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)

@@ -231,8 +231,6 @@ class QuestionPaperParser(object):
 
     def create_questions_from_xml(self, xmldata, url):
         house = self.kwargs['house']
-        session = ''
-        parliament = ''
 
         question_re = re.compile(
             ur"""
@@ -307,8 +305,7 @@ class QuestionPaperParser(object):
 
         if session_match:
             question_paper.session_number = text_to_int.get(session_match.group('session'))
-            parliament = session_match.group('parliament')
-            question_paper.parliament_number = text_to_int.get(parliament)
+            question_paper.parliament_number = text_to_int.get(session_match.group('parliament'))
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
         else:
@@ -355,10 +352,6 @@ class QuestionPaperParser(object):
             match_dict[u'type'] = u'written'
 
             # FIXME - Should be removed when we properly integrate QuestionPaper
-            match_dict[u'source'] = question_paper.source_url
             match_dict[u'date'] = date
-            match_dict[u'session'] = session
-            match_dict[u'parliament'] = parliament
-            match_dict[u'house'] = question_paper.house
 
             Question.objects.create(**match_dict)

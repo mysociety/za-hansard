@@ -270,11 +270,6 @@ class QuestionPaperParser(object):
             'TENTH': 10,
             }
 
-        # pdftoxml produces an xml document with one <page> per page
-        # of the original and <text> elements inside those. We're 
-        # not actually interested in the pagination here so we may
-        # as well just look at all the text elements.
-
         text = lxml.etree.fromstring(xmldata)
 
         question_paper = QuestionPaper(
@@ -286,6 +281,11 @@ class QuestionPaperParser(object):
             source_url=self.kwargs['url'],
             text=text,
             )
+
+        # pdftoxml produces an xml document with one <page> per page
+        # of the original and <text> elements inside those. We're 
+        # not actually interested in the pagination here so we may
+        # as well just look at all the text elements.
 
         text_bits = [
             re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)

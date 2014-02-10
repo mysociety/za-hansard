@@ -327,9 +327,9 @@ def remove_headers_from_page(page):
     # with more than one question if it all goes wrong.
     for text_el in page.xpath('text[position()<=10]'):
         accumulated += re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(text_el, encoding='unicode')).group(1)
-        accumulated = re.sub(ur'<i>(.*?)</i>', ur'\1', accumulated, flags=re.UNICODE)
-        accumulated = re.sub(ur'</i>(.*?)<i>', ur'\1', accumulated, flags=re.UNICODE)
-        accumulated = re.sub(ur'(\s+)', ur' ', accumulated, flags=re.UNICODE)
+        accumulated = re.sub(ur'(?u)<i>(.*?)</i>', ur'\1', accumulated)
+        accumulated = re.sub(ur'(?u)</i>(.*?)<i>', ur'\1', accumulated)
+        accumulated = re.sub(ur'(?u)(\s+)', ur' ', accumulated)
 
         if page_header_regex.match(accumulated):
             for to_remove in text_el.itersiblings(preceding=True):
@@ -529,9 +529,9 @@ class QuestionPaperParser(object):
             number1 = match_dict.pop('number1')
 
             if answer_type == 'O':
-                if re.search('to ask the Deputy President', match_dict['intro'], flags=re.IGNORECASE):
+                if re.search('(?i)to ask the Deputy President', match_dict['intro']):
                     match_dict[u'dp_number'] = number1
-                elif re.search('to ask the President', match_dict['intro'], flags=re.IGNORECASE):
+                elif re.search('(?i)to ask the President', match_dict['intro']):
                     match_dict[u'president_number'] = number1
                 else:
                     match_dict[u'oral_number'] = number1

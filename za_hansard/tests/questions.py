@@ -209,7 +209,7 @@ class ZAQuestionParsing(TestCase):
                 )
             actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
 
-            self.assertEqual(actual_xml, expected_xml, "Failed on {}".format(filename_root))
+            self.assertEqual(actual_xml, expected_xml, "Failed on {0}".format(filename_root))
 
     def test_xml_to_json(self):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
@@ -239,7 +239,7 @@ class ZAQuestionParsing(TestCase):
                 question_as_data = command.question_to_json_data(question)
                 all_questions_as_data.append(question_as_data)
 
-            expected_file = sample_file('expected_json_data_for_{}.json'.format(filename_root))
+            expected_file = sample_file('expected_json_data_for_{0}.json'.format(filename_root))
             # Uncomment to write out to the expected JSON file.
             # with open(expected_file, 'w') as writeto:
             #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)

@@ -148,7 +148,7 @@ class Command(BaseCommand):
                         self.stdout.write('PROCESSING')
                         question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
-                        self.stdout.write('ERROR handling {}: {}\n'.format(source_url, str(e)))
+                        self.stdout.write('ERROR handling {0}: {1}\n'.format(source_url, str(e)))
                         errors += 1
                         pass
 
@@ -176,7 +176,7 @@ class Command(BaseCommand):
 
             url = detail['url']
             if Answer.objects.filter(url=url).exists():
-                self.stdout.write('Answer {} already exists\n'.format(url))
+                self.stdout.write('Answer {0} already exists\n'.format(url))
                 if not options['fetch_to_limit']:
                     self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                     break
@@ -196,7 +196,7 @@ class Command(BaseCommand):
                     # FIXME - We should work out which answer to keep rather than
                     # just keeping what we already have.
                     self.stdout.write(
-                        'DUPLICATE: answer for {} O{} W{} {} already exists\n'.format(
+                        'DUPLICATE: answer for {0} O{1} W{2} {3} already exists\n'.format(
                             detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
                             )
                         )
@@ -259,7 +259,7 @@ class Command(BaseCommand):
                 query = oral_q
             else:
                 sys.stdout.write(
-                    "Answer {} {} has no written or oral number - SKIPPING\n"
+                    "Answer {0} {1} has no written or oral number - SKIPPING\n"
                     .format(answer.id, answer.document_name)
                     )
                 continue
@@ -272,7 +272,7 @@ class Command(BaseCommand):
                     )
             except Question.DoesNotExist:
                 sys.stdout.write(
-                    "No question found for {} {}"
+                    "No question found for {0} {1}"
                     .format(answer.id, answer.document_name)
                     )
                 continue

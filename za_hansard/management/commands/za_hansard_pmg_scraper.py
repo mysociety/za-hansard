@@ -122,35 +122,6 @@ class Command(BaseCommand):
             self.import_to_sayit(*args, **options)
 
     def scrape(self, *args, **options):
-        #before anything starts - login so that we can access premium content
-        login_rules = {
-            "heading": "h1.title",
-            "form(#content input)": [{"value":"@value","name":"@name"}],
-            }
-
-        page=self.open_url_with_retries('http://www.pmg.org.za/user/login')
-        contents = page.read()
-        p = parslepy.Parselet(login_rules)
-        login_data = p.parse_fromstring(contents)
-        for attr in login_data['form']:
-            if attr['name']=='form_build_id':
-                form_build_id=attr['value']
-            if attr['name']=='form_id':
-                form_id=attr['value']
-        cj = cookielib.CookieJar()
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        urllib2.install_opener(opener)
-        data = {
-            'form_id': form_id,
-            'form_build_id': form_build_id,
-            'name': settings.PMG_COMMITTEE_USER,
-            'pass': settings.PMG_COMMITTEE_PASS,
-            }
-        encodedata = urllib.urlencode(data)
-        req = urllib2.Request('http://www.pmg.org.za/user/login', encodedata)
-        resp = self.open_url_with_retries(req)
-        contents = resp.read()
-
         page=self.open_url_with_retries('http://www.pmg.org.za/committees')
         contents = page.read()
 
@@ -170,28 +141,28 @@ class Command(BaseCommand):
         parsedcommittees = p.parse_fromstring(contents)
 
         self.stdout.write('Started\n')
-        try:
-            for ctype in parsedcommittees['committee_types']:
-                for committee in ctype['committees']:
-                    self.numcommittees = self.numcommittees + 1
+        for ctype in parsedcommittees['committee_types']:
+            for committee in ctype['committees']:
+                self.numcommittees = self.numcommittees + 1
 
-                    try:
-                        self.processCommittee(
-                            'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
-                            committee['name'])
-                    except urllib2.HTTPError:
-                        #if there is an http error, just ignore this committee this time
-                        self.stderr.write('HTTPERROR '+committee['name'])
-                        pass
-                    finally:    
-                        self.updateprocess()
-                        self.committees.append({
-                            "name": committee['name'],
-                            "url": committee['url'],
-                            "type": ctype['type']
-                            })
-        except StopFetchingException as e:
-            self.stderr.write("STOPPED! %s\n" % e)
+                try:
+                    self.processCommittee(
+                        'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
+                        committee['name'])
+                except urllib2.HTTPError:
+                    #if there is an http error, just ignore this committee this time
+                    self.stderr.write('HTTPERROR '+committee['name'])
+                    pass
+                except StopFetchingException as e:
+                    self.stderr.write("STOPPED! %s\n" % e)
+                    pass
+                finally:    
+                    self.updateprocess()
+                    self.committees.append({
+                        "name": committee['name'],
+                        "url": committee['url'],
+                        "type": ctype['type']
+                        })
 
         if options['scrape_with_json']:
             with open('committees_json.json', 'w') as outfile:
@@ -214,6 +185,70 @@ class Command(BaseCommand):
         for i in range(0, self.retries):
             try:
                 page=urllib2.urlopen(url)
+                # sleep, to minimize load on PMG servers
+                time.sleep(60)
+                return page
+            except Exception as e:
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                time.sleep(1)
+
+        # we didn't ever return, so
+        raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
+        
+    def premium_open_url_with_retries(self, url):
+        #before anything starts - login so that we can access premium content. this happens each time a premium committee is accessed to avoid
+        #the server logging us out
+        cj = cookielib.CookieJar()
+        premium_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+        
+        login_rules = {
+            "heading": "h1.title",
+            "form(#content input)": [{"value":"@value","name":"@name"}],
+            }
+
+        for i in range(0, self.retries):
+            try:
+                page = premium_opener.open('http://www.pmg.org.za/user/login')
+            except Exception as e:
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                time.sleep(1)
+        contents = page.read()
+        
+        # sleep, to minimize load on PMG servers
+        time.sleep(60)
+        
+        p = parslepy.Parselet(login_rules)
+        login_data = p.parse_fromstring(contents)
+        for attr in login_data['form']:
+            if attr['name']=='form_build_id':
+                form_build_id=attr['value']
+            if attr['name']=='form_id':
+                form_id=attr['value']
+        data = {
+            'form_id': form_id,
+            'form_build_id': form_build_id,
+            'name': settings.PMG_COMMITTEE_USER,
+            'pass': settings.PMG_COMMITTEE_PASS,
+            }
+        encodedata = urllib.urlencode(data)
+        req = urllib2.Request('http://www.pmg.org.za/user/login', encodedata)
+        for i in range(0, self.retries):
+            try:
+                resp = premium_opener.open(req)
+            except Exception as e:
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                time.sleep(1)
+        contents = resp.read()
+        
+        # sleep, to minimize load on PMG servers
+        time.sleep(60)
+        
+        #now access the page
+        for i in range(0, self.retries):
+            try:
+                page = premium_opener.open(url)
+                # sleep, to minimize load on PMG servers
+                time.sleep(60)
                 return page
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
@@ -234,7 +269,10 @@ class Command(BaseCommand):
             "chairperson": "div.field-field-chairperson",
             "paragraphs(.field-field-minutes p.MsoNormal)": ["."]
             }
-        page=self.open_url_with_retries(url)
+        if row.premium:
+            page = self.premium_open_url_with_retries(url)
+        else:
+            page = self.open_url_with_retries(url)
         contents = page.read()
         p = parslepy.Parselet(report_rules)
         report = p.parse_fromstring(contents)
@@ -356,9 +394,6 @@ class Command(BaseCommand):
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
-        # finally sleep, to minimize load on PMG servers
-        time.sleep(1)
-
     def processReports(self, url,processingcommitteeName,processingcommitteeURL):
         #get reports on this page, process them, proceed to next page
 
@@ -377,6 +412,12 @@ class Command(BaseCommand):
         }
         p = parslepy.Parselet(reports_rules)
         reports = p.parse_fromstring(contents)
+        
+        #if no reports are found, this is probably a premium committee so needs to be reloaded
+        if len(reports['reports'])==0:
+            page=self.premium_open_url_with_retries(url)
+            contents = page.read()
+            reports = p.parse_fromstring(contents)
 
         for report in reports['reports']:
 
@@ -437,7 +478,7 @@ class Command(BaseCommand):
 
                         elif not self.fetch_to_limit:
                             raise StopFetchingException("Reached previously seen report")
-
+        
         if "next" in reports:
 
             self.processReports(
@@ -479,7 +520,7 @@ class Command(BaseCommand):
 
             member['committee']=processingcommitteeName
             self.allmembers.append(member)
-
+        
         self.processReports( url, processingcommitteeName, url )
 
     def save_json(self, *args, **options):

@@ -12,7 +12,8 @@ from speeches.models import Section
 # check that the cache is setup and the directory exists
 for setting_name in ('HANSARD_CACHE',
                      'COMMITTEE_CACHE',
-                     'ANSWER_CACHE'):
+                     'ANSWER_CACHE',
+                     'QUESTION_CACHE'):
     try:
         directory = os.path.join(getattr(settings, setting_name))
         if not os.path.exists(directory):

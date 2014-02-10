@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import distutils.spawn
+import hashlib
 import os
 import sys
 import re
@@ -13,6 +14,7 @@ import lxml.etree
 import parslepy
 
 from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 
 from za_hansard.models import Question, QuestionPaper
 
@@ -121,8 +123,7 @@ class QuestionDetailIterator(BaseDetailIterator):
 
         print 'Questions (%s)' % self.next_list_url
 
-        # FIXME - Cope with an HTTP error, etc here.
-        contents = self.url_get( self.next_list_url )
+        contents = self.url_get(self.next_list_url)
 
         p = parslepy.Parselet(self.question_parsing_rules)
         page = p.parse_fromstring(contents)
@@ -363,13 +364,28 @@ class QuestionPaperParser(object):
         self.create_questions_from_xml(xmldata, url)
 
     def get_question_pdf_from_url(self, url):
-        response = requests.get(url)
+        # FIXME - Cope with an HTTP error, etc here.
+        contents_filename = os.path.join(
+            settings.QUESTION_CACHE,
+            hashlib.md5(url).hexdigest(),
+            )
 
-        if response.status_code == requests.codes.ok:
-            return response.content
+        if os.path.exists(contents_filename):
+            with open(contents_filename) as f:
+                contents = f.read()
         else:
-            sys.stdout.write(' SKIPPING - Bad response\n')
+            response = requests.get(url)
 
+            if response.status_code == requests.codes.ok:
+                contents = response.content
+            else:
+                sys.stdout.write(' SKIPPING - Bad response\n')
+                return
+
+            with open(contents_filename, 'wb') as f:
+                f.write(contents)
+
+        return contents
 
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)

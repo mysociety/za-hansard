@@ -221,9 +221,8 @@ class Command(BaseCommand):
                 filename = os.path.join(
                         settings.ANSWER_CACHE,
                         '%d.%s' % (row.id, row.type))
-                save = open(filename, 'wb')
-                save.write(download.read())
-                save.close()
+                with open(filename, 'wb') as save:
+                    save.write(download.read())
 
                 try:
                     text = question_scraper.extract_answer_text_from_word_document(filename)

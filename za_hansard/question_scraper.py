@@ -104,7 +104,7 @@ class BaseDetailIterator(object):
 
     def url_get(self, url):
         """Super simple method to retrieve url and return content. Intended to be easily mocked in tests"""
-        response = requests.get( url )
+        response = requests.get(url)
         return response.text
 
 

@@ -243,7 +243,7 @@ class ZAQuestionParsing(TestCase):
             # Uncomment to write out to the expected JSON file.
             # with open(expected_file, 'w') as writeto:
             #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
-            #     writeto.write(re.sub(r' +$', '', json_to_write, flags=re.MULTILINE) + "\n")
+            #     writeto.write(re.sub(r'(?m) +$', '', json_to_write) + "\n")
 
             expected_json = open(expected_file).read()
             expected_data = json.loads(expected_json)

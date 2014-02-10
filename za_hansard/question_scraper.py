@@ -82,7 +82,7 @@ def check_output_wrapper(*args, **kwargs):
         return output
 
 class BaseDetailIterator(object):
-    
+
     base_url = 'http://www.parliament.gov.za/live/'
 
     def __init__(self, start_list_url):
@@ -97,7 +97,7 @@ class BaseDetailIterator(object):
             # If needed and possible try to fetch more urls from the next list page
         while len(self.details) == 0 and self.next_list_url:
             self.get_details()
-    
+
         # Return a url if we can.
         if len(self.details):
             return self.details.pop(0)
@@ -118,14 +118,12 @@ class QuestionDetailIterator(BaseDetailIterator):
     }
 
     def get_details(self):
-
         print 'Questions (%s)' % self.next_list_url
 
         contents = self.url_get(self.next_list_url)
 
         p = parslepy.Parselet(self.question_parsing_rules)
         page = p.parse_fromstring(contents)
-
 
         for row in page['papers']:
             if len(row['cell']) == 11:
@@ -193,10 +191,10 @@ class AnswerDetailIterator(BaseDetailIterator):
 
     def get_details(self):
         sys.stdout.write('Answers {0}\n'.format(self.next_list_url))
-        
+
         contents = self.url_get(self.next_list_url)
         page = parslepy.Parselet(self.answer_parsing_rules).parse_fromstring(contents)
-        
+
         for row in page['papers']:
             if len(row['cell']) == 11:
                 url = row['cell'][8]['url']
@@ -214,7 +212,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                 try:
                     document_data = self.document_name_regex.match(document_name).groupdict()
                 except:
-                    if document_name not in self.known_bad_document_names: 
+                    if document_name not in self.known_bad_document_names:
                         sys.stdout.write('SKIPPING bad document_name {0}\n'
                                          .format(document_name))
                     continue
@@ -232,12 +230,12 @@ class AnswerDetailIterator(BaseDetailIterator):
                     document_data['president_number'] = document_data.pop('oral_number')
                 if president == 'DP':
                     document_data['dp_number'] = document_data.pop('oral_number')
-                
+
                 document_data.update(dict(
                     document_name=document_name,
                     date_published=date_published,
                     language=row['cell'][6]['contents'],
-                    url=self.base_url + url,                    
+                    url=self.base_url + url,
                     type=types[2],
                     ))
 
@@ -260,13 +258,13 @@ class AnswerDetailIterator(BaseDetailIterator):
                 document_data['year'] = document_data['date'].year
 
                 self.details.append(document_data)
-        
+
         # check for next page of links (or None if not found)
         self.next_list_url = None
         for cell in page['next']:
             if cell['contents'] == 'Next':
                 next_url = self.base_url + cell['url']
-                
+
                 if self.next_list_url == next_url:
                     raise Exception("Possible url loop detected, next url '{0}' has not changed.".format(next_url))
 
@@ -289,7 +287,7 @@ def remove_headers_from_page(page):
     1) The page number
     2) The date bit
     3) The title
-    
+
     of the document which are are in the <text> elements at the at the top of
     every page.
 
@@ -317,9 +315,9 @@ def remove_headers_from_page(page):
     True
 
     """
-    
+
     accumulated = ''
-    
+
     # 10 text elements should be enough to catch all
     # the headers, and few enough to prevent us interfering
     # with more than one question if it all goes wrong.
@@ -440,14 +438,14 @@ class QuestionPaperParser(object):
             parliament_number = question_paper.parliament_number = text_to_int.get(session_match.group('parliament').upper())
             question_paper.issue_number = int(session_match.group('issue_number'))
             question_paper.year = int(session_match.group('year'))
-            
+
             if parliament_number < 4:
                 sys.stdout.write(
                     '\nBAILING OUT: Parliament {0} is too long ago\n'
                     .format(parliament_number)
                     )
                 return
-                
+
         else:
             sys.stdout.write("\nBAILING OUT: Failed to find session, etc.\n")
             # Bail out without saving any questions so that we at least continue and work
@@ -538,7 +536,7 @@ class QuestionPaperParser(object):
             else:
                 sys.stdout.write("SKIPPING: Unrecognised answer type for {0}\n".format(match_dict['identifier']))
                 continue
-                
+
             match_dict[u'paper'] = self.question_paper
 
             match_dict[u'translated'] = bool(match_dict[u'translated'])
@@ -553,7 +551,7 @@ class QuestionPaperParser(object):
             match_dict.pop(u'party')
 
             questions.append(Question(**match_dict))
-        
+
         return questions
 
 
@@ -566,7 +564,7 @@ class QuestionPaperParser(object):
         >>> match = QuestionPaperParser.date_re.match(date_str)
         >>> match.groups()
         (u'FRIDAY', u'2', u'AUGUST', u'2013')
-        
+
         """
         text_bits = [
             re.match(ur'(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el, encoding='unicode')).group(1)
@@ -585,7 +583,7 @@ class QuestionPaperParser(object):
 
             if not date_match:
                 chunk.append(text_bit)
-            
+
             if date_match or not text_bits:
                 text = u''.join(chunk)
 
@@ -619,14 +617,14 @@ class QuestionPaperParser(object):
         text = lxml.etree.fromstring(xmldata)
 
         pages = text.iter('page')
-        
+
         for page in pages:
             remove_headers_from_page(page)
 
         intro_chunk, chunks = self.chunkify(text)
 
         self.question_paper = self.get_question_paper(intro_chunk)
-        
+
         # Bail out if we didn't get a question paper
         if not self.question_paper:
             return
@@ -640,9 +638,9 @@ class QuestionPaperParser(object):
 
         if len(questions) != expected_question_count:
             sys.stdout.write(" expected {0} - SUSPICIOUS".format(expected_question_count))
-        
+
         sys.stdout.write('\n')
-            
+
         # Question.objects.bulk_create(questions)
         for question in questions:
             # FIXME - As a temporary fix, let's ignore any questions which aren't for written
@@ -654,7 +652,7 @@ class QuestionPaperParser(object):
             # becoming oral
             if re.search(r'\[Written Question No', question.intro, re.IGNORECASE):
                 continue
-            
+
             try:
                 existing_question = Question.objects.get(
                     id_number=question.id_number,
@@ -669,7 +667,7 @@ class QuestionPaperParser(object):
                         sys.stdout.write("IDENTIFIER CHANGE: {0} already exists as {1} - keeping original version\n".format(question.identifier, existing_question.identifier))
                     else:
                         sys.stdout.write("DUPLICATE: {0} already exists - keeping original version\n".format(question.identifier))
-                        
+
                 else:
                     sys.stdout.write("BAD DUPLICATE: {0} already exists as {1} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
             except Question.DoesNotExist:

@@ -214,13 +214,18 @@ class Command(BaseCommand):
         self.stdout.write("Processing %d records" % len(unprocessed))
 
         for row in unprocessed:
+            filename = os.path.join(
+                settings.ANSWER_CACHE,
+                '%d.%s' % (row.id, row.type))
+
+            if os.path.exists(filename):
+                self.stdout.write('-')
+                continue
+
             self.stdout.write('.')
 
             try:
                 download = urllib2.urlopen(row.url)
-                filename = os.path.join(
-                        settings.ANSWER_CACHE,
-                        '%d.%s' % (row.id, row.type))
                 with open(filename, 'wb') as save:
                     save.write(download.read())
 

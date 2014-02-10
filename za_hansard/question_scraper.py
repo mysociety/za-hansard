@@ -250,7 +250,9 @@ class QuestionPaperParser(object):
             re.UNICODE | re.VERBOSE)
 
         date_re = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
-        session_re = re.compile("\[No\s*(?P<issue_number>\d+)&#8212;(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT")
+        session_re = re.compile(
+            ur"\[No\s*(?P<issue_number>\d+)\u2014(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
+            re.UNICODE)
 
         text_to_int = {
             'FIRST': 1,
@@ -295,6 +297,32 @@ class QuestionPaperParser(object):
         new_text = re.sub(ur'<b>(\s*)</b>', ur'\1', new_text)
 
         match = question_re.findall(new_text)
+
+        session_match = session_re.search(new_text)
+
+        if session_match:
+            question_paper.session_number = text_to_int.get(session_match.group('session'))
+            question_paper.parliament_number = text_to_int.get(session_match.group('parliament'))
+            question_paper.issue_number = int(session_match.group('issue_number'))
+            question_paper.year = int(session_match.group('year'))
+        else:
+            print "Failed to find session, etc."
+
+        if 'NATIONAL ASSEMBLY' in new_text:
+            question_paper.house = 'National Assembly'
+        elif 'NATIONAL COUNCIL OF PROVINCES' in new_text:
+            question_paper.house = 'National Council of Provinces'
+        else:
+            print "Failed to find house."
+
+        date_match = date_re.search(summer)
+
+        if date_match:
+            date = datetime.datetime.strptime(date_match.group(0), '%A, %d %B %Y')
+        else:
+            print "Failed to find date"
+
+        question_paper.save()
 
         for match in question_re.finditer(new_text):
             match_dict = match.groupdict()

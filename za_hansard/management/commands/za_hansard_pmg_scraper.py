@@ -78,7 +78,7 @@ class Command(BaseCommand):
         make_option('--fetch-to-limit',
             default=False,
             action='store_true',
-            help="Don't stop when reaching seen questions, continue to --limit",
+            help="Don't stop when reaching seen report, continue to --limit",
         ),
     )
 

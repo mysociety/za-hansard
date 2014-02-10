@@ -8,27 +8,17 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from speeches.models import Section
 
-# NOTE: cargo culting from https://github.com/mysociety/mzalendo/blob/master/mzalendo/hansard/models/source.py
-# TODO refactor these routines, unsure how to do that in Python
 
 # check that the cache is setup and the directory exists
-try:
-    if not os.path.exists( settings.HANSARD_CACHE ):
-        os.makedirs( settings.HANSARD_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find HANSARD_CACHE setting - please set it")
-
-try:
-    if not os.path.exists( settings.COMMITTEE_CACHE ):
-        os.makedirs( settings.COMMITTEE_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find COMMITTEE_CACHE setting - please set it")
-
-try:
-    if not os.path.exists( settings.ANSWER_CACHE ):
-        os.makedirs( settings.ANSWER_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find ANSWER_CACHE setting - please set it")
+for setting_name in ('HANSARD_CACHE',
+                     'COMMITTEE_CACHE',
+                     'ANSWER_CACHE'):
+    try:
+        directory = os.path.join(getattr(settings, setting_name))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    except AttributeError:
+        raise ImproperlyConfigured("Could not find {0} setting - please set it".format(setting_name))
 
 # EXCEPTIONS
 

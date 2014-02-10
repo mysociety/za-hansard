@@ -8,27 +8,18 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from speeches.models import Section
 
-# NOTE: cargo culting from https://github.com/mysociety/mzalendo/blob/master/mzalendo/hansard/models/source.py
-# TODO refactor these routines, unsure how to do that in Python
 
 # check that the cache is setup and the directory exists
-try:
-    if not os.path.exists( settings.HANSARD_CACHE ):
-        os.makedirs( settings.HANSARD_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find HANSARD_CACHE setting - please set it")
-
-try:
-    if not os.path.exists( settings.COMMITTEE_CACHE ):
-        os.makedirs( settings.COMMITTEE_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find COMMITTEE_CACHE setting - please set it")
-
-try:
-    if not os.path.exists( settings.ANSWER_CACHE ):
-        os.makedirs( settings.ANSWER_CACHE )
-except AttributeError:
-    raise ImproperlyConfigured("Could not find ANSWER_CACHE setting - please set it")
+for setting_name in ('HANSARD_CACHE',
+                     'COMMITTEE_CACHE',
+                     'ANSWER_CACHE',
+                     'QUESTION_CACHE'):
+    try:
+        directory = os.path.join(getattr(settings, setting_name))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    except AttributeError:
+        raise ImproperlyConfigured("Could not find {0} setting - please set it".format(setting_name))
 
 # EXCEPTIONS
 
@@ -222,56 +213,226 @@ class PMGCommitteeAppearance(models.Model):
         related_name='appearances')
     text            = models.TextField()
 
-class Answer (models.Model):
-
-    # Various values that the processed_code can have
-    PROCESSED_PENDING    = 0
-    PROCESSED_OK         = 1
-    PROCESSED_HTTP_ERROR = 2
-    PROCESSED_CHOICES = (
-        ( PROCESSED_PENDING,    'pending' ),
-        ( PROCESSED_OK,         'OK' ),
-        ( PROCESSED_HTTP_ERROR, 'HTTP error' ),
+house_choices = (
+    ('N', 'National Assembly'),
+    ('C', 'National Council of Provinces'),
     )
 
-    # CREATE TABLE answers (matched_to_question TEXT, number_oral TEXT,
-    # text TEXT, processed NUMERIC, id INTEGER PRIMARY KEY, name TEXT,
-    # language TEXT, url TEXT, house TEXT, number_written TEXT, date TEXT, type TEXT);
-    number_oral = models.TextField()
+class Answer (models.Model):
+    # Various values that the processed_code can have
+    PROCESSED_PENDING = 0
+    PROCESSED_OK = 1
+    PROCESSED_HTTP_ERROR = 2
+
+    PROCESSED_CHOICES = (
+        ( PROCESSED_PENDING, 'pending'),
+        ( PROCESSED_OK, 'OK' ),
+        ( PROCESSED_HTTP_ERROR, 'HTTP error'),
+    )
+
+    #------------------------------------------------------------
+    document_name = models.TextField()
+
+    # The next few fields are all inferred from document_name
+
+    # At least one of number_oral and number_written must be non-null
+    # They both could be non-null if the question was at some point transferred.
+    oral_number = models.IntegerField(null=True, db_index=True)
+    written_number = models.IntegerField(null=True, db_index=True)
+
+    # The president and vice president get their own question number sequences for
+    # oral questions.
+    president_number = models.IntegerField(null=True, db_index=True)
+    dp_number = models.IntegerField(null=True, db_index=True)
+
+    date = models.DateField()
+    year = models.IntegerField(db_index=True)
+    house = models.CharField(max_length=1, choices=house_choices, db_index=True)
+    #------------------------------------------------------------
+    
     text = models.TextField()
-    processed_code = models.IntegerField( null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES )
+    processed_code = models.IntegerField(null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES, db_index=True)
     name = models.TextField()
     language = models.TextField()
-    url = models.TextField()
-    house = models.TextField()
-    number_written = models.TextField()
-    date = models.DateField()
+    url = models.TextField(db_index=True)
+    date_published = models.DateField()
     type = models.TextField()
 
+    class Meta:
+        unique_together = (
+            ('oral_number', 'house', 'year'),
+            ('written_number', 'house', 'year'),
+            ('president_number', 'house', 'year'),
+            ('dp_number', 'house', 'year'),
+            )
+
+        # FIXME - When we have Django 1.5 we can have these indices...
+        # index_together = (
+        #     ('oral_number', 'house', 'year'),
+        #     ('written_number', 'house', 'year'),
+        #     )
+
+class QuestionPaper(models.Model):
+    """Models a group of questions.
+
+    Questions are published in batches, and each batch contains
+    some metadata. This is the place to store that metadata.
+    """
+    # Metadata from Questions start url table
+    document_name = models.TextField(max_length=32)
+    date_published = models.DateField()
+    house = models.CharField(max_length=64)
+    language = models.CharField(max_length=16)
+    document_number = models.IntegerField()
+    source_url = models.URLField(max_length=1000)
+
+    # Body metadata from inside the question paper file
+    # Question papers are by unique year/issue number/house
+    year = models.IntegerField()
+    issue_number = models.IntegerField() # within year.
+    parliament_number = models.IntegerField()
+    session_number = models.IntegerField() # Unique within parliament
+    text = models.TextField()
+
+    class Meta:
+        unique_together = ('year', 'issue_number', 'house', 'parliament_number')
+        # index_together = ('year', 'issue_number', 'house', 'parliament_number')
+
+int_to_text = {
+    1: 'FIRST',
+    2: 'SECOND',
+    3: 'THIRD',
+    4: 'FOURTH',
+    5: 'FIFTH',
+    6: 'SIXTH',
+    7: 'SEVENTH',
+    8: 'EIGHTH',
+    9: 'NINTH',
+    10: 'TENTH',
+    }
+
 class Question (models.Model):
-    answer = models.ForeignKey(Answer,
+    paper = models.ForeignKey(
+        QuestionPaper, 
+        null=True, # FIXME - eventually, this should not be nullable.
+        on_delete=models.SET_NULL,
+        )
+    answer = models.ForeignKey(
+        Answer,
         null=True,
         on_delete=models.CASCADE,
-        related_name='question')
-    house = models.TextField()
-    session = models.TextField()
-    number1 = models.TextField()
-    number2 = models.TextField()
+        related_name='question',
+        )
+
+
+    # number1 - order questions published
+    # Strts at 1 for calendar year, separate sequences for oral, written for both NA and NCOP
+
+    # Questions for written answer and questions for oral answer both have
+    # sequence numbers. It looks like these are probably the order the questions
+    # were asked in. The sequences are unique for each house for written/oral and
+    # restart on 1 each year.
+    
+    # At least one of these four numbers should be non-null, and it's possible
+    # for more than one to be non-null if a question is transferred from oral to written
+    # or vice-versa.
+    written_number = models.IntegerField(null=True, db_index=True)
+    oral_number = models.IntegerField(null=True, db_index=True)
+
+    # The president and vice president get their own question number sequences for
+    # oral questions.
+    president_number = models.IntegerField(null=True, db_index=True)
+    dp_number = models.IntegerField(null=True, db_index=True)
+
+    # Questions are also referred to by an identifier of the form
+    # [NC][OW]\d+[AEX]
+    # The meaning of the parts of this identifier is as follows:
+    #  - [NC] - tells you the house the question was asked in. See 'house' below.
+    #  - [OW] - tells you whether the question is for oral or written answer.
+    #           Questions can sometimes be transferred between being oral or
+    #           written. When this happens, they may be referred to by the new
+    #           identifier with everything the same except the O/W.
+    #  - \d+  - (number below) Every question to a particular house in a
+    #           particular year gets given another number. This number doesn't
+    #           change when the question is translated or has [OW] changed.
+    #  - [AEX]- Afrikaans/English/Xhosa. The language the question is currently
+    #           being displayed in. Translations of the question will have a
+    #           different [AEX] in the identifier.
+    
+    # Note that we also store the number, house, and answer_type separately.
+    identifier = models.CharField(max_length=10, db_index=True)
+
+    # From the identifier discussed above.
+    id_number = models.IntegerField(db_index=True)
+
+    # This is in the identifier above. It should correspond to the house
+    # on the referenced QuestionPaper.
+    house = models.CharField(max_length=1, choices=house_choices, db_index=True)
+
+    answer_type = models.CharField(
+        max_length=1,
+        choices=(
+            ('O', 'Oral Answer'),
+            ('W', 'Written Answer'),
+            )
+        )
+
+    # Date the question was asked on. Not to be confused with the date the
+    # question was published, which is date_published on the QuestionPaper.
     date = models.DateField()
-    title = models.TextField()
+
+    # This should always be the year from the date above, but is worth
+    # storing separately so that we can easily have uniqueness constraints
+    # on it.
+    year = models.IntegerField(db_index=True)
+
+    # FIXME - is this useful to store/easy to get?
+    date_transferred = models.DateField(null=True)
+
+    # FIXME - was this the title for the question asker?
+    # title = models.TextField()
+
+    # The actual text of the question.
     question = models.TextField()
+
+    # Text of the person the question is asked of
     questionto = models.TextField()
-    source = models.TextField()
-    translated = models.IntegerField()
-    document = models.TextField()
-    type = models.TextField()
+
+    # Is the question a translation of one originally asked in another language.
+    # Currently we are only storing questions in English.
+    translated = models.BooleanField()
+
+    # oral/written number, asker and askee as as string, for example:
+    # '144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:'
+    # '152. Mr D A Worth (DA-FS) to ask the Minister of Defence and Military Veterans:'
+    # '254. Mr R A Lees (DA-KZN) to ask the Minister of Rural Development and Land Reform:'
     intro = models.TextField()
-    parliament = models.TextField()
+    
+    # Name of the person asking the question.
     askedby = models.TextField()
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
-    sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
-        help_text='Associated Sayit section object, if imported')
+    sayit_section = models.ForeignKey(
+        Section, blank=True, null=True, on_delete=models.PROTECT,
+        help_text='Associated Sayit section object, if imported',
+        )
 
+    class Meta:
+        unique_together = (
+            ('written_number', 'house', 'year'),
+            ('oral_number', 'house', 'year'),
+            ('president_number', 'house', 'year'),
+            ('dp_number', 'house', 'year'),
+            ('id_number', 'house', 'year'),
+            )
+        # index_together(
+        #     ('written_number', 'house', 'year'),
+        #     ('oral_number', 'house', 'year'),
+        #     ('id_number', 'house', 'year'),
+        #     )
+            
+        # FIXME - Other things it would be nice to constrain that will have to
+        # be done in postgres directly, I think.
+        # 1) At least one of written_number and oral_number must be non-null.
 
 #CREATE TABLE completed_documents (`url` string);

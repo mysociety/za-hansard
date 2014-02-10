@@ -1,13 +1,10 @@
 import urllib2
-import lxml.etree
 import sys
 import re, os
-import lxml.html
 import dateutil.parser
 import string
 import parslepy
 import json
-from lxml import etree
 import time
 
 import subprocess
@@ -17,9 +14,10 @@ from datetime import datetime, date, timedelta
 from optparse import make_option
 
 from django.conf import settings
-
 from django.core.management.base import BaseCommand, CommandError
-from za_hansard.models import Question, Answer
+from django.db.models import Q
+
+from za_hansard.models import Question, Answer, QuestionPaper
 from speeches.importers.import_json import ImportJson
 from instances.models import Instance
 
@@ -27,6 +25,19 @@ from instances.models import Instance
 # command and put into a module where it can be more easily tested and
 # separated. This is the start of that process.
 from ... import question_scraper
+
+def strip_dict(d):
+    """
+    Return a new dictionary, like d, but with any string value stripped
+
+    >>> d = {'a': ' foo   ', 'b': 3, 'c': '   bar'}
+    >>> result = strip_dict(d)
+    >>> type(result)
+    <type 'dict'>
+    >>> sorted(result.items())
+    [('a', 'foo'), ('b', 3), ('c', 'bar')]
+    """
+    return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
 
 class Command(BaseCommand):
 
@@ -46,7 +57,7 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help='Process answers (step 3)',
-        ),
+                    ),
         make_option('--match-answers',
             default=False,
             action='store_true',
@@ -119,255 +130,114 @@ class Command(BaseCommand):
         count = 0
         errors = 0
 
+        # detail here is a dictionary of the form:
+        # {
+        # "name":     row['cell'][0]['contents'],
+        # "language": row['cell'][6]['contents'],
+        # "url":      self.base_url + url,
+        # "house":    row['cell'][4]['contents'],
+        # "date":     row['cell'][2]['contents'],
+        # "type":     types[2]
+        # }
+
         for detail in details:
             count+=1
-            print "Document ", count
 
             source_url = detail['url']
-            if detail['language']=='English' and detail['type']=='pdf':
+            sys.stdout.write(
+                "{count:5} {url} ".format(count=count, url=source_url))
 
-                if Question.objects.filter( source=source_url ).count():
-                    self.stderr.write('Already exists\n')
+            if detail['language']=='English' and detail['type']=='pdf':
+                if QuestionPaper.objects.filter(source_url=source_url).exists():
+                    self.stdout.write('SKIPPING as file already handled\n')
                     if not options['fetch_to_limit']:
-                        self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
+                        self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                         break
                 else:
                     try:
-                        self.stderr.write('Processing %s' % source_url)
-                        pages = self.get_question( source_url )
+                        self.stdout.write('PROCESSING')
+                        question_scraper.QuestionPaperParser(**detail).get_questions()
                     except Exception as e:
-                        self.stderr.write( str(e) )
+                        self.stdout.write('ERROR handling {0}: {1}\n'.format(source_url, str(e)))
                         errors += 1
                         pass
 
             elif detail['language']=='English':
-                self.stderr.write('%s is not a pdf\n' % source_url)
-
+                self.stdout.write('SKIPPING as not a pdf\n')
             else:
-                pass
                 # presumably non-English
+                sys.stdout.write('SKIPPING presumably not English\n')
 
             if options['limit'] and count >= options['limit']:
                 break
 
-        self.stdout.write( "Processed %d documents (%d errors)" % (count, errors) )
-
-    def get_question(self, url):
-        pdfdata = self.get_question_pdf_from_url(url)
-        xmldata = self.get_question_xml_from_pdf(pdfdata)
-
-        if not xmldata:
-            return False
-
-        #self.stderr.write("URL %s\n" % url)
-        #self.stderr.write("PDF len %d\n" % len(pdfdata))
-        #self.stderr.write("XML %s\n" % xmldata)
-
-        return self.create_questions_from_xml(xmldata, url)
-
-
-    def get_question_pdf_from_url(self, url):
-        return urllib2.urlopen(url).read()
-
-
-    def get_question_xml_from_pdf(self, pdfdata):
-        return question_scraper.pdftoxml(pdfdata)
-
-
-    def create_questions_from_xml(self, xmldata, url):
-        count=0
-
-        root = lxml.etree.fromstring(xmldata)
-        #except Exception as e:
-            #self.stderr.write("OOPS")
-            #raise CommandError( '%s failed (%s)' % (url, e))
-        # self.stderr.write("XML parsed...\n")
-
-        pages = list(root)
-
-        inquestion = 0
-        intro      = ''
-        question   = ''
-        number1    = ''
-        number2    = ''
-        started    = 0
-        questiontype = ''
-        translated = 0
-        document   = ''
-        house      = ''
-        session    = ''
-        date       = ''
-        questionto = '' #for multi line question intros
-        startintro = False
-        startquestion = False
-        details1   = False
-        details2   = False
-        summer     = ''
-        questions  = []
-        parliament = ''
-
-        pattern  = re.compile("(&#204;){0,1}[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z() ]+ to ask [-a-zA-Z]+")
-        pattern2 = re.compile("(N|C)(W|O)[0-9]+E")
-        pattern3 = re.compile("[0-9]+")
-        pattern4 = re.compile("(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4,4}")
-        pattern5 = re.compile("[a-zA-Z]+ SESSION, [a-zA-Z]+ PARLIAMENT")
-        pattern6 = re.compile("[0-9]+[.]?[ \t\r\n\v\f]+[-a-zA-z]+ {1,2}([-a-zA-z ]+) \(")
-
-        for page in pages:
-            for el in list(page): #for el in list(page)[:300]:
-                if el.tag == "text":
-                    part=re.match('(?s)<text.*?>(.*?)</text>', lxml.etree.tostring(el)).group(1)
-                    summer=summer+part.replace('<b>','').replace('</b>','')
-                    if not details1 or not details2:
-
-                        if not details1 and pattern5.search(summer): #search for session and parliament numbers
-
-                            session = pattern5.search(summer).group(0).partition(' SESSION')[0]
-                            parliament = (
-                                    pattern5
-                                    .search(summer)
-                                    .group(0)
-                                    .partition('SESSION, ')[2]
-                                    .partition(' PARLIAMENT')[0])
-                            details1=True
-
-                        if house=='' and 'NATIONAL ASSEMBLY' in summer:
-                            house = 'National Assembly'
-                            details2=True
-
-                        if house=='' and 'NATIONAL COUNCIL OF PROVINCES' in summer:
-                            house = 'National Council of Provinces'
-                            details2 = True
-
-                    if pattern4.search(part):
-                        date=pattern4.search(part).group(0)
-
-                    if ('QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES' in part or
-                       'QUESTION PAPER: NATIONAL ASSEMBLY' in part or
-                       pattern4.search(part)):
-                        continue
-
-                    if startquestion and not startintro:
-                        if pattern.search(summer) or pattern2.search(part):
-                            if pattern2.search(part):
-                                number2=part.replace('<b>','').replace('</b>','')
-                            startquestion=False
-                            numbertmp=pattern3.findall(intro)
-                            if numbertmp:
-                                number1=numbertmp[0]
-                            else:
-                                number1=''
-
-                            if '&#8224;' in intro:
-                                translated=1
-                            else:
-                                translated=0
-                            if '&#204;' in intro:
-                                questiontype='oral'
-                            else:
-                                questiontype='written'
-                            intro=intro.replace('&#8224;','')
-                            intro=intro.replace('&#204;','')
-                            asked=(
-                                    intro
-                                    .partition(' to ask the ')[2]
-                                    .replace(':','')
-                                    .replace('.','')
-                                    .replace('<i>','')
-                                    .replace('</i>','')
-                                    .replace('<b>','')
-                                    .replace('</b>',''))
-                            asked=re.sub(r'\[.*$','',asked)
-                            askedby=''
-                            if pattern6.search(intro):
-                                askedby = pattern6.search(intro).group(1)
-
-                            parsed_date = None
-                            #try:
-                                # Friday, 20 September 2013
-                            parsed_date = datetime.strptime(date, '%A, %d %B %Y')
-                            #except:
-                                #pass
-
-                            data = self.strip_dict({
-                                    'intro': intro.replace('<b>','').replace('</b>',''),
-                                    'question': question.replace('&#204;',''),
-                                    'number2': number2,
-                                    'number1': number1,
-                                    'source': url,
-                                    'questionto': asked,
-                                    'askedby': askedby,
-                                    'date': parsed_date,
-                                    'translated': translated,
-                                    'session': session,
-                                    'parliament': parliament,
-                                    'house': house,
-                                    'type': questiontype
-                                    })
-                            # self.stdout.write("Writing object %s\n" % str(data))
-                            q = Question.objects.create( **data )
-                            # self.stdout.write("Wrote question #%d\n" % q.id)
-                            summer=''
-                        else:
-                            question = question + part
-                    if startintro:
-                        if "<b>" in part:
-                            intro=intro+part.replace('<b>','').replace('</b>','')
-                        else:
-                            startintro=False
-                            question=part
-
-                    if pattern.search(summer):
-                        intro = pattern.search(summer).group(0) + summer.partition(pattern.search(summer).group(0))[2]
-                        startintro=True
-                        startquestion=True
-                        summer=''
-
-        # self.stdout.write( 'Saved %d\n' % count )
-        return True
+        self.stdout.write( "Processed %d documents (%d errors)\n" % (count, errors) )
 
 
     def scrape_answers(self, *args, **options):
-
         start_url = self.start_url_a[0] + self.start_url_a[1]
         details = question_scraper.AnswerDetailIterator(start_url)
 
         count = 0
 
         for detail in details:
-            count+=1
+            count += 1
+            detail = strip_dict(detail)
 
-            if Answer.objects.filter( url = detail['url'] ).exists():
-                self.stderr.write('Already exists\n')
+            url = detail['url']
+            if Answer.objects.filter(url=url).exists():
+                self.stdout.write('Answer {0} already exists\n'.format(url))
                 if not options['fetch_to_limit']:
-                    self.stderr.write("Stopping as '--fetch-to-limit' not given\n")
+                    self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                     break
             else:
-                self.stderr.write('Adding answer for {0}\n'.format(detail['url']))
-                detail = self.strip_dict(detail)
-                answer = Answer.objects.create(**detail)
+                existing_answers = Answer.objects.filter(
+                    house=detail['house'],
+                    year=detail['year'],
+                    )
+
+                if detail['oral_number']:
+                    existing_answers = existing_answers.filter(oral_number=detail['oral_number'])
+                if detail['written_number']:
+                    existing_answers = existing_answers.filter(written_number=detail['written_number'])
+
+                if existing_answers.exists():
+                    # import pdb;pdb.set_trace()
+                    # FIXME - We should work out which answer to keep rather than
+                    # just keeping what we already have.
+                    self.stdout.write(
+                        'DUPLICATE: answer for {0} O{1} W{2} {3} already exists\n'.format(
+                            detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
+                            )
+                        )
+                else:
+                    # self.stdout.write('Adding answer for {0}\n'.format(url))
+                    answer = Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
                 break
 
-
     def process_answers(self, *args, **options):
+        answers = Answer.objects.exclude(url=None)
+        unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
 
-        answers = Answer.objects.exclude( url = None )
-        unprocessed = answers.exclude( processed_code=Answer.PROCESSED_OK )
-
-        self.stderr.write( "Processing %d records" % len(unprocessed) )
+        self.stdout.write("Processing %d records" % len(unprocessed))
 
         for row in unprocessed:
+            filename = os.path.join(
+                settings.ANSWER_CACHE,
+                '%d.%s' % (row.id, row.type))
+
+            if os.path.exists(filename):
+                self.stdout.write('-')
+                continue
+
             self.stdout.write('.')
+
             try:
-                download = urllib2.urlopen( row.url )
-                filename = os.path.join(
-                        settings.ANSWER_CACHE,
-                        '%d.%s' % (row.id, row.type))
-                save = open( filename, 'wb' )
-                save.write( download.read() )
-                save.close()
+                download = urllib2.urlopen(row.url)
+                with open(filename, 'wb') as save:
+                    save.write(download.read())
 
                 try:
                     text = question_scraper.extract_answer_text_from_word_document(filename)
@@ -375,69 +245,50 @@ class Command(BaseCommand):
                     row.text = text
                     row.save()
                 except subprocess.CalledProcessError:
-                    self.stderr.write( 'ERROR in antiword processing %d' % row.id )
-                    pass
+                    self.stdout.write('ERROR in antiword processing %d\n' % row.id)
 
             except urllib2.HTTPError:
                 row.processed_code = Answer.PROCESSED_HTTP_ERROR
                 row.save()
-                self.stderr.write( 'ERROR HTTPError while processing %d' % row.id )
-                pass
+                self.stderr.write('ERROR HTTPError while processing %d\n' % row.id)
 
             except urllib2.URLError:
-                self.stderr.write( 'ERROR URLError while processing %d' % row.id )
-                pass
+                self.stderr.write('ERROR URLError while processing %d\n' % row.id)
 
     def match_answers(self, *args, **options):
+        # FIXME - should change to a subset of all answers.
+        for answer in Answer.objects.all():
+            written_q = Q(written_number=answer.written_number)
+            oral_q = Q(oral_number=answer.oral_number)
 
-        #get all the answers for processing (this should change to all not already processed)
+            if answer.written_number and answer.oral_number:
+                query = written_q | oral_q
+            elif answer.written_number:
+                query = written_q
+            elif answer.oral_number:
+                query = oral_q
+            else:
+                sys.stdout.write(
+                    "Answer {0} {1} has no written or oral number - SKIPPING\n"
+                    .format(answer.id, answer.document_name)
+                    )
+                continue
 
-        # for row in c.execute('SELECT id,number_written,number_oral,date FROM answers'):
-        answers = Answer.objects.all()
+            try:
+                question = Question.objects.get(
+                    query,
+                    year=answer.year,
+                    house=answer.house,
+                    )
+            except Question.DoesNotExist:
+                sys.stdout.write(
+                    "No question found for {0} {1}"
+                    .format(answer.id, answer.document_name)
+                    )
+                continue
 
-        count = 0
-
-        for answer in answers:
-            answer_date = answer.date
-            earliest_question_date = answer_date - timedelta( days = 183 ) # 6 months
-
-            if answer.number_written:
-                questions = Question.objects.filter(
-                        number1 = answer.number_written,
-                        type = 'written',
-                        date__lte = answer_date,
-                        date__gte = earliest_question_date
-                    ).order_by('-date')
-
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
-
-            # now oral (answer can be to both a written and oral question)
-            # TODO refactor with above
-            if answer.number_oral:
-                questions = Question.objects.filter(
-                        number1 = answer.number_oral,
-                        type = 'oral',
-                        date__lte = answer_date,
-                        date__gte = earliest_question_date
-                    ).order_by('-date')
-
-                if questions.exists():
-                    question = questions[0]
-
-                    question.answer = answer
-                    question.save()
-                    answer.matched_to_question = 1
-                    answer.save()
-                    count += 1
-
-        self.stdout.write('Matched %d answers\n' % count)
+            question.answer = answer
+            question.save()
 
     def qa_to_json(self, *args, **options):
         questions = (Question.objects
@@ -506,18 +357,18 @@ class Command(BaseCommand):
                     u'type': u'question',
                     u'intro': question.intro,
                     u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
-                    u'source': question.source,
+                    u'source': question.paper.source_url,
                     u'translated': question.translated,
                 },
             ],
 
             # random stuff that is NOT used by the JSON import
-            u'number1': question.number1,
-            u'number2': question.number2,
+            u'oral_number': question.oral_number,
+            u'written_number': question.written_number,
+            u'identifier': question.identifier,
             u'askedby': question.askedby,
-            u'type': question.type,
-            u'house': question.house,
-            u'parliament': question.parliament,
+            u'answer_type': question.answer_type,
+            u'parliament': question.paper.parliament_number,
         }
 
         answer = question.answer
@@ -580,5 +431,3 @@ class Command(BaseCommand):
         self.stdout.write('Imported %d / %d sections\n' %
             (len(sections), len(questions)))
 
-    def strip_dict(self, d):
-        return { k: v.strip() if 'strip' in dir(v) else v for k,v in d.items() }

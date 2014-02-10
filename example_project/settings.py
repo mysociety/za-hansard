@@ -9,6 +9,8 @@ SETTINGS_DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SETTINGS_DIR, '..'))
 PARENT_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, '..'))
 
+CACHE_ROOT = PROJECT_ROOT
+
 config_file = os.path.join(PROJECT_ROOT, 'conf', 'general.yml')
 with open(config_file) as f:
         config = yaml.load(f)
@@ -23,11 +25,12 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
-HANSARD_CACHE = 'hansard_cache/'
-COMMITTEE_CACHE = 'hansard_cache/committee/'
-ANSWER_CACHE = 'hansard_cache/answers/'
+HANSARD_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/')
+COMMITTEE_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/committee/')
+ANSWER_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/answers/')
+QUESTION_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/questions/')
 
-HTTPLIB2_CACHE_DIR = 'httplib2_cache/'
+HTTPLIB2_CACHE_DIR = os.path.join(PROJECT_ROOT, 'httplib2_cache/')
 
 MANAGERS = ADMINS
 
@@ -136,6 +139,8 @@ TEMPLATE_DIRS = (
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = ['--with-doctest']
 
 INSTALLED_APPS = (
     'django.contrib.auth',

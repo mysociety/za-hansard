@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from mock import patch
 import os
 import re
@@ -5,6 +7,7 @@ import requests
 import shutil
 import datetime
 import json
+import lxml.etree
 from django.utils.unittest import skipUnless
 
 from django.test import TestCase
@@ -12,7 +15,7 @@ from django.template.defaultfilters import slugify
 
 from .. import question_scraper
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
-from ..models import Question
+from ..models import Question, QuestionPaper
 
 def sample_file(filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -132,7 +135,8 @@ class ZAQuestionIteratorTests(ZAIteratorBaseMixin, TestCase):
             'language': u'Afrikaans',
             'name': u'QC130920.i28A',
             'type': 'pdf',
-            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20130926/541835_1.pdf'
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20130926/541835_1.pdf',
+            'document_number': 541835,
         }),
     )
 
@@ -148,28 +152,42 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     start_url = "http://www.parliament.gov.za/live/content.php?Category_ID=248"
     expected_details = (
         (0, {
-            'date': datetime.datetime(2013, 10, 3, 0, 0),
-            'house': u'National Assembly',
+            'date': datetime.date(2013, 10, 3),
+            'date_published': datetime.date(2013, 10, 3),
+            'year': 2013,
+            'house': u'N',
             'language': u'English',
-            'name': u'RNW2356-131003',
-            'number_oral': '',
-            'number_written': u'2356',
+            'document_name': u'RNW2356-131003',
+            'oral_number': None,
+            'written_number': u'2356',
             'type': 'doc',
-            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc'
+            'url': 'http://www.parliament.gov.za/live/commonrepository/Processed/20131007/543139_1.doc',
         }),
     )
 
     penultimate_url = start_url + "&DocumentStart=5310"
-    penultimate_expected_number = 16
+    penultimate_expected_number = 6
 
 
 class ZAQuestionParsing(TestCase):
+    test_data = (
+        ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),
+        ('517147_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf', 'National Assembly', '19 April 2013'),
+        ('548302_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20131107/548302_1.pdf', 'National Council of Provinces', '1 November 2013'),
 
-    pdf_source_url = 'http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf'
+        # Interesting because of the pdftohtml bad xml problem.
+        ('529998_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130812/529998_1.pdf', 'National Assembly', '8 August 2013'),
+        ('458606_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/458606_1.pdf', 'National Council of Provinces', '14 September 2012'),
 
+        ('184530_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20130507/184530_1.pdf', 'National Assembly', '9 October 2009'),
+        )
+
+    # FIXME - Oral questions which are transferred could collect their oral question number.
+    
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of
     # this writing 0.18.4). Also run if we have this version locally.
+    # FIXME - Note that the version currently on our servers is 0.12.4 (as of 2014-02-02)
     pdftohtml_version = os.popen('pdftohtml -v 2>&1 | head -n 1').read().strip()
     wanted_version = '0.18.4'
     @skipUnless(
@@ -177,41 +195,184 @@ class ZAQuestionParsing(TestCase):
         "Not on TRAVIS, or versions don't watch ('%s' != '%s')" % (wanted_version, pdftohtml_version)
     )
     def test_pdf_to_xml(self):
-        command = QAScraperCommand()
+        for filename_root, source_url, house, date_published in self.test_data:
+            pdfdata = open(sample_file(filename_root + ".pdf")).read()
+            expected_xml = open(sample_file(filename_root + ".xml")).read()
 
-        pdfdata      = open(sample_file("517147_1.pdf")).read()
-        expected_xml = open(sample_file("517147_1.xml")).read()
+            qp_parser = question_scraper.QuestionPaperParser(
+                name='TEST NAME',
+                date=date_published,
+                house=house,
+                language='TEST LANGUAGE',
+                url=source_url,
+                document_number=int(filename_root.split('_')[0]),
+                )
+            actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
 
-        actual_xml = command.get_question_xml_from_pdf(pdfdata)
-
-        self.assertEqual(actual_xml, expected_xml)
-
+            self.assertEqual(actual_xml, expected_xml, "Failed on {0}".format(filename_root))
 
     def test_xml_to_json(self):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
 
-        xmldata = open(sample_file("517147_1.xml")).read()
-        command = QAScraperCommand()
+        for filename_root, source_url, house, date_published in self.test_data:
+            xmldata = open(sample_file(filename_root + ".xml")).read()
 
-        # Load xml to the database
-        command.create_questions_from_xml(xmldata, self.pdf_source_url)
+            qp_parser = question_scraper.QuestionPaperParser(
+                name='TEST NAME',
+                date=date_published,
+                house=house,
+                language='TEST LANGUAGE',
+                url=source_url,
+                document_number=int(filename_root.split('_')[0]),
+                )
+            # Load xml to the database
+            qp_parser.create_questions_from_xml(xmldata, source_url)
 
-        # Turn questions in database into JSON. Order by id as that should
-        # reflect the processing order.
-        all_questions_as_data = []
-        for question in Question.objects.order_by('id'):
-            question_as_data = command.question_to_json_data(question)
-            all_questions_as_data.append(question_as_data)
+            command = QAScraperCommand()
 
+            # Turn questions in database into JSON. Order by id as that should
+            # reflect the processing order.
+            all_questions_as_data = []
+            question_paper = QuestionPaper.objects.get(source_url=source_url)
 
-        expected_file = sample_file('expected_json_data_for_517147_1.json')
-        # Uncomment to write out to the expected JSON file.
-        # with open(expected_file, 'w') as writeto:
-        #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
-        #     writeto.write(re.sub(r' +$', '', json_to_write, flags=re.MULTILINE) + "\n")
+            for question in question_paper.question_set.all():
+                question_as_data = command.question_to_json_data(question)
+                all_questions_as_data.append(question_as_data)
 
-        expected_json = open(expected_file).read()
-        expected_data = json.loads(expected_json)
+            expected_file = sample_file('expected_json_data_for_{0}.json'.format(filename_root))
+            # Uncomment to write out to the expected JSON file.
+            # with open(expected_file, 'w') as writeto:
+            #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
+            #     writeto.write(re.sub(r'(?m) +$', '', json_to_write) + "\n")
 
-        self.assertEqual(all_questions_as_data, expected_data)
+            expected_json = open(expected_file).read()
+            expected_data = json.loads(expected_json)
+
+            all_questions_as_data.sort()
+            expected_data.sort()
+
+            self.assertEqual(all_questions_as_data, expected_data)
+
+    
+    def test_page_header_removal(self):
+        tests = [
+
+        # 559662_1
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="522" height="16" font="0"><i>Friday, 13 December 2013</i>] 272 </text>
+<text top="1197" left="83" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 37─2013 </text>
+<text top="118" left="85" width="125" height="16" font="1">[No 37—2013] F</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="118" left="85" width="125" height="16" font="1">[No 37—2013] F</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="750" height="16" font="1"> 273 </text>
+<text top="80" left="607" width="205" height="16" font="1">[<i>Friday, 13 December 2013 </i></text>
+<text top="1197" left="364" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 37─2013 </text>
+<text top="119" left="85" width="36" height="16" font="4"><b>152. </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="85" width="36" height="16" font="4"><b>152. </b></text>
+</page>"""),
+
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="531" height="16" font="0"><i>Friday, 1 November 2013</i>] 248 </text>
+<text top="1197" left="85" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 33─2013 </text>
+<text top="118" left="85" width="125" height="16" font="1">[No 33—2013] F</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="118" left="85" width="125" height="16" font="1">[No 33—2013] F</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="85" width="750" height="16" font="1"> 249 </text>
+<text top="80" left="616" width="197" height="16" font="1">[<i>Friday, 1 November 2013 </i></text>
+<text top="1197" left="364" width="447" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL COUNCIL OF PROVINCES NO 33─2013 </text>
+<text top="119" left="85" width="36" height="16" font="4"><b>438. </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="85" width="36" height="16" font="4"><b>438. </b></text>
+</page>"""),
+         
+        (ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="80" left="446" width="366" height="16" font="0">239 [<i>Friday, 19 April 2013 </i></text>
+<text top="1197" left="441" width="369" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 12─2013 </text>
+<text top="119" left="86" width="36" height="16" font="4"><b>676. </b></text>
+</page>""",
+         ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="119" left="86" width="36" height="16" font="4"><b>676. </b></text>
+</page>"""),
+         
+        (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">533</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="131" width="253" height="12" font="3">[No 20 – 2009] First Session, Fourth Parliament</text>
+</page>""",
+         ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="131" width="253" height="12" font="3">[No 20 – 2009] First Session, Fourth Parliament</text>
+</page>"""),
+
+        (ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">534</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="4" height="13" font="7"><b> </b></text>
+<text top="199" left="350" width="250" height="13" font="7"><b>QUESTIONS FOR WRITTEN REPLY </b></text>
+</page>""",
+         ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="4" height="13" font="7"><b> </b></text>
+<text top="199" left="350" width="250" height="13" font="7"><b>QUESTIONS FOR WRITTEN REPLY </b></text>
+</page>"""),
+
+        (ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>
+<text top="123" left="447" width="3" height="12" font="0"><i> </i></text>
+<text top="123" left="696" width="3" height="12" font="0"><i> </i></text>
+<text top="139" left="131" width="4" height="16" font="1"> </text>
+<text top="1147" left="378" width="361" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 20 - 2009 </text>
+<text top="108" left="742" width="20" height="12" font="3">535</text>
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="21" height="13" font="4">(4) </text>
+</page>""",
+         ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
+<text top="122" left="729" width="4" height="13" font="4"> </text>
+<text top="1149" left="131" width="4" height="16" font="1"> </text>
+<text top="1169" left="131" width="4" height="16" font="1"> </text>
+<text top="162" left="184" width="21" height="13" font="4">(4) </text>
+</page>"""),
+        ]
+
+        for input, expected in tests:
+            page = lxml.etree.fromstring(input)
+            question_scraper.remove_headers_from_page(page)
+
+            self.assertEqual(lxml.etree.tostring(page, encoding='unicode'), expected)
+
+# 517147_1
 

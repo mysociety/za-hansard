@@ -194,7 +194,7 @@ class AnswerDetailIterator(BaseDetailIterator):
     document_name_regex = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})$')
 
     def get_details(self):
-        sys.stdout.write('Answers {}\n'.format(self.next_list_url))
+        sys.stdout.write('Answers {0}\n'.format(self.next_list_url))
         
         contents = self.url_get(self.next_list_url)
         page = parslepy.Parselet(self.answer_parsing_rules).parse_fromstring(contents)
@@ -217,7 +217,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                     document_data = self.document_name_regex.match(document_name).groupdict()
                 except:
                     if document_name not in self.known_bad_document_names: 
-                        sys.stdout.write('SKIPPING bad document_name {}\n'
+                        sys.stdout.write('SKIPPING bad document_name {0}\n'
                                          .format(document_name))
                     continue
 
@@ -250,7 +250,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                         ).date()
                 except:
                     sys.stdout.write(
-                        "BAILING on {} - problem converting date\n"
+                        "BAILING on {0} - problem converting date\n"
                         .format(document_name)
                         )
                     continue
@@ -276,7 +276,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                 break
 
 
-page_header_regex = re.compile(ur"\s*(?:{}|{})\s*".format(
+page_header_regex = re.compile(ur"\s*(?:{0}|{1})\s*".format(
         ur'(?:\d+ \[)?[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4}(?:\] \d+)? INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+[─-]\d{4}',
         ur'[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4} INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+\s*[─-]\s*\d{4} \d+',
         )
@@ -445,7 +445,7 @@ class QuestionPaperParser(object):
             
             if parliament_number < 4:
                 sys.stdout.write(
-                    '\nBAILING OUT: Parliament {} is too long ago\n'
+                    '\nBAILING OUT: Parliament {0} is too long ago\n'
                     .format(parliament_number)
                     )
                 return
@@ -464,8 +464,8 @@ class QuestionPaperParser(object):
                 parliament_number=parliament_number,
                 )
             # FIXME - We need to be able to cope with reprints of question papers.
-            sys.stdout.write("\nBAILING OUT: Question Paper {} too similar to\n".format(question_paper.source_url))
-            sys.stdout.write("                            {}\n".format(old_qp.source_url))
+            sys.stdout.write("\nBAILING OUT: Question Paper {0} too similar to\n".format(question_paper.source_url))
+            sys.stdout.write("                            {0}\n".format(old_qp.source_url))
         except QuestionPaper.DoesNotExist:
             question_paper.save()
             return question_paper
@@ -538,7 +538,7 @@ class QuestionPaperParser(object):
             elif answer_type == 'W':
                 match_dict[u'written_number'] = number1
             else:
-                sys.stdout.write("SKIPPING: Unrecognised answer type for {}\n".format(match_dict['identifier']))
+                sys.stdout.write("SKIPPING: Unrecognised answer type for {0}\n".format(match_dict['identifier']))
                 continue
                 
             match_dict[u'paper'] = self.question_paper
@@ -638,10 +638,10 @@ class QuestionPaperParser(object):
         for date, chunk in chunks:
             questions.extend(self.get_questions_from_chunk(date, chunk))
 
-        sys.stdout.write(' found {} questions'.format(len(questions)))
+        sys.stdout.write(' found {0} questions'.format(len(questions)))
 
         if len(questions) != expected_question_count:
-            sys.stdout.write(" expected {} - SUSPICIOUS".format(expected_question_count))
+            sys.stdout.write(" expected {0} - SUSPICIOUS".format(expected_question_count))
         
         sys.stdout.write('\n')
             
@@ -668,12 +668,12 @@ class QuestionPaperParser(object):
                     # we need to be able to cope with a revised question or a question
                     # changing from oral to written, etc.
                     if question.identifier != existing_question.identifier:
-                        sys.stdout.write("IDENTIFIER CHANGE: {} already exists as {} - keeping original version\n".format(question.identifier, existing_question.identifier))
+                        sys.stdout.write("IDENTIFIER CHANGE: {0} already exists as {1} - keeping original version\n".format(question.identifier, existing_question.identifier))
                     else:
-                        sys.stdout.write("DUPLICATE: {} already exists - keeping original version\n".format(question.identifier, existing_question.identifier))
+                        sys.stdout.write("DUPLICATE: {0} already exists - keeping original version\n".format(question.identifier))
                         
                 else:
-                    sys.stdout.write("BAD DUPLICATE: {} already exists as {} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
+                    sys.stdout.write("BAD DUPLICATE: {0} already exists as {1} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
             except Question.DoesNotExist:
                 if Question.objects.filter(
                     written_number=question.written_number,
@@ -681,7 +681,7 @@ class QuestionPaperParser(object):
                     year=question.year,
                     ).exists():
                     sys.stdout.write(
-                        "DUPLICATE written_number {} {} {} - SKIPPING\n"
+                        "DUPLICATE written_number {0} {1} {2} - SKIPPING\n"
                         .format(question.written_number, question.house, question.year)
                         )
 

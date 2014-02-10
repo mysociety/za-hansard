@@ -17,11 +17,11 @@ from optparse import make_option
 class Command(BaseCommand):
     help = 'Import available hansards into sayit'
     option_list = BaseCommand.option_list + (
-        #make_option('--reimport',
-            #default=False,
-            #action='store_true',
-            #help='Reimport already imported speeches',
-        #),
+        make_option('--reimport',
+            default=False,
+            action='store_true',
+            help='Reimport already imported speeches',
+        ),
         make_option('--id',
             type='str',
             help='Import a given id',
@@ -48,7 +48,9 @@ class Command(BaseCommand):
             raise CommandError("Instance specified not found (%s)" % options['instance'])
 
         sources = Source.objects.filter(last_processing_success__isnull = False)
-        sources = sources.filter(sayit_section__isnull = True)
+
+        if not( options['reimport'] or options['id']):
+            sources = sources.filter(sayit_section__isnull = True)
 
         if options['id']:
             sources = sources.filter(id = options['id'])

@@ -214,3 +214,4 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+POPIT_API_URL = config.get('POPIT_API_URL')

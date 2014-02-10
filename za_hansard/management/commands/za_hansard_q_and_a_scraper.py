@@ -27,7 +27,17 @@ from instances.models import Instance
 from ... import question_scraper
 
 def strip_dict(d):
-    return { k: v.strip() if 'strip' in dir(v) else v for k, v in d.items() }
+    """
+    Return a new dictionary, like d, but with any string value stripped
+
+    >>> d = {'a': ' foo   ', 'b': 3, 'c': '   bar'}
+    >>> result = strip_dict(d)
+    >>> type(result)
+    <type 'dict'>
+    >>> sorted(result.items())
+    [('a', 'foo'), ('b', 3), ('c', 'bar')]
+    """
+    return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
 
 class Command(BaseCommand):
 

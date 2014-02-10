@@ -289,6 +289,10 @@ class QuestionPaperParser(object):
         url = self.kwargs['url']
 
         pdfdata = self.get_question_pdf_from_url(url)
+
+        if not pdfdata:
+            return
+
         xmldata = self.get_question_xml_from_pdf(pdfdata)
 
         if not xmldata:
@@ -302,7 +306,13 @@ class QuestionPaperParser(object):
         self.create_questions_from_xml(xmldata, url)
 
     def get_question_pdf_from_url(self, url):
-        return requests.get(url).content
+        response = requests.get(url)
+
+        if response.status_code == requests.codes.ok:
+            return response.content
+        else:
+            sys.stdout.write(' SKIPPING - Bad response\n')
+
 
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)

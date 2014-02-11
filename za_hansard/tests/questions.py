@@ -183,7 +183,7 @@ class ZAQuestionParsing(TestCase):
         )
 
     # FIXME - Oral questions which are transferred could collect their oral question number.
-    
+
     # The exact form of the XML returned depends on the version of pdftohtml
     # used. Use the version installed onto travis as the common ground (as of
     # this writing 0.18.4). Also run if we have this version locally.
@@ -253,7 +253,6 @@ class ZAQuestionParsing(TestCase):
 
             self.assertEqual(all_questions_as_data, expected_data)
 
-    
     def test_page_header_removal(self):
         tests = [
 
@@ -295,7 +294,7 @@ class ZAQuestionParsing(TestCase):
          ur"""<page number="2" position="absolute" top="0" left="0" height="1263" width="892">
 <text top="119" left="85" width="36" height="16" font="4"><b>438. </b></text>
 </page>"""),
-         
+
         (ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
 <text top="80" left="446" width="366" height="16" font="0">239 [<i>Friday, 19 April 2013 </i></text>
 <text top="1197" left="441" width="369" height="11" font="2">INTERNAL QUESTION PAPER: NATIONAL ASSEMBLY NO 12─2013 </text>
@@ -304,7 +303,7 @@ class ZAQuestionParsing(TestCase):
          ur"""<page number="3" position="absolute" top="0" left="0" height="1263" width="892">
 <text top="119" left="86" width="36" height="16" font="4"><b>676. </b></text>
 </page>"""),
-         
+
         (ur"""<page number="1" position="absolute" top="0" left="0" height="1263" width="892">
 <text top="108" left="145" width="3" height="12" font="0"><i> </i></text>
 <text top="123" left="131" width="128" height="12" font="0"><i>Friday, 9 October 2009 </i></text>

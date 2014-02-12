@@ -346,7 +346,10 @@ class Command(BaseCommand):
                 u'Questions asked to the ' + question.questionto,
             ],
             u'questionto': question.questionto,
-            u'title': unicode(question.date.strftime(u'%d %B %Y')),
+            u'title': '{0} - {1}'.format(
+                question.identifier,
+                question.date.strftime(u'%d %B %Y'),
+                ),
             u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
             u'speeches': [
                 {

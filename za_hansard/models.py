@@ -249,7 +249,7 @@ class Answer (models.Model):
     year = models.IntegerField(db_index=True)
     house = models.CharField(max_length=1, choices=house_choices, db_index=True)
     #------------------------------------------------------------
-    
+
     text = models.TextField()
     processed_code = models.IntegerField(null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES, db_index=True)
     name = models.TextField()
@@ -311,9 +311,9 @@ int_to_text = {
     10: 'TENTH',
     }
 
-class Question (models.Model):
+class Question(models.Model):
     paper = models.ForeignKey(
-        QuestionPaper, 
+        QuestionPaper,
         null=True, # FIXME - eventually, this should not be nullable.
         on_delete=models.SET_NULL,
         )
@@ -332,7 +332,7 @@ class Question (models.Model):
     # sequence numbers. It looks like these are probably the order the questions
     # were asked in. The sequences are unique for each house for written/oral and
     # restart on 1 each year.
-    
+
     # At least one of these four numbers should be non-null, and it's possible
     # for more than one to be non-null if a question is transferred from oral to written
     # or vice-versa.
@@ -358,7 +358,7 @@ class Question (models.Model):
     #  - [AEX]- Afrikaans/English/Xhosa. The language the question is currently
     #           being displayed in. Translations of the question will have a
     #           different [AEX] in the identifier.
-    
+
     # Note that we also store the number, house, and answer_type separately.
     identifier = models.CharField(max_length=10, db_index=True)
 
@@ -407,7 +407,7 @@ class Question (models.Model):
     # '152. Mr D A Worth (DA-FS) to ask the Minister of Defence and Military Veterans:'
     # '254. Mr R A Lees (DA-KZN) to ask the Minister of Rural Development and Land Reform:'
     intro = models.TextField()
-    
+
     # Name of the person asking the question.
     askedby = models.TextField()
 
@@ -430,7 +430,7 @@ class Question (models.Model):
         #     ('oral_number', 'house', 'year'),
         #     ('id_number', 'house', 'year'),
         #     )
-            
+
         # FIXME - Other things it would be nice to constrain that will have to
         # be done in postgres directly, I think.
         # 1) At least one of written_number and oral_number must be non-null.

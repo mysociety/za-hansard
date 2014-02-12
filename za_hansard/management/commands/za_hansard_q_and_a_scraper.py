@@ -230,30 +230,33 @@ class Command(BaseCommand):
 
             if os.path.exists(filename):
                 self.stdout.write('-')
-                continue
-
-            self.stdout.write('.')
-
-            try:
-                download = urllib2.urlopen(row.url)
-                with open(filename, 'wb') as save:
-                    save.write(download.read())
+            else:
+                self.stdout.write('.')
 
                 try:
-                    text = question_scraper.extract_answer_text_from_word_document(filename)
-                    row.processed_code = Answer.PROCESSED_OK
-                    row.text = text
+                    download = urllib2.urlopen(row.url)
+
+                    with open(filename, 'wb') as save:
+                        save.write(download.read())
+
+                except urllib2.HTTPError:
+                    row.processed_code = Answer.PROCESSED_HTTP_ERROR
                     row.save()
-                except subprocess.CalledProcessError:
-                    self.stdout.write('ERROR in antiword processing %d\n' % row.id)
+                    self.stderr.write('ERROR HTTPError while processing %d\n' % row.id)
+                    continue
 
-            except urllib2.HTTPError:
-                row.processed_code = Answer.PROCESSED_HTTP_ERROR
+                except urllib2.URLError:
+                    self.stderr.write('ERROR URLError while processing %d\n' % row.id)
+                    continue
+
+            try:
+                text = question_scraper.extract_answer_text_from_word_document(filename)
+                row.processed_code = Answer.PROCESSED_OK
+                row.text = text
                 row.save()
-                self.stderr.write('ERROR HTTPError while processing %d\n' % row.id)
+            except subprocess.CalledProcessError:
+                self.stdout.write('ERROR in antiword processing %d\n' % row.id)
 
-            except urllib2.URLError:
-                self.stderr.write('ERROR URLError while processing %d\n' % row.id)
 
     def match_answers(self, *args, **options):
         # FIXME - should change to a subset of all answers.

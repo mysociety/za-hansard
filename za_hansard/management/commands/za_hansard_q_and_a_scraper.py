@@ -282,7 +282,7 @@ class Command(BaseCommand):
                     )
             except Question.DoesNotExist:
                 sys.stdout.write(
-                    "No question found for {0} {1}"
+                    "No question found for {0} {1}\n"
                     .format(answer.id, answer.document_name)
                     )
                 continue

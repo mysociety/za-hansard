@@ -21,3 +21,7 @@ django-subdomain-instances
 parslepy
 
 requests
+
+# In an ideal world, this should be pulled in by sayit, but it isn't.
+# See https://github.com/mysociety/sayit/issues/161
+-e git+https://github.com/mysociety/django-sluggable@with_unique_with#egg=django-sluggable

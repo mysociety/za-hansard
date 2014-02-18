@@ -23,6 +23,8 @@ from instances.models import Instance
 from za_hansard.models import PMGCommitteeReport, PMGCommitteeAppearance
 from speeches.importers.import_json import ImportJson
 
+WAIT_AFTER_FETCHING = 20
+
 class StopFetchingException (Exception):
     # this is a control flow exception.
     pass
@@ -214,10 +216,11 @@ class Command(BaseCommand):
         for i in range(0, self.retries):
             try:
                 page=urllib2.urlopen(url)
+                time.sleep(WAIT_AFTER_FETCHING)
                 return page
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
-                time.sleep(1)
+                time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so
         raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
@@ -357,7 +360,7 @@ class Command(BaseCommand):
             PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
 
         # finally sleep, to minimize load on PMG servers
-        time.sleep(1)
+        time.sleep(WAIT_AFTER_FETCHING)
 
     def processReports(self, url,processingcommitteeName,processingcommitteeURL):
         #get reports on this page, process them, proceed to next page

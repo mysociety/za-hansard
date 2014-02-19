@@ -172,28 +172,27 @@ class Command(BaseCommand):
         parsedcommittees = p.parse_fromstring(contents)
 
         self.stdout.write('Started\n')
-        try:
-            for ctype in parsedcommittees['committee_types']:
-                for committee in ctype['committees']:
-                    self.numcommittees = self.numcommittees + 1
+        for ctype in parsedcommittees['committee_types']:
+            for committee in ctype['committees']:
+                self.numcommittees = self.numcommittees + 1
 
-                    try:
-                        self.processCommittee(
-                            'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
-                            committee['name'])
-                    except urllib2.HTTPError:
-                        #if there is an http error, just ignore this committee this time
-                        self.stderr.write('HTTPERROR '+committee['name'])
-                        pass
-                    finally:    
-                        self.updateprocess()
-                        self.committees.append({
-                            "name": committee['name'],
-                            "url": committee['url'],
-                            "type": ctype['type']
-                            })
-        except StopFetchingException as e:
-            self.stderr.write("STOPPED! %s\n" % e)
+                try:
+                    self.processCommittee(
+                        'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
+                        committee['name'])
+                except urllib2.HTTPError:
+                    #if there is an http error, just ignore this committee this time
+                    self.stderr.write('HTTPERROR '+committee['name'])
+                    pass
+                except StopFetchingException as e:
+                    self.stderr.write("STOPPED! %s\n" % e)
+                finally:
+                    self.updateprocess()
+                    self.committees.append({
+                        "name": committee['name'],
+                        "url": committee['url'],
+                        "type": ctype['type']
+                        })
 
         if options['scrape_with_json']:
             with open('committees_json.json', 'w') as outfile:

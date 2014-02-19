@@ -189,7 +189,7 @@ class Command(BaseCommand):
                 time.sleep(WAIT_AFTER_FETCHING)
                 return page
             except Exception as e:
-                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
                 time.sleep(1)
 
         # we didn't ever return, so
@@ -210,7 +210,7 @@ class Command(BaseCommand):
             try:
                 page = premium_opener.open('http://www.pmg.org.za/user/login')
             except Exception as e:
-                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
                 time.sleep(1)
         contents = page.read()
 
@@ -236,7 +236,7 @@ class Command(BaseCommand):
             try:
                 resp = premium_opener.open(req)
             except Exception as e:
-                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
                 time.sleep(1)
         contents = resp.read()
 
@@ -251,7 +251,7 @@ class Command(BaseCommand):
                 time.sleep(60)
                 return page
             except Exception as e:
-                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, str(e))
+                print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
                 time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so
@@ -595,7 +595,7 @@ class Command(BaseCommand):
 
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' %
-                    (row.id, str(e)))
+                    (row.id, e))
 
         self.stdout.write( str( [s.id for s in sections] ) )
         self.stdout.write( '\n' )

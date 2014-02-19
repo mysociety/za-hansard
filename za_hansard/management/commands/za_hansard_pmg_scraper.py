@@ -154,7 +154,6 @@ class Command(BaseCommand):
                 except urllib2.HTTPError:
                     #if there is an http error, just ignore this committee this time
                     self.stderr.write('HTTPERROR '+committee['name'])
-                    pass
                 except StopFetchingException as e:
                     self.stderr.write("STOPPED! %s\n" % e)
                 finally:

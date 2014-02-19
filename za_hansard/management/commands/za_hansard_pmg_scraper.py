@@ -86,11 +86,11 @@ class Command(BaseCommand):
     allmembers = []
     allreports = []
     allappearances = []
-    numcommittees=0
-    reportschecked=0
-    reportsprocessed=0
-    appearancesadded=0
-    totalappearances=0 # seems to be reset later, not really a good global
+    numcommittees = 0
+    reportschecked = 0
+    reportsprocessed = 0
+    appearancesadded = 0
+    totalappearances = 0 # seems to be reset later, not really a good global
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
     instance = None
     limit = 0
@@ -105,7 +105,7 @@ class Command(BaseCommand):
 
         self.retries = options['retries']
 
-        self.limit          = options['limit']
+        self.limit = options['limit']
         self.fetch_to_limit = options['fetch_to_limit']
 
         if options['scrape_with_json']:
@@ -220,10 +220,10 @@ class Command(BaseCommand):
         p = parslepy.Parselet(login_rules)
         login_data = p.parse_fromstring(contents)
         for attr in login_data['form']:
-            if attr['name']=='form_build_id':
-                form_build_id=attr['value']
-            if attr['name']=='form_id':
-                form_id=attr['value']
+            if attr['name'] == 'form_build_id':
+                form_build_id = attr['value']
+            if attr['name'] == 'form_id':
+                form_id = attr['value']
         data = {
             'form_id': form_id,
             'form_build_id': form_build_id,
@@ -257,7 +257,7 @@ class Command(BaseCommand):
         # we didn't ever return, so
         raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
 
-    def processReport(self, row, url,committeeName,committeeURL,meetingDate):
+    def processReport(self, row, url, committeeName, committeeURL, meetingDate):
         #get the appearances in the report
 
         meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
@@ -276,11 +276,11 @@ class Command(BaseCommand):
         contents = page.read()
         p = parslepy.Parselet(report_rules)
         report = p.parse_fromstring(contents)
-        self.totalappearances=0
+        self.totalappearances = 0
 
         soup = BeautifulSoup(contents)
         #use BeautifulSoup due to issues with <br/> divisions when using Parslepy
-        text=(
+        text = (
             unicode(soup.find('div',class_='field-field-minutes'))
             .replace('<br/>','')
             .replace('<div>','')
@@ -291,21 +291,21 @@ class Command(BaseCommand):
             .replace('<b><i>Discussion</i></b>',''))
         paragraphs = text.split("\n")
 
-        if len(paragraphs)<3 and len(report['paragraphs'])>1:
+        if len(paragraphs) < 3 and len(report['paragraphs']) > 1:
             paragraphs = report['paragraphs']
 
-        PMGCommitteeAppearance.objects.filter(report = row).delete()
+        PMGCommitteeAppearance.objects.filter(report=row).delete()
 
         if 'chairperson' not in report:
-            report['chairperson']=""
+            report['chairperson'] = ""
 
-        chairs=re.findall(self.name_re, report['chairperson'])
+        chairs = re.findall(self.name_re, report['chairperson'])
 
-        findchair=False
+        findchair = False
 
-        if len(chairs)>1:
+        if len(chairs) > 1:
             for chair in chairs:
-                save={
+                save = {
                     'report': row,
                     'meeting_date': meetingDate,
                     'committee_url': committeeURL,
@@ -355,7 +355,7 @@ class Command(BaseCommand):
                             .replace("\n",''),
                          }
 
-                    (obj, created) = PMGCommitteeAppearance.objects.get_or_create(
+                    obj, created = PMGCommitteeAppearance.objects.get_or_create(
                         person = name,
                         meeting_url = url,
                         defaults = save,
@@ -369,9 +369,9 @@ class Command(BaseCommand):
 
             if findchair:
                 if "The Chairperson" in paragraph:
-                    findchair=False
+                    findchair = False
 
-                    save={
+                    save = {
                         'report': row,
                         'meeting_date': meetingDate,
                         'committee_url': committeeURL,
@@ -392,7 +392,7 @@ class Command(BaseCommand):
                     self.totalappearances = self.totalappearances + 1
 
         if self.totalappearances > 0:
-            PMGCommitteeReport.objects.filter(meeting_url = url).update( processed = True)
+            PMGCommitteeReport.objects.filter(meeting_url=url).update(processed=True)
 
         # finally sleep, to minimize load on PMG servers
         time.sleep(WAIT_AFTER_FETCHING)
@@ -404,21 +404,21 @@ class Command(BaseCommand):
         contents = page.read()
 
         reports_rules = {
-            "heading":"h1.title",
+            "heading": "h1.title",
             "reports(div.view-reports-by-committee table tr)": [{
                 "date": "td.views-field-field-meeting-date-value",
                 "meeting": "td.views-field-title",
                 "url": "a @href",
                 "image": "td.views-field-phpcode img @src"
-                }],
+            }],
             "next": "li.pager-next a @href"
         }
         p = parslepy.Parselet(reports_rules)
         reports = p.parse_fromstring(contents)
 
         #if no reports are found, this is probably a premium committee so needs to be reloaded
-        if len(reports['reports'])==0:
-            page=self.premium_open_url_with_retries(url)
+        if len(reports['reports']) == 0:
+            page = self.premium_open_url_with_retries(url)
             contents = page.read()
             reports = p.parse_fromstring(contents)
 
@@ -431,7 +431,7 @@ class Command(BaseCommand):
             if "date" in report:
                 self.reportschecked = self.reportschecked + 1
                 if report['date'] != '' and report['date'] != '':
-                    if (len(report)>0 and "date" in report
+                    if (len(report) > 0 and "date" in report
                         and "meeting" in report and "url" in report
                         and time.strptime(report['date'],'%d %b %Y')
                             > time.strptime('22 Apr 2009','%d %b %Y')):
@@ -441,7 +441,7 @@ class Command(BaseCommand):
                             "url": report['url'],
                             "committee": processingcommitteeName})
 
-                        meeting_url = 'http://www.pmg.org.za'+report['url']
+                        meeting_url = 'http://www.pmg.org.za' + report['url']
                         try:
                             row = PMGCommitteeReport.objects.filter(
                                 meeting_url = meeting_url)[0]
@@ -454,18 +454,18 @@ class Command(BaseCommand):
                                 report['image']=''
 
                             if 'tick.png' in report['image']:
-                                ispremium=0
+                                ispremium = 0
                             else:
-                                ispremium=1
+                                ispremium = 1
 
                             row = PMGCommitteeReport.objects.create(
-                                premium = ispremium,
-                                processed = False,
-                                meeting_url = meeting_url)
+                                premium=ispremium,
+                                processed=False,
+                                meeting_url=meeting_url)
 
                             self.processReport(
                                 row,
-                                'http://www.pmg.org.za'+report['url'],
+                                'http://www.pmg.org.za' + report['url'],
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
@@ -474,7 +474,7 @@ class Command(BaseCommand):
 
                             self.processReport(
                                 row,
-                                'http://www.pmg.org.za'+report['url'],
+                                'http://www.pmg.org.za' + report['url'],
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
@@ -485,13 +485,13 @@ class Command(BaseCommand):
         if "next" in reports:
 
             self.processReports(
-                'http://www.pmg.org.za'+reports['next'],
+                'http://www.pmg.org.za' + reports['next'],
                 processingcommitteeName,
                 processingcommitteeURL)
 
     def processCommittee(self, url,processingcommitteeName):
         #opens the committee, gets the memberrs, starts retrieving reports
-        page=self.open_url_with_retries(url)
+        page = self.open_url_with_retries(url)
         contents = page.read()
 
         members_rules = {
@@ -505,26 +505,26 @@ class Command(BaseCommand):
 
         for member in members['members']:
             if ' (ALT)' in member['name']:
-                member['alternative']=True
-                member['name']=member['name'].replace(' (ALT)','')
+                member['alternative'] = True
+                member['name'] = member['name'].replace(' (ALT)','')
             else:
-                member['alternative']=False
-            if re.search(" \(([A-Z+]+)\)",member['name']):
-                member['party']=re.search(" \(([A-Z+]+)\)",member['name']).group(1)
+                member['alternative'] = False
+            if re.search(" \(([A-Z+]+)\)", member['name']):
+                member['party'] = re.search(" \(([A-Z+]+)\)", member['name']).group(1)
             else:
-                member['party']=''
+                member['party'] = ''
 
-            member['name']=re.sub(" \(([A-Z+]+)\)","",member['name'])
+            member['name'] = re.sub(" \(([A-Z+]+)\)", "", member['name'])
 
             if members['chairperson'] in member['name']:
-                member['isChairperson']=True
+                member['isChairperson'] = True
             else:
-                member['isChairperson']=False
+                member['isChairperson'] = False
 
-            member['committee']=processingcommitteeName
+            member['committee'] = processingcommitteeName
             self.allmembers.append(member)
 
-        self.processReports( url, processingcommitteeName, url )
+        self.processReports(url, processingcommitteeName, url)
 
     def save_json(self, *args, **options):
 
@@ -547,21 +547,20 @@ class Command(BaseCommand):
                         'text': row.text,
                         'tags': ['committee']
                         })
-            tosave={
+            tosave = {
                     # TODO, really these fields belong to report, not to first appearance row
                     'committee_url': first_appearance.committee_url,
-                    'organization':  first_appearance.committee,
-                    'title':         first_appearance.meeting,
-                    'report_url':    first_appearance.meeting_url,
-                    'date':          first_appearance.meeting_date,
-                    'public':        bool(not report.premium),
-                    'speeches':      speeches,
+                    'organization': first_appearance.committee,
+                    'title': first_appearance.meeting,
+                    'report_url': first_appearance.meeting_url,
+                    'date': first_appearance.meeting_date,
+                    'public': bool(not report.premium),
+                    'speeches': speeches,
                     'parent_section_titles': [
                         'Committee Minutes',
                         first_appearance.committee,
                         first_appearance.meeting_date.strftime('%d %B %Y')
-                        ]}
-
+                    ]}
 
             filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % report.id)
             with open(filename, 'w') as outfile:
@@ -572,7 +571,7 @@ class Command(BaseCommand):
         sections = []
         sources = PMGCommitteeReport.objects
         if not options['delete_existing']:
-            sources = sources.filter(sayit_section = None)
+            sources = sources.filter(sayit_section=None)
 
         sources_all = sources.all()
 
@@ -581,7 +580,7 @@ class Command(BaseCommand):
             if not os.path.exists(filename):
                 continue
 
-            importer = ImportJson( instance=self.instance, delete_existing = options['delete_existing'],
+            importer = ImportJson(instance=self.instance, delete_existing=options['delete_existing'],
                 popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
             try:
                 self.stdout.write("TRYING %d (%s)\n" % (row.id, filename))
@@ -594,8 +593,7 @@ class Command(BaseCommand):
                 sections.append(section)
 
             except Exception as e:
-                self.stderr.write('WARN: failed to import %d: %s' %
-                    (row.id, e))
+                self.stderr.write('WARN: failed to import %d: %s' % (row.id, e))
 
         self.stdout.write( str( [s.id for s in sections] ) )
         self.stdout.write( '\n' )

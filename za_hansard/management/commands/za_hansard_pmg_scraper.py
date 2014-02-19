@@ -516,10 +516,7 @@ class Command(BaseCommand):
 
             member['name'] = re.sub(" \(([A-Z+]+)\)", "", member['name'])
 
-            if members['chairperson'] in member['name']:
-                member['isChairperson'] = True
-            else:
-                member['isChairperson'] = False
+            member['isChairperson'] = (members['chairperson'] in member['name'])
 
             member['committee'] = processingcommitteeName
             self.allmembers.append(member)

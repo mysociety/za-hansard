@@ -190,7 +190,7 @@ class Command(BaseCommand):
                 return page
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
-                time.sleep(1)
+                time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so
         raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
@@ -211,11 +211,11 @@ class Command(BaseCommand):
                 page = premium_opener.open('http://www.pmg.org.za/user/login')
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
-                time.sleep(1)
+                time.sleep(WAIT_AFTER_FETCHING)
         contents = page.read()
 
         # sleep, to minimize load on PMG servers
-        time.sleep(60)
+        time.sleep(WAIT_AFTER_FETCHING)
 
         p = parslepy.Parselet(login_rules)
         login_data = p.parse_fromstring(contents)
@@ -237,18 +237,18 @@ class Command(BaseCommand):
                 resp = premium_opener.open(req)
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
-                time.sleep(1)
+                time.sleep(WAIT_AFTER_FETCHING)
         contents = resp.read()
 
         # sleep, to minimize load on PMG servers
-        time.sleep(60)
+        time.sleep(WAIT_AFTER_FETCHING)
 
         #now access the page
         for i in range(0, self.retries):
             try:
                 page = premium_opener.open(url)
                 # sleep, to minimize load on PMG servers
-                time.sleep(60)
+                time.sleep(WAIT_AFTER_FETCHING)
                 return page
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)

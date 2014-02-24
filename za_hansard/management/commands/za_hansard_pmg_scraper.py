@@ -196,6 +196,7 @@ class Command(BaseCommand):
     def open_url_with_retries(self, url):
         for i in range(0, self.retries):
             try:
+                self.stdout.write("open_url_with_retries (retry: {0}) {1}\n".format(i, url))
                 page=urllib2.urlopen(url)
                 # sleep, to minimize load on PMG servers
                 time.sleep(WAIT_AFTER_FETCHING)
@@ -258,6 +259,7 @@ class Command(BaseCommand):
         #now access the page
         for i in range(0, self.retries):
             try:
+                self.stdout.write("premium_open_url_with_retries (retry: {0}) {1}\n".format(i, url))
                 page = premium_opener.open(url)
                 # sleep, to minimize load on PMG servers
                 time.sleep(60)
@@ -273,6 +275,7 @@ class Command(BaseCommand):
 
     def processReport(self, row, url, committeeName, committeeURL, meetingDate):
         #get the appearances in the report
+        self.stdout.write("Processing report on {0} for '{1}'; report URL: {2}\n".format(meetingDate, committeeName, url))
 
         meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
 

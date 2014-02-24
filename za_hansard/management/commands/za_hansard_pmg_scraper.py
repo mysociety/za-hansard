@@ -29,6 +29,9 @@ class StopFetchingException (Exception):
     # this is a control flow exception.
     pass
 
+class FetchingPremiumContentFailed(Exception):
+    pass
+
 class Command(BaseCommand):
 
     help = 'Check for new sources'
@@ -91,6 +94,7 @@ class Command(BaseCommand):
     reportsprocessed = 0
     appearancesadded = 0
     totalappearances = 0 # seems to be reset later, not really a good global
+    premium_urls_successfully_fetched = 0
     name_re = "(Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Prince|Princess) ([- a-zA-Z]{1,50}) \(([-A-Z]+)([;,][- A-Za-z]+)?\)"
     instance = None
     limit = 0
@@ -156,6 +160,14 @@ class Command(BaseCommand):
                     self.stderr.write('HTTPERROR '+committee['name'])
                 except StopFetchingException as e:
                     self.stderr.write("STOPPED! %s\n" % e)
+                except FetchingPremiumContentFailed as e:
+                    # If we've never successfully fetched some premium
+                    # content, re-raise; otherwise it's probably a
+                    # transient error that should be ignored:
+                    if self.premium_urls_successfully_fetched > 0:
+                        self.stderr.write("IGNORING premium content failure %s\n" % e)
+                    else:
+                        raise
                 finally:
                     self.updateprocess()
                     self.committees.append({
@@ -249,13 +261,15 @@ class Command(BaseCommand):
                 page = premium_opener.open(url)
                 # sleep, to minimize load on PMG servers
                 time.sleep(60)
+                self.premium_urls_successfully_fetched += 1
                 return page
             except Exception as e:
                 print >> sys.stderr, "attempt %d: Exception caught '%s'" % (i, e)
                 time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so
-        raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
+        raise FetchingPremiumContentFailed(
+            "Cannot connect to server for url '%s' and max retries exceeded" % url)
 
     def processReport(self, row, url, committeeName, committeeURL, meetingDate):
         #get the appearances in the report

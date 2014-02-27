@@ -147,7 +147,13 @@ class Command(BaseCommand):
             sys.stdout.write(
                 "{count:5} {url} ".format(count=count, url=source_url))
 
-            if detail['language']=='English' and detail['type']=='pdf':
+            if detail['language'] != 'English':
+                print "SKIPPING language is '{0}', not 'English'".format(
+                    detail['language'])
+            elif detail['type'] != 'pdf':
+                print "SKIPPING type is '{0}', not 'pdf'".format(
+                    detail['type'])
+            else:
                 if QuestionPaper.objects.filter(source_url=source_url).exists():
                     self.stdout.write('SKIPPING as file already handled\n')
                     if not options['fetch_to_limit']:
@@ -161,12 +167,6 @@ class Command(BaseCommand):
                         self.stdout.write('ERROR handling {0}: {1}\n'.format(source_url, str(e)))
                         errors += 1
                         pass
-
-            elif detail['language']=='English':
-                self.stdout.write('SKIPPING as not a pdf\n')
-            else:
-                # presumably non-English
-                sys.stdout.write('SKIPPING presumably not English\n')
 
             if options['limit'] and count >= options['limit']:
                 break

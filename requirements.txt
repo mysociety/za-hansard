@@ -1,6 +1,6 @@
 lxml>=3.1.0
 pytz
-django<1.5
+django>=1.4,<1.6
 nose
 django-nose==1.2
 South

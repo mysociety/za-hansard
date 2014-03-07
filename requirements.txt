@@ -13,7 +13,7 @@ PyYAML
 
 # mySoc modules
 django-subdomain-instances
--e git://github.com/mysociety/sayit@master#egg=sayit
+-e git+git://github.com/mysociety/sayit.git@15a4fdbc510d87a9e285457c06cc870310698453#egg=django-sayit
 -e git+https://github.com/mysociety/popit-django#egg=popit-django
 -e git+https://github.com/mysociety/popit-resolver@issues/parentheses-and-deputy#egg=popit-resolver
 

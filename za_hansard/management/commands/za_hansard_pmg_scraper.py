@@ -163,7 +163,7 @@ class Command(BaseCommand):
                         print message.format(committee['name']).encode('utf-8')
                         continue
 
-                self.numcommittees = self.numcommittees + 1
+                self.numcommittees += 1
 
                 try:
                     self.processCommittee(
@@ -300,7 +300,7 @@ class Command(BaseCommand):
 
         meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
 
-        self.reportsprocessed = self.reportsprocessed + 1
+        self.reportsprocessed += 1
         self.updateprocess()
         report_rules = {
             "heading": "h1.title",
@@ -358,10 +358,10 @@ class Command(BaseCommand):
                     }
                 PMGCommitteeAppearance.objects.create(**save)
 
-                self.appearancesadded = self.appearancesadded + 1
+                self.appearancesadded += 1
 
                 self.allappearances.append(save)
-                self.totalappearances = self.totalappearances + 1
+                self.totalappearances += 1
 
         if len(chairs) is 1:
             findchair = True
@@ -400,10 +400,10 @@ class Command(BaseCommand):
                         )
 
                     if created:
-                        self.appearancesadded = self.appearancesadded + 1
+                        self.appearancesadded += 1
 
                         self.allappearances.append(save)
-                        self.totalappearances = self.totalappearances + 1
+                        self.totalappearances += 1
 
             if findchair:
                 if "The Chairperson" in paragraph:
@@ -425,9 +425,9 @@ class Command(BaseCommand):
                         }
 
                     obj = PMGCommitteeAppearance.objects.create(**save)
-                    self.appearancesadded = self.appearancesadded + 1
+                    self.appearancesadded += 1
                     self.allappearances.append(save)
-                    self.totalappearances = self.totalappearances + 1
+                    self.totalappearances += 1
 
         if self.totalappearances > 0:
             PMGCommitteeReport.objects.filter(meeting_url=url).update(processed=True)
@@ -467,7 +467,7 @@ class Command(BaseCommand):
 
             self.updateprocess()
             if "date" in report:
-                self.reportschecked = self.reportschecked + 1
+                self.reportschecked += 1
                 if report['date'] != '':
                     if (len(report) > 0 and "date" in report
                         and "meeting" in report and "url" in report

@@ -467,7 +467,7 @@ class Command(BaseCommand):
             self.updateprocess()
             if "date" in report:
                 self.reportschecked = self.reportschecked + 1
-                if report['date'] != '' and report['date'] != '':
+                if report['date'] != '':
                     if (len(report) > 0 and "date" in report
                         and "meeting" in report and "url" in report
                         and time.strptime(report['date'], '%d %b %Y')

@@ -1,9 +1,6 @@
 import parslepy
 import urllib2
-import httplib
 import re
-import pprint
-import csv
 import json
 from za_hansard.datejson import DateEncoder
 from bs4 import BeautifulSoup
@@ -12,7 +9,7 @@ import time
 import cookielib
 import urllib
 
-from datetime import datetime, date
+from datetime import datetime
 
 from optparse import make_option
 

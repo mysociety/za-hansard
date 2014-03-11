@@ -479,10 +479,10 @@ class Command(BaseCommand):
                             "committee": processingcommitteeName})
 
                         meeting_url = 'http://www.pmg.org.za' + report['url']
+
                         try:
-                            row = PMGCommitteeReport.objects.filter(
-                                meeting_url = meeting_url)[0]
-                        except IndexError:
+                            row = PMGCommitteeReport.objects.get(meeting_url=meeting_url)
+                        except PMGCommitteeReport.DoesNotExist:
                             row = None
 
                         if not row:

@@ -502,7 +502,7 @@ class Command(BaseCommand):
 
                             self.processReport(
                                 row,
-                                'http://www.pmg.org.za' + report['url'],
+                                meeting_url,
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
@@ -511,7 +511,7 @@ class Command(BaseCommand):
 
                             self.processReport(
                                 row,
-                                'http://www.pmg.org.za' + report['url'],
+                                meeting_url,
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])

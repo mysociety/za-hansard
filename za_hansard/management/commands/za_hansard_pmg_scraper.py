@@ -225,8 +225,9 @@ class Command(BaseCommand):
         raise Exception("Cannot connect to server for url '%s' and max retries exceeded" % url)
 
     def premium_open_url_with_retries(self, url):
-        #before anything starts - login so that we can access premium content. this happens each time a premium committee is accessed to avoid
-        #the server logging us out
+        # Before anything starts - login so that we can access premium content.
+        # This happens each time a premium committee is accessed to avoid
+        # the server logging us out
         cj = cookielib.CookieJar()
         premium_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 

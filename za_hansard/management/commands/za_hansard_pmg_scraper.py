@@ -218,7 +218,7 @@ class Command(BaseCommand):
                 time.sleep(WAIT_AFTER_FETCHING)
                 return page
             except Exception as e:
-                print >> sys.stderr, "attempt %d: Exception caught '%s'\n" % (i, e)
+                self.stderr.write("attempt %d: Exception caught '%s'\n" % (i, e))
                 time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so
@@ -240,7 +240,8 @@ class Command(BaseCommand):
             try:
                 page = premium_opener.open('http://www.pmg.org.za/user/login')
             except Exception as e:
-                print >> sys.stderr, "attempt (fetching login page) %d: Exception caught '%s'\n" % (i, e)
+                self.stderr.write(
+                    "attempt (fetching login page) %d: Exception caught '%s'\n" % (i, e))
                 time.sleep(WAIT_AFTER_FETCHING)
         contents = page.read()
 
@@ -266,7 +267,8 @@ class Command(BaseCommand):
             try:
                 resp = premium_opener.open(req)
             except Exception as e:
-                print >> sys.stderr, "attempt (posting to login page) %d: Exception caught '%s'\n" % (i, e)
+                self.stderr.write(
+                    "attempt (posting to login page) %d: Exception caught '%s'\n" % (i, e))
                 time.sleep(WAIT_AFTER_FETCHING)
         contents = resp.read()
 
@@ -283,7 +285,8 @@ class Command(BaseCommand):
                 self.premium_urls_successfully_fetched += 1
                 return page
             except Exception as e:
-                print >> sys.stderr, "attempt (fetching premium page) %d: Exception caught '%s'\n" % (i, e)
+                self.stderr.write(
+                    "attempt (fetching premium page) %d: Exception caught '%s'\n" % (i, e))
                 time.sleep(WAIT_AFTER_FETCHING)
 
         # we didn't ever return, so

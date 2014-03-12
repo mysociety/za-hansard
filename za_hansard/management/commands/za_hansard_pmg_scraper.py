@@ -293,7 +293,9 @@ class Command(BaseCommand):
         raise FetchingPremiumContentFailed(
             "Cannot connect to server for url '%s' and max retries exceeded" % url)
 
-    def processReport(self, row, url, committeeName, committeeURL, meetingDate):
+    def processReport(self, row, committeeName, committeeURL, meetingDate):
+        url = row.meeting_url
+
         # Get the appearances in the report
         message = u"Processing report on {0} for '{1}'; report URL: {2}\n"
         self.stdout.write(message.format(meetingDate, committeeName, url))
@@ -495,7 +497,6 @@ class Command(BaseCommand):
                         else:
                             self.processReport(
                                 row,
-                                meeting_url,
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])

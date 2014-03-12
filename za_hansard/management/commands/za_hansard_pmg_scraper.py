@@ -481,47 +481,26 @@ class Command(BaseCommand):
 
                         meeting_url = 'http://www.pmg.org.za' + report['url']
 
-                        try:
-                            row = PMGCommitteeReport.objects.get(meeting_url=meeting_url)
-                        except PMGCommitteeReport.DoesNotExist:
-                            row = None
+                        row, created = PMGCommitteeReport.objects.get_or_create(
+                            meeting_url=meeting_url,
+                            defaults={
+                                'premium': not('tick.png' in report.get('image', '')),
+                                'processed': False,
+                                }
+                            )
 
-                        if not row:
-
-                            if not 'image' in report:
-                                report['image'] = ''
-
-                            if 'tick.png' in report['image']:
-                                ispremium = 0
-                            else:
-                                ispremium = 1
-
-                            row = PMGCommitteeReport.objects.create(
-                                premium=ispremium,
-                                processed=False,
-                                meeting_url=meeting_url)
-
+                        if row.processed:
+                            if not self.fetch_to_limit:
+                                raise StopFetchingException("Reached previously seen report")
+                        else:
                             self.processReport(
                                 row,
                                 meeting_url,
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
-
-                        elif not row.processed:
-
-                            self.processReport(
-                                row,
-                                meeting_url,
-                                processingcommitteeName,
-                                processingcommitteeURL,
-                                report['date'])
-
-                        elif not self.fetch_to_limit:
-                            raise StopFetchingException("Reached previously seen report")
 
         if "next" in reports:
-
             self.processReports(
                 'http://www.pmg.org.za' + reports['next'],
                 processingcommitteeName,

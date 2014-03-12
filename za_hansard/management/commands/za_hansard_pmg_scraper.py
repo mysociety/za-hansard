@@ -481,10 +481,8 @@ class Command(BaseCommand):
                             "url": report['url'],
                             "committee": processingcommitteeName})
 
-                        meeting_url = 'http://www.pmg.org.za' + report['url']
-
                         row, created = PMGCommitteeReport.objects.get_or_create(
-                            meeting_url=meeting_url,
+                            meeting_url='http://www.pmg.org.za' + report['url'],
                             defaults={
                                 'premium': not('tick.png' in report.get('image', '')),
                                 'processed': False,

@@ -429,7 +429,7 @@ class Command(BaseCommand):
                     self.allappearances.append(save)
                     self.totalappearances += 1
 
-        if self.totalappearances > 0:
+        if self.totalappearances:
             PMGCommitteeReport.objects.filter(meeting_url=url).update(processed=True)
 
         # finally sleep, to minimize load on PMG servers
@@ -455,7 +455,7 @@ class Command(BaseCommand):
         reports = p.parse_fromstring(contents)
 
         # If no reports are found, this is probably a premium committee so needs to be reloaded
-        if len(reports['reports']) == 0:
+        if not reports['reports']:
             page = self.premium_open_url_with_retries(url)
             contents = page.read()
             reports = p.parse_fromstring(contents)
@@ -570,7 +570,7 @@ class Command(BaseCommand):
 
             appearances = report.appearances.all()
 
-            if not len(appearances):
+            if not appearances:
                 continue
 
             first_appearance = appearances[0]

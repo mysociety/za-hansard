@@ -1,21 +1,21 @@
-import parslepy
-import urllib2
-import re
-import json
-from za_hansard.datejson import DateEncoder
-from bs4 import BeautifulSoup
 import sys, os
-import time
-import cookielib
+import re
 import urllib
-
+import urllib2
+import cookielib
+import json
+import parslepy
+import time
 from datetime import datetime
-
 from optparse import make_option
+
+from bs4 import BeautifulSoup
 
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
+
+from za_hansard.datejson import DateEncoder
 from instances.models import Instance
 from za_hansard.models import PMGCommitteeReport, PMGCommitteeAppearance
 from za_hansard.importers.import_json import ImportJson

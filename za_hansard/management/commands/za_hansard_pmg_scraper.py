@@ -437,8 +437,10 @@ class Command(BaseCommand):
         # finally sleep, to minimize load on PMG servers
         time.sleep(WAIT_AFTER_FETCHING)
 
-    def processReports(self, url, processingcommitteeName, processingcommitteeURL):
-        # Get reports on this page, process them, proceed to next page
+    def processReports(self, url, processingcommitteeName, processingcommitteeURL, finding_stuff=True):
+        # Get reports on his page, process them, proceed to next page.
+        # If we don't find anything on this page, and we didn't find anything
+        # on the last page, then stop.
 
         page = self.open_url_with_retries(url)
         contents = page.read()
@@ -461,6 +463,8 @@ class Command(BaseCommand):
             page = self.premium_open_url_with_retries(url)
             contents = page.read()
             reports = p.parse_fromstring(contents)
+
+        new_report_count = 0
 
         for report in reports['reports']:
 
@@ -489,21 +493,20 @@ class Command(BaseCommand):
                                 }
                             )
 
-                        if row.processed:
-                            if not self.fetch_to_limit:
-                                raise StopFetchingException("Reached previously seen report")
-                        else:
+                        if not row.processed:
                             self.processReport(
                                 row,
                                 processingcommitteeName,
                                 processingcommitteeURL,
                                 report['date'])
+                            new_report_count += 1
 
-        if "next" in reports:
+        if (self.fetch_to_limit or finding_stuff or new_report_count) and  "next" in reports:
             self.processReports(
                 'http://www.pmg.org.za' + reports['next'],
                 processingcommitteeName,
-                processingcommitteeURL)
+                processingcommitteeURL,
+                finding_stuff=new_report_count)
 
     def processCommittee(self, url, processingcommitteeName):
         # opens the committee, gets the members, starts retrieving reports

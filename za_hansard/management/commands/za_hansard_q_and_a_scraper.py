@@ -18,7 +18,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 
 from za_hansard.models import Question, Answer, QuestionPaper
-from speeches.importers.import_json import ImportJson
+from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
 # ideally almost all of the parsing code would be removed from this management

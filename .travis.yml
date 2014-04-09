@@ -1,5 +1,8 @@
 language: python
 
+services:
+  - elasticsearch
+
 install:
   - sudo apt-get update -qq
   - cat conf/packages | sed -r -e 's,#.*,,' | xargs sudo apt-get install -qq

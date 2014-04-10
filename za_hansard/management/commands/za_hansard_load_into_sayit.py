@@ -4,7 +4,7 @@ import pytz
 import time
 import sys
 
-from speeches.importers.import_akomantoso import ImportAkomaNtoso
+from za_hansard.importers.import_za_akomantoso import ImportZAAkomaNtoso
 from speeches.models import Section, Tag
 from za_hansard.models import Source
 from popit.models import ApiInstance
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             if not path:
                 continue
 
-            importer = ImportAkomaNtoso( instance=instance,
+            importer = ImportZAAkomaNtoso( instance=instance,
                 popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
             try:
                 self.stdout.write("TRYING %s\n" % path)

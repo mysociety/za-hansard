@@ -170,7 +170,8 @@ class Command(BaseCommand):
 
                 try:
                     self.processCommittee(
-                        'http://www.pmg.org.za'+committee['url'].replace(' ','%20'),
+                        'http://www.pmg.org.za' + \
+                            urllib.quote(committee['url'].encode('utf-8')),
                         committee['name'])
                 except urllib2.HTTPError:
                     #if there is an http error, just ignore this committee this time
@@ -213,7 +214,8 @@ class Command(BaseCommand):
     def open_url_with_retries(self, url):
         for i in range(0, self.retries):
             try:
-                self.stdout.write("open_url_with_retries (retry: {0}) {1}\n".format(i, url))
+                message = u"open_url_with_retries (retry: {0}) {1}\n"
+                self.stdout.write(message.format(i, url))
                 page=urllib2.urlopen(url)
                 # sleep, to minimize load on PMG servers
                 time.sleep(WAIT_AFTER_FETCHING)
@@ -292,7 +294,8 @@ class Command(BaseCommand):
 
     def processReport(self, row, url, committeeName, committeeURL, meetingDate):
         #get the appearances in the report
-        self.stdout.write("Processing report on {0} for '{1}'; report URL: {2}\n".format(meetingDate, committeeName, url))
+        message = u"Processing report on {0} for '{1}'; report URL: {2}\n"
+        self.stdout.write(message.format(meetingDate, committeeName, url))
 
         meetingDate = datetime.strptime(meetingDate, '%d %b %Y')
 

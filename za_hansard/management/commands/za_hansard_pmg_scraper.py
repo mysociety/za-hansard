@@ -61,6 +61,12 @@ class Command(BaseCommand):
             action='store_true',
             help='Import documents to sayit',
         ),
+        make_option('--skip-to-committee',
+            type='str',
+            default='',
+            metavar='NAME-SUBSTRING',
+            help='Skip committees until one containing this substring',
+        ),
         make_option('--delete-existing',
             default=False,
             action='store_true',
@@ -146,9 +152,20 @@ class Command(BaseCommand):
         p = parslepy.Parselet(committees_rules)
         parsedcommittees = p.parse_fromstring(contents)
 
+        skipping = options['skip_to_committee']
+
         self.stdout.write('Started\n')
         for ctype in parsedcommittees['committee_types']:
             for committee in ctype['committees']:
+
+                if options['skip_to_committee'] and skipping:
+                    if options['skip_to_committee'] in committee['name']:
+                        skipping = False
+                    else:
+                        message = u"Skipping committee {0}"
+                        print message.format(committee['name']).encode('utf-8')
+                        continue
+
                 self.numcommittees = self.numcommittees + 1
 
                 try:

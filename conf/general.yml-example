@@ -28,4 +28,4 @@ BASE_PORT: ''
 PMG_COMMITTEE_USER: ''
 PMG_COMMITTEE_PASS: ''
 
-POPIT_API_URL: 'http://za-peoples-assembly.popit.mysociety.org/api/v0.1/'
+POPIT_API_URL: 'http://za-new-import.popit.mysociety.org/api/v0.1/'

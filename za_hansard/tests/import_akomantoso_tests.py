@@ -15,7 +15,7 @@ from za_hansard.importers.import_za_akomantoso import ImportZAAkomaNtoso, title_
 import logging
 logging.disable(logging.WARNING)
 
-popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/'
+popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/'
 
 class ImportZAAkomaNtosoTests(InstanceTestCase):
 

@@ -9,7 +9,7 @@ from popit_resolver.resolve import SetupEntities, ResolvePopitName, EntityName
 
 from za_hansard.importers.import_json import ImportJson
 
-popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/'
+popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/'
 
 class ImportJsonTests(InstanceTestCase):
 

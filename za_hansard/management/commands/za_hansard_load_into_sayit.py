@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 continue
 
             importer = ImportZAAkomaNtoso( instance=instance,
-                popit_url='http://za-peoples-assembly.popit.mysociety.org/api/v0.1/')
+                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)

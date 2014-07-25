@@ -602,14 +602,14 @@ class Command(BaseCommand):
 
     def import_to_sayit(self, *args, **options):
 
-        sections = []
+        section_ids = []
         sources = PMGCommitteeReport.objects
         if not options['delete_existing']:
             sources = sources.filter(sayit_section=None)
 
         sources_all = sources.all()
 
-        for row in sources_all:
+        for row in sources_all.iterator():
             filename = os.path.join(settings.COMMITTEE_CACHE, '%d.json' % row.id)
             if not os.path.exists(filename):
                 continue
@@ -624,13 +624,13 @@ class Command(BaseCommand):
                 row.last_sayit_import = datetime.now().date()
                 row.save()
 
-                sections.append(section)
+                section_ids.append(section.id)
 
             except Exception as e:
                 self.stderr.write('WARN: failed to import %d: %s' % (row.id, e))
 
-        self.stdout.write( str( [s.id for s in sections] ) )
+        self.stdout.write( str(section_ids) )
         self.stdout.write( '\n' )
 
         self.stdout.write('Imported %d / %d sections\n' %
-            (len(sections), len(sources_all)))
+            (len(section_ids), len(sources_all)))

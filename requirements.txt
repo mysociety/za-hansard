@@ -1,23 +1,47 @@
-lxml>=3.1.0
-pytz
-django<1.5
-nose
+Django==1.4.10
+Django-Select2==4.2.2
+PyYAML==3.11
+South==0.8.4
+argparse==1.2.1
+audioread==1.0.2
+beautifulsoup4==4.3.2
+bleach==1.4
+cssselect==0.9.1
+django-bleach==0.2.0
+django-debug-toolbar==1.1
+django-haystack==2.1.0
 django-nose==1.2
-South
-psycopg2
-
-httplib2
-beautifulsoup4
-
-PyYAML
-
-# mySoc modules
-django-subdomain-instances
--e git://github.com/mysociety/sayit#egg=django-sayit
--e git+https://github.com/mysociety/popit-django#egg=popit-django
--e git+https://github.com/mysociety/popit-resolver#egg=popit-resolver
-
-# For committee minutes parser
-parslepy
-
-requests
+django-pagination==1.0.7
+django-pipeline==1.3.24
+django-pipeline-compass-rubygem==0.1.8
+django-qmethod==0.0.3
+-e git://github.com/mysociety/sayit@e6cd530cce34cde35f8b8aa166e992c39e3f1a2d#egg=django_sayit
+django-subdomain-instances==0.1
+django-tastypie==0.9.16
+futures==2.1.6
+html5lib==0.999
+httplib2==0.9
+lxml==3.3.5
+mimeparse==0.1.3
+mock==1.0.1
+mysociety-django-sluggable==0.2.4
+nose==1.3.0
+numpy==1.8.0
+parslepy==0.2.0
+-e git+https://github.com/mysociety/popit-django@a59300ee26828898826ed0f828620a527ec7db48#egg=popit_django
+-e git+https://github.com/mysociety/popit-resolver@91f4762198fd40dfcbd017df4d70893c0d411967#egg=popit_resolver
+psycopg2==2.5.2
+py==1.4.20
+pyelasticsearch==0.6.1
+pytest==2.5.2
+python-dateutil==1.5
+python-magic==0.4.6
+python-memcached==1.53
+pytz==2014.2
+requests==2.2.1
+selenium==2.41.0
+simplejson==3.4.0
+six==1.6.1
+slumber==0.6.0
+sqlparse==0.1.11
+wsgiref==0.1.2

@@ -55,12 +55,12 @@ class Command(BaseCommand):
         if options['id']:
             sources = sources.filter(id = options['id'])
 
-        sections = []
+        section_ids = []
 
         hansard_tag, hansard_tag_created = Tag.objects.get_or_create(instance=instance, name="hansard")
 
         sources = sources[:limit] if limit else sources.all()
-        for s in sources:
+        for s in sources.iterator():
 
             path = s.xml_file_path()
             if not path:
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     (s.id, str(e)))
                 continue
 
-            sections.append(section)
+            section_ids.append(section.id)
             s.sayit_section = section
             s.last_sayit_import = datetime.datetime.now(pytz.utc)
             s.save()
@@ -90,7 +90,7 @@ class Command(BaseCommand):
             section.save()
 
         self.stdout.write('Imported %d / %d sections\n' %
-            (len(sections), len(sources)))
+            (len(section_ids), len(sources)))
 
-        self.stdout.write( str( [s.id for s in sections] ) )
+        self.stdout.write( str(section_ids) )
         self.stdout.write( '\n' )

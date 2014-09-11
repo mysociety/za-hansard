@@ -67,7 +67,8 @@ class Command(BaseCommand):
                 continue
 
             importer = ImportZAAkomaNtoso( instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',
+                section_parent_titles=s.section_parent_titles)
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)
@@ -83,11 +84,6 @@ class Command(BaseCommand):
 
             for speech in section.descendant_speeches():
                 speech.tags.add(hansard_tag)
-
-            # Get or create the sections above the one we just created and put it in there
-            parent = Section.objects.get_or_create_with_parents(instance=instance, titles=s.section_parent_titles)
-            section.parent = parent
-            section.save()
 
         self.stdout.write('Imported %d / %d sections\n' %
             (len(section_ids), len(sources)))

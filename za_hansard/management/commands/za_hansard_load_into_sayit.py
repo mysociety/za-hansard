@@ -5,7 +5,7 @@ import time
 import sys
 
 from za_hansard.importers.import_za_akomantoso import ImportZAAkomaNtoso
-from speeches.models import Section, Tag
+from speeches.models import Section, Tag, Speech
 from za_hansard.models import Source
 from popit.models import ApiInstance
 from instances.models import Instance
@@ -36,6 +36,11 @@ class Command(BaseCommand):
             type='int',
             help='limit query (default 0 for none)',
         ),
+        make_option('--delete-existing',
+            default=False,
+            action='store_true',
+            help='Delete existing speeches before importing',
+        ),
     )
 
     def handle(self, *args, **options):
@@ -54,6 +59,9 @@ class Command(BaseCommand):
 
         if options['id']:
             sources = sources.filter(id = options['id'])
+
+        if options['delete_existing']:
+            Speech.objects.filter(tags__name='hansard').delete()
 
         section_ids = []
 

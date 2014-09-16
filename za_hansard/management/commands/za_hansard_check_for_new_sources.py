@@ -41,9 +41,17 @@ class Command(BaseCommand):
             type='str',
             help='Limit earliest historical entry to check (in yyyy-mm-dd format, default 2009-04-22)',
         ),
+        make_option('--delete-existing',
+            default=False,
+            action='store_true',
+            help='Delete existing sources (implies --check-all)',
+        ),
     )
 
     def handle(self, *args, **options):
+
+        if options['delete_existing']:
+            Source.objects.all().delete()
 
         self.historical_limit = datetime.datetime.strptime(options['historical_limit'], '%Y-%m-%d').date()
 

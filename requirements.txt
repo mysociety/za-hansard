@@ -1,23 +1,25 @@
-lxml>=3.1.0
-pytz
+# Packages required for Django:
 django<1.5
-nose
-django-nose==1.2
 South
 psycopg2
 
+# Other useful libraries:
+PyYAML
+pytz # 'highly recommended' for Django
+
+# For testing:
+nose
+django-nose==1.2
+
+# For fetching documents and parsing:
 httplib2
 beautifulsoup4
-
-PyYAML
+parslepy
+requests
+lxml>=3.1.0
 
 # mySoc modules
 django-subdomain-instances
 -e git://github.com/mysociety/sayit#egg=django-sayit
 -e git+https://github.com/mysociety/popit-django#egg=popit-django
 -e git+https://github.com/mysociety/popit-resolver#egg=popit-resolver
-
-# For committee minutes parser
-parslepy
-
-requests

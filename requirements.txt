@@ -19,6 +19,11 @@ parslepy==0.2.0
 requests==2.2.1
 lxml==3.3.5
 
+# For some reasons these dependencies aren't being picked up correctly
+# from popit-resolver's requirements.txt, so pin them explicitly here:
+pyelasticsearch==0.6.1
+django-haystack==2.1.0
+
 # mySoc modules
 django-subdomain-instances==0.1
 -e git+git://github.com/mysociety/sayit.git@55a4bba537ada6b822c1b01a904c9452e86de13d#egg=django-sayit

@@ -28,7 +28,7 @@ class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
 
     def get_speaker(self, child):
         display_name = self.name_display(child['from'].text)
-        speaker = self.get_person(display_name)
+        speaker = self.get_person(display_name, None)
         return speaker, display_name
 
     def parse_document(self):
@@ -78,7 +78,7 @@ class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
         <p>s as direct children of <debateSection>s."""
 
         text = self.get_text(node)
-        speaker = self.get_person(None)
+        speaker = self.get_person(None, None)
         speech = self.make(Speech,
             section = section,
             start_date = self.start_date,

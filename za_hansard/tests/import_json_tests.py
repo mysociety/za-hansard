@@ -31,7 +31,7 @@ class ImportJsonTests(InstanceTestCase):
 
     def test_resolve(self):
         resolver = ResolvePopitName(date=date(2013, 06, 21))
-        person = resolver.get_person('Mrs A Steyn')
+        person = resolver.get_person('Mrs A Steyn', None)
         self.assertTrue( person )
 
     def test_import(self):

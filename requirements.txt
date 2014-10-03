@@ -28,4 +28,4 @@ django-haystack==2.1.0
 django-subdomain-instances==0.1
 -e git+git://github.com/mysociety/sayit.git@55a4bba537ada6b822c1b01a904c9452e86de13d#egg=django-sayit
 -e git+git://github.com/mysociety/popit-django@a11ef97919f2ae35ef1ef1e2a3f0553ad1ba1e6d#egg=popit-django
--e git+git://github.com/mysociety/popit-resolver@810c186d1633857a6cb75feaca3d397e2a6973d1#egg=popit-resolver
+-e git+git://github.com/mysociety/popit-resolver@76c2e89dd673b601a295edbb0ccbde1feb108c72#egg=popit-resolver

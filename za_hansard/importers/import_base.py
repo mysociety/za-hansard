@@ -17,7 +17,7 @@ class ImportZAMixin(object):
     def set_resolver_for_date(self, date_string='', date=None):
         self.resolver = ResolvePopitName(date=date, date_string=date_string)
 
-    def get_person(self, name):
+    def get_person(self, name, party):
         cached = self.person_cache.get(name, None)
         if cached:
             return cached
@@ -28,7 +28,7 @@ class ImportZAMixin(object):
         popit_person = None
 
         if name:
-            popit_person = self.resolver.get_person(display_name)
+            popit_person = self.resolver.get_person(display_name, party)
             if popit_person:
                 try:
                     speaker = Speaker.objects.get(

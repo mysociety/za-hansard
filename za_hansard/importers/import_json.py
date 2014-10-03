@@ -63,9 +63,10 @@ class ImportJson (ImportZAMixin, ImporterBase):
         for s in data.get( 'speeches', [] ):
 
             display_name = s['personname']
-            speaker = self.get_person( display_name )
-
             party = s.get('party', '')
+
+            speaker = self.get_person( display_name, party )
+
             if party:
                 display_name += ' (%s)' % party
 

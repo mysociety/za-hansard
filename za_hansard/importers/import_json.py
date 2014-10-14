@@ -32,7 +32,7 @@ class ImportJson (ImportZAMixin, ImporterBase):
         super(ImportJson, self).__init__(**kwargs)
         self.delete_existing = kwargs.get('delete_existing', False)
 
-    def import_document(self, document_path):
+    def import_document(self, document_path, limit=0):
 
         data = json.load( open(document_path, 'r') )
 
@@ -69,6 +69,9 @@ class ImportJson (ImportZAMixin, ImporterBase):
 
             if party:
                 display_name += ' (%s)' % party
+
+            if limit and section.speech_set.count() >= limit:
+                break
 
             speech = self.make(Speech,
                     text = s['text'],

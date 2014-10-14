@@ -260,6 +260,12 @@ class Answer (models.Model):
     date_published = models.DateField()
     type = models.TextField()
 
+    last_sayit_import = models.DateTimeField(blank=True, null=True)
+    sayit_section = models.ForeignKey(
+        Section, blank=True, null=True, on_delete=models.PROTECT,
+        help_text='Associated Sayit section object, if imported',
+        )
+
     class Meta:
         unique_together = (
             ('oral_number', 'house', 'year'),

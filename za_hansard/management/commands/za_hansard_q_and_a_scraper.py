@@ -294,11 +294,7 @@ class Command(BaseCommand):
             question.save()
 
     def qa_to_json(self, *args, **options):
-        questions = (Question.objects
-                .filter( answer__isnull = False)
-                .prefetch_related('answer')
-                .filter(answer__processed_code = Answer.PROCESSED_OK)
-                )
+        questions = Question.objects.prefetch_related('answer')
 
         for question in questions:
             question_as_json = self.question_to_json(question)
@@ -308,8 +304,19 @@ class Command(BaseCommand):
                 "%d.json" % question.id)
             with open(filename, 'w') as outfile:
                 outfile.write(question_as_json)
-            self.stdout.write('Wrote %s\n' % filename)
+            self.stdout.write('Wrote question %s\n' % filename)
 
+            if (question.answer and
+                    question.answer.processed_code == Answer.PROCESSED_OK):
+
+                answer_as_json = self.answer_to_json(question)
+
+                filename = os.path.join(
+                    settings.ANSWER_JSON_CACHE,
+                    "%d.json" % question.answer.id)
+                with open(filename, 'w') as outfile:
+                    outfile.write(answer_as_json)
+                self.stdout.write('Wrote answer %s\n' % filename)
 
     def question_to_json(self, question):
         question_as_json_data = self.question_to_json_data(question)
@@ -320,6 +327,14 @@ class Command(BaseCommand):
             sort_keys=True
         )
 
+    def answer_to_json(self, question):
+        answer_as_json_data = self.answer_to_json_data(question)
+
+        return json.dumps(
+            answer_as_json_data,
+            indent=1,
+            sort_keys=True
+        )
 
     def question_to_json_data(self, question):
         #{
@@ -377,9 +392,22 @@ class Command(BaseCommand):
             u'parliament': question.paper.parliament_number,
         }
 
+        return question_as_json
+
+    def answer_to_json_data(self, question):
         answer = question.answer
-        if answer:
-            question_as_json[u'speeches'].append(
+        answer_as_json = {
+            u'parent_section_titles': [
+                u'Questions',
+                u'Questions asked to the ' + question.questionto,
+            ],
+            u'questionto': question.questionto,
+            u'title': '{0} - {1}'.format(
+                question.identifier,
+                question.date.strftime(u'%d %B %Y'),
+                ),
+            u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
+            u'speeches': [
                 {
                     u'personname': question.questionto,
                     # party?
@@ -392,10 +420,19 @@ class Command(BaseCommand):
                     u'type': u'answer',
                     u'source': answer.url,
                     u'date': unicode(answer.date.strftime(u'%Y-%m-%d')),
-                }
-            )
+                },
+            ],
 
-        return question_as_json
+            # random stuff that is NOT used by the JSON import
+            u'oral_number': question.oral_number,
+            u'written_number': question.written_number,
+            u'identifier': question.identifier,
+            u'askedby': question.askedby,
+            u'answer_type': question.answer_type,
+            u'parliament': question.paper.parliament_number,
+        }
+
+        return answer_as_json
 
     def import_into_sayit(self, *args, **options):
         instance = None
@@ -406,9 +443,6 @@ class Command(BaseCommand):
 
         questions = (Question.objects
                 .filter( sayit_section = None ) # not already imported
-                .filter( answer__isnull = False)
-                .prefetch_related('answer')
-                .filter(answer__processed_code = Answer.PROCESSED_OK)
                 )
 
         sections = []
@@ -432,8 +466,40 @@ class Command(BaseCommand):
                 #self.stderr.write('WARN: failed to import %d: %s' %
                     #(question.id, str(e)))
 
+        self.stdout.write( 'Questions:\n' )
         self.stdout.write( str( [s.id for s in sections] ) )
         self.stdout.write( '\n' )
-        self.stdout.write('Imported %d / %d sections\n' %
-            (len(sections), len(questions)))
+        self.stdout.write('Questions: Imported %d / %d sections\n' %
+                (len(sections), len(questions)))
+
+        answers = (Answer.objects
+                   .filter(sayit_section=None)  # not already imported
+                   .filter(processed_code=Answer.PROCESSED_OK)
+                   )
+
+        section_ids = []
+        for answer in answers.iterator():
+            path = os.path.join(
+                settings.ANSWER_JSON_CACHE,
+                "%d.json" % answer.id)
+            if not os.path.exists(path):
+                continue
+
+            importer = ImportJson(instance=instance,
+                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+            self.stderr.write("TRYING %s\n" % path)
+            #limit to 2 speeches per section to avoid duplicating speeches
+            #added prior to the addition of the answer sayit_section field
+            section = importer.import_document(path, 2)
+            section_ids.append(section.id)
+            answer.sayit_section = section
+            answer.last_sayit_import = datetime.now().date()
+            answer.save()
+
+        self.stdout.write('\n')
+        self.stdout.write('Answers:\n')
+        self.stdout.write(str(section_ids))
+        self.stdout.write('\n')
+        self.stdout.write('Answers: Imported %d / %d sections\n' %
+            (len(section_ids), len(answers)))
 

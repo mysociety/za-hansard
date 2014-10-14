@@ -13,7 +13,9 @@ from speeches.models import Section
 for setting_name in ('HANSARD_CACHE',
                      'COMMITTEE_CACHE',
                      'ANSWER_CACHE',
-                     'QUESTION_CACHE'):
+                     'QUESTION_CACHE',
+                     'ANSWER_JSON_CACHE',
+                     'QUESTION_JSON_CACHE'):
     try:
         directory = os.path.join(getattr(settings, setting_name))
         if not os.path.exists(directory):

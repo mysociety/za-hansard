@@ -304,7 +304,7 @@ class Command(BaseCommand):
             question_as_json = self.question_to_json(question)
 
             filename = os.path.join(
-                settings.ANSWER_CACHE,
+                settings.QUESTION_JSON_CACHE,
                 "%d.json" % question.id)
             with open(filename, 'w') as outfile:
                 outfile.write(question_as_json)
@@ -414,7 +414,7 @@ class Command(BaseCommand):
         sections = []
         for question in questions:
             path = os.path.join(
-                settings.ANSWER_CACHE,
+                settings.QUESTION_JSON_CACHE,
                 "%d.json" % question.id)
             if not os.path.exists(path):
                 continue

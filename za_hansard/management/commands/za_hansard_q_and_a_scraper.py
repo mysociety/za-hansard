@@ -21,6 +21,10 @@ from za_hansard.models import Question, Answer, QuestionPaper
 from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
+from speeches.models import Section, Speaker
+from pombola.slug_helpers.models import SlugRedirect
+from django.contrib.contenttypes.models import ContentType
+
 # ideally almost all of the parsing code would be removed from this management
 # command and put into a module where it can be more easily tested and
 # separated. This is the start of that process.
@@ -78,6 +82,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Run all of the steps',
         ),
+        make_option('--correct-existing-sayit-import',
+            default=False,
+            action='store_true',
+            help='Correct the structure of existing data',
+        ),
         make_option('--instance',
             type='str',
             default='default',
@@ -93,6 +102,11 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help="Don't stop when reaching seen questions, continue to --limit",
+        ),
+        make_option('--commit',
+            default=False,
+            action='store_true',
+            help='Whether to commit SayIt import corrections',
         ),
     )
 
@@ -119,6 +133,8 @@ class Command(BaseCommand):
             self.match_answers(*args, **options)
             self.qa_to_json(*args, **options)
             self.import_into_sayit(*args, **options)
+        elif options['correct_existing_sayit_import']:
+            self.correct_existing_sayit_import(*args, **options)
         else:
             raise CommandError("Please supply a valid option")
 
@@ -358,7 +374,8 @@ class Command(BaseCommand):
         question_as_json = {
             u'parent_section_titles': [
                 u'Questions',
-                u'Questions asked to the ' + question.questionto,
+                u'Questions asked to the ' + self.correct_minister_title(
+                    question.questionto),
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
@@ -399,7 +416,8 @@ class Command(BaseCommand):
         answer_as_json = {
             u'parent_section_titles': [
                 u'Questions',
-                u'Questions asked to the ' + question.questionto,
+                u'Questions asked to the ' + self.correct_minister_title(
+                    question.questionto),
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
@@ -502,4 +520,191 @@ class Command(BaseCommand):
         self.stdout.write('\n')
         self.stdout.write('Answers: Imported %d / %d sections\n' %
             (len(section_ids), len(answers)))
+
+    def correct_existing_sayit_import(self, *args, **options):
+        instance = None
+        try:
+            instance = Instance.objects.get(label=options['instance'])
+        except Instance.NotFound:
+            raise CommandError("Instance specified not found (%s)" %
+                               options['instance'])
+
+        #check that sections are correctly named
+        sections = Section.objects.filter(parent__title='Questions')
+
+        for section in sections:
+            minister = section.title.replace('Questions asked to the ', '')
+            new_minister = self.correct_minister_title(minister)
+
+            if minister != new_minister:
+                #the name needs to be corrected. this is achieved by moving
+                #children to the correct section and deleting the current one
+                #and by changing the relevant speakers
+
+                if options['commit']:
+                    new_section = Section.objects.get_or_create_with_parents(
+                        instance=instance,
+                        titles=[
+                            u'Questions',
+                            u'Questions asked to the ' + new_minister,
+                        ])
+
+                    new_speaker, created = Speaker.objects.get_or_create(
+                        instance=instance,
+                        name=new_minister)
+
+                    for child in section.children.all():
+                        child.parent = new_section
+                        child.save()
+
+                        for speech in child.speech_set.filter(tags__name='answer'):
+                            speech.speaker_display = new_minister
+                            speech.speaker = new_speaker
+                            speech.save()
+
+                    SlugRedirect.objects.create(
+                        content_type=ContentType.objects.get_for_model(Section),
+                        old_object_slug=section.get_path,
+                        new_object_id=new_section.id,
+                        new_object=new_section,
+                    )
+
+                    section.delete()
+                else:
+                    self.stdout.write('Correcting %s to %s' % (minister, new_minister))
+
+    def correct_minister_title(self, minister_title):
+        corrections = {
+            "Minister President of the Republic":
+                "President of the Republic",
+            "Minister in The Presidency National Planning Commission":
+                "Minister in the Presidency: National Planning Commission",
+            "Minister in the Presidency National Planning Commission":
+                "Minister in the Presidency: National Planning Commission",
+            "Questions asked to the Minister in The Presidency National Planning Commission":
+                "Minister in the Presidency: National Planning Commission",
+            "Minister in the Presidency. National Planning Commission":
+                "Minister in the Presidency: National Planning Commission",
+            "Minister in The Presidency": "Minister in the Presidency",
+            "Minister in The Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance , Monitoring and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance Management and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance Monitoring and Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance Monitoring and Evaluation as well Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the Presidency, Performance Monitoring and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister in the PresidencyPerformance Monitoring and Evaluation as well as Administration in the Presidency":
+                "Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency",
+            "Minister of Women in The Presidency":
+                "Minister of Women in the Presidency",
+            "Minister of Agriculture, Fisheries and Forestry":
+                "Minister of Agriculture, Forestry and Fisheries",
+            "Minister of Minister of Agriculture, Forestry and Fisheries":
+                "Minister of Agriculture, Forestry and Fisheries",
+            "Minister of Agriculture, Foresty and Fisheries":
+                "Minister of Agriculture, Forestry and Fisheries",
+            "Minister of Minister of Basic Education":
+                "Minister of Basic Education",
+            "Minister of Basic Transport":
+                "Minister of Transport",
+            "Minister of Communication":
+                "Minister of Communications",
+            "Minister of Cooperative Government and Traditional Affairs":
+                "Minister of Cooperative Governance and Traditional Affairs",
+            "Minister of Defence and MilitaryVeterans":
+                "Minister of Defence and Military Veterans",
+            "Minister of Heath":
+                "Minister of Health",
+            "Minister of Higher Education":
+                "Minister of Higher Education and Training",
+            "Minister of Minister of International Relations and Cooperation":
+                "Minister of International Relations and Cooperation",
+            "Minister of Justice and Constitutional development":
+                "Minister of Justice and Constitutional Development",
+            "Minister of Justice and Constitutional Developoment":
+                "Minister of Justice and Constitutional Development",
+            "Minister of Mining":
+                "Minister of Mineral Resources",
+            "Minister of Public Enterprise":
+                "Minister of Public Enterprises",
+            "Minister of the Public Service and Administration":
+                "Minister of Public Service and Administration",
+            "Minister of Public Work":
+                "Minister of Public Works",
+            "Minister of Rural Development and Land Affairs":
+                "Minister of Rural Development and Land Reform",
+            "Minister of Minister of Rural Development and Land Reform":
+                "Minister of Rural Development and Land Reform",
+            "Minister of Rural Development and Land Reform Question":
+                "Minister of Rural Development and Land Reform",
+            "Minister of Rural Development and Land Reforms":
+                "Minister of Rural Development and Land Reform",
+            "Minister of Rural Development and Land reform":
+                "Minister of Rural Development and Land Reform",
+            "Minister of Sport and Recreaton":
+                "Minister of Sport and Recreation",
+            "Minister of Sports and Recreation":
+                "Minister of Sport and Recreation",
+            "Minister of Water and Enviromental Affairs":
+                "Minister of Water and Environmental Affairs",
+            "Minister of Women, Children andPeople with Disabilities":
+                "Minister of Women, Children and People with Disabilities",
+            "Minister of Women, Children en People with Disabilities":
+                "Minister of Women, Children and People with Disabilities",
+            "Minister of Women, Children and Persons with Disabilities":
+                "Minister of Women, Children and People with Disabilities",
+            "Minister of Women, Youth, Children and People with Disabilities":
+                "Minister of Women, Children and People with Disabilities",
+            "Higher Education and Training":
+                "Minister of Higher Education and Training",
+            "Minister Basic Education":
+                "Minister of Basic Education",
+            "Minister Health":
+                "Minister of Health",
+            "Minister Labour":
+                "Minister of Labour",
+            "Minister Public Enterprises":
+                "Minister of Public Enterprises",
+            "Minister Rural Development and Land Reform":
+                "Minister of Rural Development and Land Reform",
+            "Minister Science and Technology":
+                "Minister of Science and Technology",
+            "Minister Social Development":
+                "Minister of Social Development",
+            "Minister Trade and Industry":
+                "Minister of Trade and Industry",
+            "Minister in Communications":
+                "Minister of Communications",
+            "Minister of Arts and Culture 102. Mr D J Stubbe (DA) to ask the Minister of Arts and Culture":
+                "Minister of Arts and Culture",
+        }
+
+        #the most common error is the inclusion of a hyphen (presumably due to
+        #line breaks in the original document). No ministers have a hyphen in
+        #their title so we can do a simple replace.
+        minister_title = minister_title.replace('-', '')
+
+        #correct mispellings of 'minister'
+        minister_title = minister_title.replace('Minster', 'Minister')
+
+        #it is also common for a minister to be labelled "minister for" instead
+        #of "minister of"
+        minister_title = minister_title.replace('Minister for', 'Minister of')
+
+        #remove any whitespace
+        minister_title = minister_title.strip()
+
+        #apply manual corrections
+        minister_title = corrections.get(minister_title, minister_title)
+
+        return minister_title
 

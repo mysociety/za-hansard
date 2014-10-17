@@ -16,12 +16,13 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
+from django.core.exceptions import MultipleObjectsReturned
 
 from za_hansard.models import Question, Answer, QuestionPaper
 from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
-from speeches.models import Section, Speaker
+from speeches.models import Section, Speaker, Speech
 from pombola.slug_helpers.models import SlugRedirect
 from django.contrib.contenttypes.models import ContentType
 
@@ -382,19 +383,18 @@ class Command(BaseCommand):
                 question.identifier,
                 question.date.strftime(u'%d %B %Y'),
                 ),
-            u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
+            u'date': self.format_date_for_json(question.date),
             u'speeches': [
                 {
                     u'personname': question.askedby,
                     # party?
                     u'text': question.question,
                     u'tags': [u'question'],
-
+                    u'date': self.format_date_for_json(question.date),
 
                     # unused for import
                     u'type': u'question',
                     u'intro': question.intro,
-                    u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
                     u'source': question.paper.source_url,
                     u'translated': question.translated,
                 },
@@ -424,20 +424,20 @@ class Command(BaseCommand):
                 question.identifier,
                 question.date.strftime(u'%d %B %Y'),
                 ),
-            u'date': unicode(question.date.strftime(u'%Y-%m-%d')),
+            u'date': self.format_date_for_json(question.date),
             u'speeches': [
                 {
                     u'personname': question.questionto,
                     # party?
                     u'text': answer.text,
                     u'tags': [u'answer'],
+                    u'date': self.format_date_for_json(answer.date),
 
                     # unused for import
                     u'name' : answer.name,
                     u'persontitle': question.questionto,
                     u'type': u'answer',
                     u'source': answer.url,
-                    u'date': unicode(answer.date.strftime(u'%Y-%m-%d')),
                 },
             ],
 
@@ -451,6 +451,9 @@ class Command(BaseCommand):
         }
 
         return answer_as_json
+
+    def format_date_for_json(self, date):
+        return unicode(date.strftime(u'%Y-%m-%d'))
 
     def import_into_sayit(self, *args, **options):
         instance = None
@@ -572,6 +575,42 @@ class Command(BaseCommand):
                     section.delete()
                 else:
                     self.stdout.write('Correcting %s to %s' % (minister, new_minister))
+
+        #check that answer dates are correct (previously, answer dates
+        #were set to those of their question - requiring checking and
+        #correction)
+        answers = Answer.objects.exclude(sayit_section=None)
+
+        for answer in answers:
+            try:
+                speech = Speech.objects.get(
+                    section_id=answer.sayit_section,
+                    tags__name='answer')
+
+                speech_start_date = answer.date_published
+
+                if speech.start_date != speech_start_date:
+                    self.stdout.write(
+                        'Correcting %s: %s to %s' % (
+                            answer.document_name,
+                            speech.start_date,
+                            speech_start_date
+                        ))
+
+                    if options['commit']:
+                        speech.start_date = speech_start_date
+                        speech.end_date = speech_start_date
+                        speech.save()
+
+            except MultipleObjectsReturned:
+                #only one answer should be returned - requires investigation
+                self.stdout.write(
+                    'MultipleObjectsReturned %s - id %s' % (
+                        answer.document_name,
+                        answer.id
+                    ) )
+        if not options['commit']:
+            self.stdout.write('Corrections not saved. Use --commit.')
 
     def correct_minister_title(self, minister_title):
         corrections = {

@@ -39,7 +39,7 @@ class ImportJson (ImportZAMixin, ImporterBase):
         start_date_string = data.get( 'date', None )
         start_date = None
         if start_date_string:
-            start_date = datetime.strptime( start_date_string, '%Y-%m-%d' ).date()
+            start_date = self.format_date(start_date_string)
 
         self.set_resolver_for_date(date=start_date)
 
@@ -73,6 +73,11 @@ class ImportJson (ImportZAMixin, ImporterBase):
             if limit and section.speech_set.count() >= limit:
                 break
 
+            speech_start_date_string = s.get('date', None)
+            speech_start_date = start_date
+            if speech_start_date_string:
+                speech_start_date = self.format_date(start_date_string)
+
             speech = self.make(Speech,
                     text = s['text'],
                     section = section,
@@ -88,8 +93,8 @@ class ImportJson (ImportZAMixin, ImporterBase):
                     source_url = s.get('source_url', report_url),
 
                     # Assume that the speech does not span several days
-                    start_date = start_date,
-                    end_date   = start_date,
+                    start_date = speech_start_date,
+                    end_date   = speech_start_date,
 
                     # Time not implemented in JSON, but could easily be. For now set to None
                     start_time = None,
@@ -101,3 +106,6 @@ class ImportJson (ImportZAMixin, ImporterBase):
                 speech.tags.add(tag)
 
         return section
+
+    def format_date(self, date_string):
+        return datetime.strptime( date_string, '%Y-%m-%d' ).date()

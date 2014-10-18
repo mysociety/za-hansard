@@ -112,13 +112,15 @@ class Command(BaseCommand):
     )
 
     start_url_q = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=236')
-    start_url_a = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=248')
+    start_url_a_na = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=248')
+    start_url_a_ncop = ('http://www.parliament.gov.za/live/', 'content.php?Category_ID=249')
 
     def handle(self, *args, **options):
         if options['scrape_questions']:
             self.scrape_questions(*args, **options)
         elif options['scrape_answers']:
-            self.scrape_answers(*args, **options)
+            self.scrape_answers(self.art_url_a_na, *args, **options)
+            self.scrape_answers(self.start_url_a_ncop, *args, **options)
         elif options['process_answers']:
             self.process_answers(*args, **options)
         elif options['match_answers']:
@@ -129,7 +131,8 @@ class Command(BaseCommand):
             self.import_into_sayit(*args, **options)
         elif options['run_all_steps']:
             self.scrape_questions(*args, **options)
-            self.scrape_answers(*args, **options)
+            self.scrape_answers(self.start_url_a_na, *args, **options)
+            self.scrape_answers(self.start_url_a_ncop, *args, **options)
             self.process_answers(*args, **options)
             self.match_answers(*args, **options)
             self.qa_to_json(*args, **options)
@@ -191,8 +194,8 @@ class Command(BaseCommand):
         self.stdout.write( "Processed %d documents (%d errors)\n" % (count, errors) )
 
 
-    def scrape_answers(self, *args, **options):
-        start_url = self.start_url_a[0] + self.start_url_a[1]
+    def scrape_answers(self, start_url_a, *args, **options):
+        start_url = start_url_a[0] + start_url_a[1]
         details = question_scraper.AnswerDetailIterator(start_url)
 
         count = 0

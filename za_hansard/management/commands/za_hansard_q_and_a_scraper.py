@@ -391,11 +391,11 @@ class Command(BaseCommand):
                     u'text': question.question,
                     u'tags': [u'question'],
                     u'date': self.format_date_for_json(question.date),
+                    u'source_url': question.paper.source_url,
 
                     # unused for import
                     u'type': u'question',
                     u'intro': question.intro,
-                    u'source': question.paper.source_url,
                     u'translated': question.translated,
                 },
             ],
@@ -432,12 +432,12 @@ class Command(BaseCommand):
                     u'text': answer.text,
                     u'tags': [u'answer'],
                     u'date': self.format_date_for_json(answer.date),
+                    u'source_url': answer.url,
 
                     # unused for import
                     u'name' : answer.name,
                     u'persontitle': question.questionto,
                     u'type': u'answer',
-                    u'source': answer.url,
                 },
             ],
 

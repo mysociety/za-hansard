@@ -576,9 +576,9 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write('Correcting %s to %s' % (minister, new_minister))
 
-        #check that answer dates are correct (previously, answer dates
-        #were set to those of their question - requiring checking and
-        #correction)
+        #check that answer dates and source urls are correct (previously,
+        #answer dates were set to those of their question and source_urls
+        #were not set - requiring checking and correction)
         answers = Answer.objects.exclude(sayit_section=None)
 
         for answer in answers:
@@ -602,6 +602,18 @@ class Command(BaseCommand):
                         speech.end_date = speech_start_date
                         speech.save()
 
+                if speech.source_url != answer.url:
+                    self.stdout.write(
+                        'Correcting %s: %s to %s' % (
+                            answer.document_name,
+                            speech.source_url,
+                            answer.url
+                        ) )
+
+                    if options['commit']:
+                        speech.source_url = answer.url
+                        speech.save()
+
             except MultipleObjectsReturned:
                 #only one answer should be returned - requires investigation
                 self.stdout.write(
@@ -609,6 +621,36 @@ class Command(BaseCommand):
                         answer.document_name,
                         answer.id
                     ) )
+
+        #check that question source_urls are correct
+        questions = Question.objects.exclude( sayit_section = None )
+
+        for question in questions:
+            try:
+                speech = Speech.objects.get(
+                    section_id=question.sayit_section,
+                    tags__name='question')
+
+                if speech.source_url != question.paper.source_url:
+                    self.stdout.write(
+                        'Correcting question %s: %s to %s' % (
+                            question.identifier,
+                            speech.source_url,
+                            question.paper.source_url
+                        ) )
+
+                    if options['commit']:
+                        speech.source_url = question.paper.source_url
+                        speech.save()
+
+            except MultipleObjectsReturned:
+                #only one answer should be returned - requires investigation
+                self.stdout.write(
+                    'MultipleObjectsReturned question %s - id %s' % (
+                        question.identifier,
+                        question.id
+                    ) )
+
         if not options['commit']:
             self.stdout.write('Corrections not saved. Use --commit.')
 

@@ -445,8 +445,8 @@ class Command(BaseCommand):
                 .filter( sayit_section = None ) # not already imported
                 )
 
-        sections = []
-        for question in questions:
+        section_ids = []
+        for question in questions.iterator():
             path = os.path.join(
                 settings.QUESTION_JSON_CACHE,
                 "%d.json" % question.id)
@@ -458,7 +458,7 @@ class Command(BaseCommand):
             #try:
             self.stderr.write("TRYING %s\n" % path)
             section = importer.import_document(path)
-            sections.append(section)
+            section_ids.append(section)
             question.sayit_section = section
             question.last_sayit_import = datetime.now().date()
             question.save()
@@ -467,10 +467,10 @@ class Command(BaseCommand):
                     #(question.id, str(e)))
 
         self.stdout.write( 'Questions:\n' )
-        self.stdout.write( str( [s.id for s in sections] ) )
+        self.stdout.write(str(section_ids))
         self.stdout.write( '\n' )
         self.stdout.write('Questions: Imported %d / %d sections\n' %
-                (len(sections), len(questions)))
+                (len(section_ids), len(questions)))
 
         answers = (Answer.objects
                    .filter(sayit_section=None)  # not already imported

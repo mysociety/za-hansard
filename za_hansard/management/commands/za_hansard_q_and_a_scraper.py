@@ -276,6 +276,8 @@ class Command(BaseCommand):
                 row.save()
             except subprocess.CalledProcessError:
                 self.stdout.write('ERROR in antiword processing %d\n' % row.id)
+            except UnicodeDecodeError:
+                self.stdout.write('ERROR in antiword processing (UnicodeDecodeError) %d\n' % row.id)
 
 
     def match_answers(self, *args, **options):

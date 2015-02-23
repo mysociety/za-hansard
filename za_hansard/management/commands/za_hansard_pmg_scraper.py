@@ -569,7 +569,7 @@ class Command(BaseCommand):
                     'committee_url': first_appearance.committee_url,
                     'organization': first_appearance.committee,
                     'title': first_appearance.meeting,
-                    'report_url': first_appearance.meeting_url,
+                    'report_url': first_appearance.report.meeting_url,
                     'date': first_appearance.meeting_date,
                     'public': bool(not report.premium),
                     'speeches': speeches,

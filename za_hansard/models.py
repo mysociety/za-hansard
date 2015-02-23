@@ -208,7 +208,6 @@ class PMGCommitteeAppearance(models.Model):
     meeting         = models.TextField()
     party           = models.TextField()
     person          = models.TextField()
-    meeting_url     = models.TextField()
     report = models.ForeignKey(PMGCommitteeReport,
         null=True,
         on_delete=models.CASCADE,

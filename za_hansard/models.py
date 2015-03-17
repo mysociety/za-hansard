@@ -188,6 +188,10 @@ class PMGCommitteeReport(models.Model):
     premium         = models.BooleanField()
     processed       = models.BooleanField()
     meeting_url     = models.TextField()
+    meeting_name = models.TextField(blank=True, null=True)
+    committee_url = models.URLField(blank=True, null=True)
+    committee_name = models.TextField(default='')
+    meeting_date = models.DateField(blank=True, null=True)
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
@@ -197,10 +201,6 @@ class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site
     """
-    meeting_date    = models.DateField()
-    committee_url   = models.TextField()
-    committee       = models.TextField()
-    meeting         = models.TextField()
     party           = models.TextField()
     person          = models.TextField()
     report = models.ForeignKey(PMGCommitteeReport,

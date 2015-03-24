@@ -17,27 +17,6 @@ from ...models import PMGCommitteeAppearance, PMGCommitteeReport
 
 canonical_url_cache_filename = join(dirname(__file__), '.canonical-url-cache')
 
-def get_meeting_date(report_or_appearance):
-    meeting_date = None
-    try:
-        meeting_date = report_or_appearance.meeting_date
-    except AttributeError:
-        # Then it must be a PMGCommitteeReport; because of the crazy
-        # data modelling we then have to check that all the
-        # appearances from this report have the same date, and then
-        # set that.
-        all_meeting_dates = set(
-            report_or_appearance.appearances.values_list(
-                'meeting_date', flat=True
-            )
-        )
-        if len(all_meeting_dates) > 1:
-            message = "The report {0} had multiple meeting dates associated with it"
-            raise Exception(message.format(report_or_appearance.id))
-        elif len(all_meeting_dates) == 1:
-            meeting_date = iter(all_meeting_dates).next()
-    return meeting_date
-
 
 def login_with_session(requests_session):
     login_url = 'http://legacy.pmg.org.za/user/login'

@@ -185,8 +185,6 @@ class PMGCommitteeReport(models.Model):
     """
     Committe reports, scraped from PMG site
     """
-    # CREATE TABLE reports (id integer primary key autoincrement, premium BOOL,
-    # processed NUMERIC, meeting_url TEXT);
     premium         = models.BooleanField()
     processed       = models.BooleanField()
     meeting_url     = models.TextField()
@@ -199,9 +197,6 @@ class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site
     """
-    # CREATE TABLE appearances (id integer primary key autoincrement,
-    # meeting_date TEXT, committee_url TEXT, committee TEXT, meeting
-    # TEXT, party TEXT, person TEXT, meeting_url TEXT, text TEXT);
     meeting_date    = models.DateField()
     committee_url   = models.TextField()
     committee       = models.TextField()

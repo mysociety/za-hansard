@@ -201,10 +201,6 @@ class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site
     """
-    meeting_date    = models.DateField()
-    committee_url   = models.TextField()
-    committee       = models.TextField()
-    meeting         = models.TextField()
     party           = models.TextField()
     person          = models.TextField()
     report = models.ForeignKey(PMGCommitteeReport,

@@ -197,6 +197,22 @@ class PMGCommitteeReport(models.Model):
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
+    def get_committee_data(self):
+        unique_meeting_data = set(
+            tuple(d.items()) for d in self.appearances.values(
+                'committee', 'committee_url', 'meeting_date'
+            )
+        )
+        if unique_meeting_data:
+            if len(unique_meeting_data) > 1:
+                msg = "Found multiple committee URLs for PMGCommitteeReport {0}"
+                raise Exception(msg.format(self.id))
+            else:
+                return dict(iter(unique_meeting_data).next())
+        else:
+            return None
+
+
 class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site

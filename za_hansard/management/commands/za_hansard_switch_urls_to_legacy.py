@@ -8,6 +8,7 @@ import re
 import requests
 import sys
 import time
+from urlparse import urlsplit
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -106,12 +107,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        committee_mapping = {}
+        committee_mapping_from_old_url = {}
+        committee_mapping_from_old_node_id = {}
 
         with open(committee_mapping_filename) as f:
             for row in csv.DictReader(f):
-                committee_mapping[row['old_url'] = row
-
+                print "adding old_node_id", repr(row['old_node_id'])
+                committee_mapping_from_old_url[row['old_url']] = row
+                committee_mapping_from_old_node_id[row['old_node_id']] = row
 
         requests_session = login()
 
@@ -133,6 +136,10 @@ class Command(BaseCommand):
             with open('committee-url-mapping.csv', 'w') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
+
+                recognized = 0
+                total = 0
+
                 for pcr in PMGCommitteeReport.objects.all():
                     row = {k: '' for k in fieldnames}
                     row['original_meeting_url'] = pcr.meeting_url
@@ -142,7 +149,29 @@ class Command(BaseCommand):
                         writer.writerow(row_as_utf8(row))
                         continue
                     # Rewrite any old URLs to refer to the legacy site:
-                    print 'meeting_url', "was:", pcr.meeting_url
+                    # print 'meeting_url', "was:", pcr.meeting_url
+
+                    split_url = urlsplit(pcr.meeting_url)
+                    print "got split_url.path", split_url.path
+
+                    total += 1
+
+                    m_node = re.search(r'^/node/(\d+)$', split_url.path)
+                    if m_node:
+                        old_node_id = m_node.group(1)
+                        if old_node_id in committee_mapping_from_old_node_id:
+                            recognized += 1
+                        else:
+                            print "Couldn't find node path", split_url.path
+                    else:
+                        if split_url.path in committee_mapping_from_old_url:
+                            recognized += 1
+                        else:
+                            print "Couldn't find old URL", split_url.path
+
+
+                    continue
+
                     legacy_url = None
                     if pcr.meeting_url and ('www.pmg.org.za' in pcr.meeting_url):
                         legacy_url = re.sub(
@@ -176,6 +205,12 @@ class Command(BaseCommand):
                                 else:
                                     print '  would set that if --commit was specified'
                     writer.writerow(row_as_utf8(row))
+                print "Recognised {recognized} out of {total} ({percentage})".format(
+                    recognized=recognized,
+                    total=total,
+                    percentage=((100 * recognized) / total,)
+                )
+                print "Mappings from CSV:", len(committee_mapping_from_old_node_id)
         finally:
             with open(canonical_url_cache_filename, 'w') as f:
                 json.dump(canonical_url_cache, f)

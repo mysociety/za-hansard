@@ -60,16 +60,35 @@ class Command(BaseCommand):
         full_committee_results.pop('calls_for_comments', None)
         print json.dumps(full_committee_results, indent=4, sort_keys=True)
 
+    def get_existing_report(self, committee_event):
+        
+        
+
+    def handle_committee(self, committee):
+        print "handling committee:", committee['name']
+        full_committee_results = get_authenticated(committee['url'])
+        print json.dumps(full_committee_results, indent=4, sort_keys=True)
+
+        for event in committee['events']:
+            print "========================================================================"
+            print "url:", event['url']
+            print "
+
+
     def handle(self, *args, **options):
 
-        user_json = get_authenticated('https://api.pmg.org.za/user')
-        print json.dumps(user_json, indent=4, sort_keys=True)
+        # user_json = get_authenticated('https://api.pmg.org.za/user')
+        # print json.dumps(user_json, indent=4, sort_keys=True)
 
-        committee_names = [c['name'] for c in all_committees()]
-        committee_names.sort()
-        with open('api-committees.txt', 'w') as f:
-            for c in committee_names:
-                f.write(u"{0}\n".format(c))
+        # committee_names = [c['name'] for c in all_committees()]
+        # committee_names.sort()
+        # with open('api-committees.txt', 'w') as f:
+        #     for c in committee_names:
+        #         f.write(u"{0}\n".format(c))
+
+        for committee in all_committees():
+            if 'Agriculture' in committee['name']:
+                self.handle_committee(committee)
 
         # for committee in all_committees():
         #     self.check_committee(committee)

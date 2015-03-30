@@ -4,7 +4,6 @@ from datetime import date
 import json
 from optparse import make_option
 from os.path import dirname, join, exists
-import parslepy
 import re
 import requests
 import sys
@@ -13,10 +12,16 @@ import time
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from ...models import PMGCommitteeAppearance, PMGCommitteeReport
+from ...models import PMGCommitteeReport
 
 canonical_url_cache_filename = join(dirname(__file__), '.canonical-url-cache')
-
+committee_mapping_filename = join(
+    dirname(__file__),
+    '..',
+    '..',
+    'data',
+    'committee-meeting-mappings.csv'
+)
 
 def login_with_session(requests_session):
     login_url = 'http://legacy.pmg.org.za/user/login'
@@ -101,6 +106,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        committee_mapping = {}
+
+        with open(committee_mapping_filename) as f:
+            for row in csv.DictReader(f):
+                committee_mapping[row['old_url'] = row
+
+
         requests_session = login()
 
         if exists(canonical_url_cache_filename):
@@ -121,57 +133,46 @@ class Command(BaseCommand):
             with open('committee-url-mapping.csv', 'w') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                for o in PMGCommitteeReport.objects.all():
+                for pcr in PMGCommitteeReport.objects.all():
                     row = {k: '' for k in fieldnames}
-                    url = getattr(o, 'meeting_url')
-                    meeting_date = None
-                    committee_data = o.get_committee_data()
-                    if committee_data:
-                        row.update(committee_data)
-                        meeting_date = committee_data['meeting_date']
-                    row['original_meeting_url'] = url
-                    if meeting_date is None:
-                        message = 'No meeting_date found for {0} with ID {1}'
-                        print >> sys.stderr, message.format(o, o.id)
-                        writer.writerow(row_as_utf8(row))
-                        continue
+                    row['original_meeting_url'] = pcr.meeting_url
+                    row['meeting_date'] = pcr.meeting_date
                     # Only rewrite data for meetings before 2015
-                    if meeting_date >= date(2015, 1, 1):
+                    if pcr.meeting_date and (pcr.meeting_date >= date(2015, 1, 1)):
                         writer.writerow(row_as_utf8(row))
                         continue
                     # Rewrite any old URLs to refer to the legacy site:
-                    print 'meeting_url', "was:", url
-                    if url and ('www.pmg.org.za' in url):
+                    print 'meeting_url', "was:", pcr.meeting_url
+                    legacy_url = None
+                    if pcr.meeting_url and ('www.pmg.org.za' in pcr.meeting_url):
                         legacy_url = re.sub(
                             r'www\.pmg\.org\.za',
                             'legacy.pmg.org.za',
-                            url
+                            pcr.meeting_url
                         )
                         row['legacy_meeting_url'] = legacy_url
                         if options['commit']:
                             print '  changing it to:', legacy_url
-                            setattr(o, 'meeting_url', legacy_url)
-                            o.save()
+                            pcr.meeting_url = legacy_url
+                            pcr.save()
                         else:
                             message = '  would change to {0} if --commit was specified'
                             print message.format(legacy_url)
                     # Also set the canonical version of the legacy URL:
-                    url = getattr(o, 'meeting_url')
-                    if 'legacy.pmg.org.za' in url:
+                    if legacy_url and ('legacy.pmg.org.za' in legacy_url):
                         canonical_url = get_canonical_url(
-                            url,
+                            legacy_url,
                             canonical_url_cache,
                             requests_session
                         )
                         row['canonical_meeting_url'] = canonical_url
                         print "   ... maps to canonical URL:", canonical_url
                         if canonical_url:
-                            canonical_url_attr = 'canonical_' + 'meeting_url'
-                            if canonical_url != getattr(o, canonical_url_attr):
-                                setattr(o, canonical_url_attr, canonical_url)
+                            if canonical_url != pcr.canonical_meeting_url:
+                                pcr.canonical_meeting_url = canonical_url
                                 if options['commit']:
                                     print "  setting that canonical URL"
-                                    o.save()
+                                    pcr.save()
                                 else:
                                     print '  would set that if --commit was specified'
                     writer.writerow(row_as_utf8(row))

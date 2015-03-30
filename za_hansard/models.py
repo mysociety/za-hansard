@@ -193,6 +193,11 @@ class PMGCommitteeReport(models.Model):
     committee_name = models.TextField(default='')
     meeting_date = models.DateField(blank=True, null=True)
 
+    # For anything sourced from the PMG API, these two fields should
+    # identify the meeting event:
+    api_committee_id = models.IntegerField(null=True, blank=True)
+    api_meeting_id = models.IntegerField(null=True, blank=True)
+
     last_sayit_import = models.DateTimeField(blank=True, null=True)
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')

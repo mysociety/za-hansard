@@ -322,6 +322,7 @@ class Command(BaseCommand):
                 # old report:
                 meeting_report.api_meeting_id = api_meeting_id
                 meeting_report.api_committee_id = api_committee_id
+                # FIXME: listen to the commit option
                 meeting_report.save()
             except PMGCommitteeReport.DoesNotExist:
                 pass
@@ -332,6 +333,7 @@ class Command(BaseCommand):
                 msg = "no URL in event with ID: {0} skipping...\n"
                 self.stdout.write(msg.format(committee_event['id']))
                 return None
+            # FIXME: listen to the commit option
             meeting_report = PMGCommitteeReport.objects.create(
                 premium=committee['premium'],
                 processed=False,

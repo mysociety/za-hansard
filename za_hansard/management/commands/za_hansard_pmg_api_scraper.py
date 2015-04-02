@@ -186,10 +186,10 @@ def get_names_from_appearance(appearance_text):
     for name_match in name_and_party_re.finditer(appearance_text):
         match_indices.add(name_match.span()[0])
         name_matches.append(name_match)
-    for name_match in name_only_re.finditer(appearance_text):
-        match_index = name_match.span()[0]
-        if match_index not in match_indices:
-            name_matches.append(name_match)
+    # for name_match in name_only_re.finditer(appearance_text):
+    #     match_index = name_match.span()[0]
+    #     if match_index not in match_indices:
+    #         name_matches.append(name_match)
     return name_matches
 
 def format_name_match(name_match):

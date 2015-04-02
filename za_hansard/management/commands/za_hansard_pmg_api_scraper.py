@@ -363,7 +363,7 @@ class Command(BaseCommand):
                 appearances.append(
                     PMGCommitteeAppearance(
                         report=meeting_report,
-                        party=name_match.groupdict().get('party'),
+                        party=name_match.groupdict().get('party', ''),
                         person=name_match.group('name'),
                         text=u'{0} chaired the meeting.'.format(full_name)
                     )
@@ -393,7 +393,7 @@ class Command(BaseCommand):
                     appearances.append(
                         PMGCommitteeAppearance(
                             report=meeting_report,
-                            party=name_match.groupdict().get('party'),
+                            party=name_match.groupdict().get('party', ''),
                             person=name_match.group('name'),
                             text=appearance
                         )

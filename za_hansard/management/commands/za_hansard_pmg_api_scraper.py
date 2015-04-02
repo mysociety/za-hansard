@@ -446,8 +446,14 @@ class Command(BaseCommand):
 
             for report in PMGCommitteeReport.objects.all():
 
+                if report.meeting_date:
+                    meeting_section_name = report.meeting_date.strftime('%d %B %Y')
+                else:
+                    meeting_section_name = "Report with ID {0}".format(report.id)
+
                 if not report.meeting_date:
-                    print "WARNING: skipping report with ID {0} due to a missing meeting_date".format(report.id)
+                    msg = "WARNING: skipping report with ID {0} due to a missing meeting_date\n"
+                    self.stdout.write(msg.format(report.id))
                     continue
 
                 non_api_url = re.sub(
@@ -463,7 +469,7 @@ class Command(BaseCommand):
                     'parent_section_titles': [
                         'Committee Minutes',
                         report.committee_name,
-                        report.meeting_date.strftime('%d %B %Y'),
+                        meeting_section_name,
                     ],
                     'speeches': [
                         {

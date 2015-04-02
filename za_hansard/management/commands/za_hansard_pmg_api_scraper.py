@@ -283,6 +283,8 @@ class Command(BaseCommand):
             meeting_report = self.get_meeting_report(
                 committee, event
             )
+            if not meeting_report:
+                continue
             if self.options['commit']:
                 meeting_report.save()
             # Now parse the appearances out of the event body:

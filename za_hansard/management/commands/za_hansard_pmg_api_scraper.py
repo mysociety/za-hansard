@@ -446,11 +446,14 @@ class Command(BaseCommand):
 
             for report in PMGCommitteeReport.objects.all():
 
+                non_api_url = re.sub(
+                    r'api.pmg.org.za', 'www.pmg.org.za', report.meeting_url
+                )
                 result = {
                     'committee_url': report.committee_url,
                     'organization': report.committee_name,
                     'title': report.meeting_name,
-                    'report_url': report.meeting_url,
+                    'report_url': non_api_url,
                     'date': report.meeting_date,
                     'public': bool(not report.premium),
                     'parent_section_titles': [

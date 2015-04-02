@@ -146,7 +146,7 @@ def write_prettified_html(html, meeting_id, dump_type):
         f.write(soup.prettify().encode('utf-8'))
     return soup
 
-def get_names_from_appearance(appearance_text):
+def get_names_from_appearance(appearance_text, allow_no_party=False):
     """Given some text, find all names of people within it
 
     If you specify allow_no_party to be True, then a party in
@@ -186,10 +186,11 @@ def get_names_from_appearance(appearance_text):
     for name_match in name_and_party_re.finditer(appearance_text):
         match_indices.add(name_match.span()[0])
         name_matches.append(name_match)
-    # for name_match in name_only_re.finditer(appearance_text):
-    #     match_index = name_match.span()[0]
-    #     if match_index not in match_indices:
-    #         name_matches.append(name_match)
+    if allow_no_party:
+        for name_match in name_only_re.finditer(appearance_text):
+            match_index = name_match.span()[0]
+            if match_index not in match_indices:
+                name_matches.append(name_match)
     return name_matches
 
 def format_name_match(name_match):
@@ -361,7 +362,7 @@ class Command(BaseCommand):
             # Create a pseudo appearance for anyone who's down as the
             # chairperson of the meeting. (There's usually just one, but
             # sometimes someone else takes over later.)
-            for name_match in get_names_from_appearance(chairpeople):
+            for name_match in get_names_from_appearance(chairpeople, allow_no_party=True):
                 full_name = format_name_match(name_match)
                 self.stdout.write("  chair => {0}\n".format(full_name))
                 appearances.append(

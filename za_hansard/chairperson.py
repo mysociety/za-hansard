@@ -1,3 +1,4 @@
+import bleach
 import re
 
 from bs4 import NavigableString
@@ -15,104 +16,22 @@ from bs4 import NavigableString
 #   10052
 #   9956
 #   7941
+#   7612
+#   8208
 
-def get_earliest_text(span):
-    children = list(span.children)
-    if not children:
-        return None
-    first = children[0]
-    if isinstance(first, NavigableString):
-        return first
-    if first.name != 'span':
-        return None
-    return get_earliest_text(first)
-
-def get_split_across_spans(soup):
-    """Extract the chairperson name, e.g. for meetings with IDs: 8655, 8567)"""
-
-    p = soup.find('p', class_="MsoNormal")
-    if not p:
-        return
-    spans = p.find_all('span')
-    if len(spans) < 2:
-        return
-    span0_children = list(spans[0].children)
-    if not span0_children:
-        return
-    span0_last_child = span0_children[-1]
-    if not isinstance(span0_last_child, NavigableString):
-        return
-    if not re.search(r'(?ms)Chairperson:\s*$', span0_last_child):
-        return
-    s = get_earliest_text(spans[1])
-    return s.strip()
-
-def get_bold_and_sibling(soup):
-    """e.g. for meeting with ID: 8593"""
-
-    b = soup.find('b', text=re.compile('^\s*Chairperson\s*:?\s*$'))
-    if not b:
-        return
-    after = b.next_sibling
-    if not isinstance(after, NavigableString):
-        return
-    m = re.search(r'^(?ms)[\s\n:]*(.*)', after)
-    if not m:
-        return
-    return m.group(1).strip()
-
-def should_ignore_tag(tag):
-    """In 8820 there's a extra <span class="SpellE"> around part of the name
-
-    In 10052 it's 'spelle'"""
-
-    classes = tag.get('class', [])
-    return tag.name == 'span' and (
-        'SpellE' in classes or
-        'spelle' in classes or
-        (not classes)
+def strip_tags_from_html(html):
+    allowed_tags = bleach.ALLOWED_TAGS + [
+        'br', 'p', 'div', 'h1', 'h2', 'h3', 'h4'
+    ]
+    return bleach.clean(
+        html,
+        tags=allowed_tags,
+        strip=True
     )
-
-def merge_with_adjacent(ns, with_element_after=True):
-    if not isinstance(ns, NavigableString):
-        return
-    adjacent = ns.next_sibling if with_element_after else ns.previous_sibling
-    if adjacent is None or not isinstance(adjacent, NavigableString):
-        return
-    if with_element_after:
-        squashed = NavigableString(ns + adjacent)
-    else:
-        squashed = NavigableString(adjacent + ns)
-    adjacent.extract()
-    ns.replace_with(squashed)
-
-def strip_tags(soup):
-    """Replace any useless spans with their contents
-
-    A modified version of http://stackoverflow.com/a/3225671/223092
-    The issue with that one is that you can end up with two adjancent
-    or three NavigableString objects; I'd like them to be coalesced
-    because otherwise when you do get_text with a join string you end
-    up with spurious joins in the middle of strings. """
-
-    for tag in soup.find_all(True):
-        if should_ignore_tag(tag):
-            s = ""
-            for c in tag.contents:
-                if not isinstance(c, NavigableString):
-                    c = strip_tags(unicode(c))
-                s += unicode(c)
-            previous_sibling = tag.previous_sibling
-            next_sibling = tag.next_sibling
-            tag.replace_with(s)
-            merge_with_adjacent(previous_sibling, with_element_after=True)
-            merge_with_adjacent(next_sibling, with_element_after=False)
-    return soup
 
 def get_from_text_version(soup):
     """e.g. for meeting with ID: 6040, 8564"""
 
-    soup = strip_tags(soup)
     text = soup.get_text('_')
     m = re.search(
         r'_\s*(?:Acting\s*)?Chair(?:person)?\s*:?[\s_]*([^_]*)_[\s_]*Documents?\s+handed\s+out',

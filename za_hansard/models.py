@@ -202,6 +202,9 @@ class PMGCommitteeReport(models.Model):
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
+    def old_meeting_url(self):
+        return self.meeting_url and 'api.pmg.org.za' not in self.meeting_url
+
 
 class PMGCommitteeAppearance(models.Model):
     """

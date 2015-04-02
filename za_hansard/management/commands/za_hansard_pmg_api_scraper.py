@@ -446,6 +446,10 @@ class Command(BaseCommand):
 
             for report in PMGCommitteeReport.objects.all():
 
+                if not report.meeting_date:
+                    print "WARNING: skipping report with ID {0} due to a missing meeting_date".format(report.id)
+                    continue
+
                 non_api_url = re.sub(
                     r'api.pmg.org.za', 'www.pmg.org.za', report.meeting_url
                 )

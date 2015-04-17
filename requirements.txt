@@ -16,7 +16,7 @@ yanc==0.2.4
 httplib2==0.8
 beautifulsoup4==4.3.2
 parslepy==0.2.0
-requests==2.2.1
+requests==2.6.0
 lxml==3.3.5
 
 # For some reasons these dependencies aren't being picked up correctly

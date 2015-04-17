@@ -54,10 +54,13 @@ class ImportJson (ImportZAMixin, ImporterBase):
         # Create parents as needed using parent_section_titles
         parent_section_titles = data.get('parent_section_titles', [])
         parent_section_titles.append(self.title)
-        # XXX The below creates the sections even if commit is False
-        section = Section.objects.get_or_create_with_parents(instance=self.instance, titles=parent_section_titles)
+        if self.commit:
+            section = Section.objects.get_or_create_with_parents(
+                instance=self.instance,
+                titles=parent_section_titles
+            )
 
-        if self.delete_existing:
+        if self.delete_existing and self.commit:
             section.speech_set.all().delete()
 
         for s in data.get( 'speeches', [] ):
@@ -102,8 +105,9 @@ class ImportJson (ImportZAMixin, ImporterBase):
             )
 
             for tagname in s.get('tags', []):
-                (tag,_) = Tag.objects.get_or_create( name=tagname, instance=self.instance )
-                speech.tags.add(tag)
+                if self.commit:
+                    (tag,_) = Tag.objects.get_or_create( name=tagname, instance=self.instance )
+                    speech.tags.add(tag)
 
         return section
 

@@ -185,30 +185,33 @@ class PMGCommitteeReport(models.Model):
     """
     Committe reports, scraped from PMG site
     """
-    # CREATE TABLE reports (id integer primary key autoincrement, premium BOOL,
-    # processed NUMERIC, meeting_url TEXT);
     premium         = models.BooleanField()
     processed       = models.BooleanField()
     meeting_url     = models.TextField()
+    meeting_name = models.TextField(blank=True, null=True)
+    committee_url = models.URLField(blank=True, null=True)
+    committee_name = models.TextField(default='')
+    meeting_date = models.DateField(blank=True, null=True)
+
+    # For anything sourced from the PMG API, these two fields should
+    # identify the meeting event:
+    api_committee_id = models.IntegerField(null=True, blank=True)
+    api_meeting_id = models.IntegerField(null=True, blank=True)
 
     last_sayit_import = models.DateTimeField(blank=True, null=True)
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
+    def old_meeting_url(self):
+        return self.meeting_url and 'api.pmg.org.za' not in self.meeting_url
+
+
 class PMGCommitteeAppearance(models.Model):
     """
     Committe appearances, scraped from PMG site
     """
-    # CREATE TABLE appearances (id integer primary key autoincrement,
-    # meeting_date TEXT, committee_url TEXT, committee TEXT, meeting
-    # TEXT, party TEXT, person TEXT, meeting_url TEXT, text TEXT);
-    meeting_date    = models.DateField()
-    committee_url   = models.TextField()
-    committee       = models.TextField()
-    meeting         = models.TextField()
     party           = models.TextField()
     person          = models.TextField()
-    meeting_url     = models.TextField()
     report = models.ForeignKey(PMGCommitteeReport,
         null=True,
         on_delete=models.CASCADE,

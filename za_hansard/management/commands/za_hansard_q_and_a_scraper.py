@@ -118,7 +118,7 @@ class Command(BaseCommand):
         if options['scrape_questions']:
             self.scrape_questions(*args, **options)
         elif options['scrape_answers']:
-            self.scrape_answers(self.art_url_a_na, *args, **options)
+            self.scrape_answers(self.start_url_a_na, *args, **options)
             self.scrape_answers(self.start_url_a_ncop, *args, **options)
         elif options['process_answers']:
             self.process_answers(*args, **options)

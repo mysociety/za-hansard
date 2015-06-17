@@ -23,7 +23,6 @@ from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
 from speeches.models import Section, Speaker, Speech
-from pombola.slug_helpers.models import SlugRedirect
 from django.contrib.contenttypes.models import ContentType
 
 # ideally almost all of the parsing code would be removed from this management
@@ -530,6 +529,7 @@ class Command(BaseCommand):
             (len(section_ids), len(answers)))
 
     def correct_existing_sayit_import(self, *args, **options):
+        from pombola.slug_helpers.models import SlugRedirect
         instance = None
         try:
             instance = Instance.objects.get(label=options['instance'])

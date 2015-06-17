@@ -1,15 +1,11 @@
 import urllib2
 import sys
-import re, os
-import dateutil.parser
-import string
-import parslepy
+import os
 import json
-import time
 
 import subprocess
 
-from datetime import datetime, date, timedelta
+from datetime import datetime
 
 from optparse import make_option
 
@@ -30,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 # separated. This is the start of that process.
 from ... import question_scraper
 
+
 def strip_dict(d):
     """
     Return a new dictionary, like d, but with any string value stripped
@@ -42,6 +39,7 @@ def strip_dict(d):
     [('a', 'foo'), ('b', 3), ('c', 'bar')]
     """
     return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
+
 
 class Command(BaseCommand):
 
@@ -160,7 +158,7 @@ class Command(BaseCommand):
         # }
 
         for detail in details:
-            count+=1
+            count += 1
 
             source_url = detail['url']
             sys.stdout.write(
@@ -190,8 +188,7 @@ class Command(BaseCommand):
             if options['limit'] and count >= options['limit']:
                 break
 
-        self.stdout.write( "Processed %d documents (%d errors)\n" % (count, errors) )
-
+        self.stdout.write("Processed %d documents (%d errors)\n" % (count, errors))
 
     def scrape_answers(self, start_url_a, *args, **options):
         start_url = start_url_a[0] + start_url_a[1]
@@ -231,7 +228,7 @@ class Command(BaseCommand):
                         )
                 else:
                     # self.stdout.write('Adding answer for {0}\n'.format(url))
-                    answer = Answer.objects.create(**detail)
+                    Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
                 break
@@ -277,7 +274,6 @@ class Command(BaseCommand):
                 self.stdout.write('ERROR in antiword processing %d\n' % row.id)
             except UnicodeDecodeError:
                 self.stdout.write('ERROR in antiword processing (UnicodeDecodeError) %d\n' % row.id)
-
 
     def match_answers(self, *args, **options):
         # FIXME - should change to a subset of all answers.
@@ -510,11 +506,10 @@ class Command(BaseCommand):
             if not os.path.exists(path):
                 continue
 
-            importer = ImportJson(instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+            importer = ImportJson(instance=instance, popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
             self.stderr.write("TRYING %s\n" % path)
-            #limit to 2 speeches per section to avoid duplicating speeches
-            #added prior to the addition of the answer sayit_section field
+            # limit to 2 speeches per section to avoid duplicating speeches
+            # added prior to the addition of the answer sayit_section field
             section = importer.import_document(path, 2)
             section_ids.append(section.id)
             answer.sayit_section = section
@@ -525,8 +520,7 @@ class Command(BaseCommand):
         self.stdout.write('Answers:\n')
         self.stdout.write(str(section_ids))
         self.stdout.write('\n')
-        self.stdout.write('Answers: Imported %d / %d sections\n' %
-            (len(section_ids), len(answers)))
+        self.stdout.write('Answers: Imported %d / %d sections\n' % (len(section_ids), len(answers)))
 
     def correct_existing_sayit_import(self, *args, **options):
         from pombola.slug_helpers.models import SlugRedirect
@@ -537,7 +531,7 @@ class Command(BaseCommand):
             raise CommandError("Instance specified not found (%s)" %
                                options['instance'])
 
-        #check that sections are correctly named
+        # check that sections are correctly named
         sections = Section.objects.filter(parent__title='Questions')
 
         for section in sections:
@@ -545,9 +539,9 @@ class Command(BaseCommand):
             new_minister = self.correct_minister_title(minister)
 
             if minister != new_minister:
-                #the name needs to be corrected. this is achieved by moving
-                #children to the correct section and deleting the current one
-                #and by changing the relevant speakers
+                # the name needs to be corrected. this is achieved by moving
+                # children to the correct section and deleting the current one
+                # and by changing the relevant speakers
 
                 if options['commit']:
                     new_section = Section.objects.get_or_create_with_parents(
@@ -581,9 +575,9 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write('Correcting %s to %s' % (minister, new_minister))
 
-        #check that answer dates and source urls are correct (previously,
-        #answer dates were set to those of their question and source_urls
-        #were not set - requiring checking and correction)
+        # check that answer dates and source urls are correct (previously,
+        # answer dates were set to those of their question and source_urls
+        # were not set - requiring checking and correction)
         answers = Answer.objects.exclude(sayit_section=None)
 
         for answer in answers:
@@ -620,14 +614,14 @@ class Command(BaseCommand):
                         speech.save()
 
             except MultipleObjectsReturned:
-                #only one answer should be returned - requires investigation
+                # only one answer should be returned - requires investigation
                 self.stdout.write(
                     'MultipleObjectsReturned %s - id %s' % (
                         answer.document_name,
                         answer.id
                     ) )
 
-        #check that question source_urls are correct
+        # check that question source_urls are correct
         questions = Question.objects.exclude( sayit_section = None )
 
         for question in questions:
@@ -649,12 +643,12 @@ class Command(BaseCommand):
                         speech.save()
 
             except MultipleObjectsReturned:
-                #only one answer should be returned - requires investigation
+                # only one answer should be returned - requires investigation
                 self.stdout.write(
                     'MultipleObjectsReturned question %s - id %s' % (
                         question.identifier,
                         question.id
-                    ) )
+                    ))
 
         if not options['commit']:
             self.stdout.write('Corrections not saved. Use --commit.')
@@ -774,23 +768,22 @@ class Command(BaseCommand):
                 "Minister of Arts and Culture",
         }
 
-        #the most common error is the inclusion of a hyphen (presumably due to
-        #line breaks in the original document). No ministers have a hyphen in
-        #their title so we can do a simple replace.
+        # the most common error is the inclusion of a hyphen (presumably due to
+        # line breaks in the original document). No ministers have a hyphen in
+        # their title so we can do a simple replace.
         minister_title = minister_title.replace('-', '')
 
-        #correct mispellings of 'minister'
+        # correct mispellings of 'minister'
         minister_title = minister_title.replace('Minster', 'Minister')
 
-        #it is also common for a minister to be labelled "minister for" instead
-        #of "minister of"
+        # it is also common for a minister to be labelled "minister for" instead
+        # of "minister of"
         minister_title = minister_title.replace('Minister for', 'Minister of')
 
-        #remove any whitespace
+        # remove any whitespace
         minister_title = minister_title.strip()
 
-        #apply manual corrections
+        # apply manual corrections
         minister_title = corrections.get(minister_title, minister_title)
 
         return minister_title
-

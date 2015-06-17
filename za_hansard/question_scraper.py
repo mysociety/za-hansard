@@ -687,4 +687,3 @@ class QuestionPaperParser(object):
                     continue
 
                 question.save()
-

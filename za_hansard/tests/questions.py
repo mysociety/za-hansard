@@ -15,29 +15,12 @@ from django.utils.unittest import skipUnless
 
 from .. import question_scraper
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
-from ..models import Question, QuestionPaper
+from ..models import QuestionPaper
+
 
 def sample_file(filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
-
-
-class ZAAnswerTests(TestCase):
-
-    def test_answer_parsing(self):
-        input_doc_file       = sample_file('answer_1.doc')
-        expected_output_file = sample_file('answer_1_expected.txt')
-
-        text = question_scraper.extract_answer_text_from_word_document(input_doc_file)
-        expected = open(expected_output_file).read().decode('UTF-8')
-
-        # Handy for updating the expected data.
-        # out = open(expected_output_file, 'w+')
-        # out.write(text.encode('UTF-8'))
-        # out.close()
-
-        self.assertEqual(text, expected)
-
 
 
 class ZAIteratorBaseMixin(object):
@@ -170,8 +153,11 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
 
 
 class TestAnswerScraper(TestCase):
+    def setUp(self):
+        self.scraper = question_scraper.AnswerScraper()
+
     def test_details_from_name(self):
-        details = question_scraper.AnswerScraper().details_from_name('RNW1647-150513.doc')
+        details = self.scraper.details_from_name('RNW1647-150513.doc')
         self.assertEqual(details, {
             'date': datetime.date(2015, 5, 13),
             'year': 2015,
@@ -181,6 +167,31 @@ class TestAnswerScraper(TestCase):
             'type': 'doc',
             'written_number': '1647',
         })
+
+        details = self.scraper.details_from_name('RNW1647-150513')
+        self.assertEqual(details, {
+            'date': datetime.date(2015, 5, 13),
+            'year': 2015,
+            'document_name': 'RNW1647-150513',
+            'house': 'N',
+            'oral_number': None,
+            'type': None,
+            'written_number': '1647',
+        })
+
+    def test_answer_parsing(self):
+        input_doc_file       = sample_file('answer_1.doc')
+        expected_output_file = sample_file('answer_1_expected.txt')
+
+        text = self.scraper.extract_answer_text_from_word_document(input_doc_file)
+        expected = open(expected_output_file).read().decode('UTF-8')
+
+        # Handy for updating the expected data.
+        # out = open(expected_output_file, 'w+')
+        # out.write(text.encode('UTF-8'))
+        # out.close()
+
+        self.assertEqual(text, expected)
 
 
 class ZAQuestionParsing(TestCase):

@@ -16,7 +16,7 @@ import parslepy
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
-from za_hansard.models import Question, QuestionPaper
+from za_hansard.models import Question, QuestionPaper, Answer
 
 # from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
 # Copied rather than included as the scraperwiki __init__.py was having trouble
@@ -25,6 +25,8 @@ from za_hansard.models import Question, QuestionPaper
 def ensure_executable_found(name):
     if not distutils.spawn.find_executable(name):
         raise ImproperlyConfigured("Can't find executable '{0}' which is needed by this code".format(name))
+
+ensure_executable_found("antiword")
 
 ensure_executable_found("pdftohtml")
 def pdftoxml(pdfdata):
@@ -53,15 +55,6 @@ def pdftoxml(pdfdata):
     return xmldata
 
 
-ensure_executable_found("antiword")
-def extract_answer_text_from_word_document(filename):
-    text = check_output_wrapper(['antiword', filename]).decode('unicode-escape')
-
-    # strip out lines that are just '________'
-    bar_regex = re.compile(r'^_+$', re.MULTILINE)
-    text = bar_regex.sub('', text)
-
-    return text
 
 def check_output_wrapper(*args, **kwargs):
 
@@ -80,6 +73,21 @@ def check_output_wrapper(*args, **kwargs):
             error.output = output
             raise error
         return output
+
+
+def strip_dict(d):
+    """
+    Return a new dictionary, like d, but with any string value stripped
+
+    >>> d = {'a': ' foo   ', 'b': 3, 'c': '   bar'}
+    >>> result = strip_dict(d)
+    >>> type(result)
+    <type 'dict'>
+    >>> sorted(result.items())
+    [('a', 'foo'), ('b', 3), ('c', 'bar')]
+    """
+    return dict((k, v.strip() if hasattr(v, 'strip') else v) for k, v in d.iteritems())
+
 
 class BaseDetailIterator(object):
 
@@ -231,6 +239,7 @@ class AnswerDetailIterator(BaseDetailIterator):
                     type=url.partition(".")[2],
                     ))
 
+                document_data = strip_dict(document_data)
                 self.details.append(document_data)
 
         # check for next page of links (or None if not found)
@@ -250,17 +259,31 @@ class AnswerScraper(object):
     """ Parsers answer documents.
     """
 
-    DOCUMENT_NAME_REGEX = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})(\.(?P<type>\w+)?)$')
+    DOCUMENT_NAME_REGEX = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})(\.(?P<type>\w+))?$')
+    BAR_REGEX = re.compile(r'^_+$', re.MULTILINE)
 
     def import_question_answer_from_file(self, filename):
         """ Import a questiond and its answer from a file.
         """
-        details = self.details_from_name(os.path.basename(filename))
-        # TODO: extract/lookup question
-        # TODO: extract/lookup answer
-        # TODO: match them
-        # TODO: save them
-        print details
+        detail = self.details_from_name(os.path.basename(filename))
+        answer = self.lookup_answer(detail)
+
+        if answer and answer.question:
+            # it already exists and has been answered
+            return answer
+
+        if not answer:
+            answer = Answer.create(**detail)
+            answer.text = self.extract_answer_text_from_word_document(filename)
+            answer.processed_code = Answer.PROCESSED_OK
+            answer.save()
+
+        if not answer.question:
+            # TODO: extract/lookup question
+            # TODO: always do this, even when pulling from downloaded documents
+            pass
+
+        return answer
 
     def details_from_name(self, name):
         """ Return a map with details from the document name (or filename):
@@ -297,7 +320,39 @@ class AnswerScraper(object):
 
         document_data['year'] = document_data['date'].year
 
+        document_data = strip_dict(document_data)
         return document_data
+
+    def extract_answer_text_from_word_document(self, filename):
+        text = check_output_wrapper(['antiword', filename]).decode('unicode-escape')
+
+        # strip out lines that are just '________'
+        text = self.BAR_REGEX.sub('', text)
+
+        return text
+
+    def lookup_answer(self, detail):
+        """ Try to find an Answer instance matching these details.
+        """
+        url = detail['url']
+        if url:
+            answer = Answer.objects.filter(url=url).first()
+            if answer:
+                return answer
+
+        # TODO: filter by session
+        query = Answer.objects.filter(
+            house=detail['house'],
+            year=detail['year'],
+        )
+
+        if detail['oral_number']:
+            query = query.filter(oral_number=detail['oral_number'])
+
+        if detail['written_number']:
+            query = query.filter(written_number=detail['written_number'])
+
+        return query.first()
 
 
 page_header_regex = re.compile(ur"\s*(?:{0}|{1})\s*".format(

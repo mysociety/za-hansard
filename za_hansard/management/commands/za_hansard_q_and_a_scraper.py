@@ -27,20 +27,6 @@ from django.contrib.contenttypes.models import ContentType
 from ... import question_scraper
 
 
-def strip_dict(d):
-    """
-    Return a new dictionary, like d, but with any string value stripped
-
-    >>> d = {'a': ' foo   ', 'b': 3, 'c': '   bar'}
-    >>> result = strip_dict(d)
-    >>> type(result)
-    <type 'dict'>
-    >>> sorted(result.items())
-    [('a', 'foo'), ('b', 3), ('c', 'bar')]
-    """
-    return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
-
-
 class Command(BaseCommand):
 
     help = 'Check for new sources'
@@ -198,6 +184,7 @@ class Command(BaseCommand):
         self.stdout.write("Processed %d documents (%d errors)\n" % (count, errors))
 
     def scrape_answers(self, start_url_a, *args, **options):
+        scraper = question_scraper.AnswerScraper()
         start_url = start_url_a[0] + start_url_a[1]
         details = question_scraper.AnswerDetailIterator(start_url)
 
@@ -205,42 +192,31 @@ class Command(BaseCommand):
 
         for detail in details:
             count += 1
-            detail = strip_dict(detail)
 
-            url = detail['url']
-            if Answer.objects.filter(url=url).exists():
-                self.stdout.write('Answer {0} already exists\n'.format(url))
+            answer = scraper.lookup_answer(detail)
+            if answer and answer.url and answer.url == detail['url']:
+                self.stdout.write('Answer {0} already exists\n'.format(answer.url))
                 if not options['fetch_to_limit']:
                     self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                     break
+
+            elif answer:
+                # FIXME - We should work out which answer to keep rather than
+                # just keeping what we already have.
+                self.stdout.write(
+                    'DUPLICATE: answer for {0} O{1} W{2} {3} already exists: {4}\n'.format(
+                        detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
+                        answer.id,
+                    ))
             else:
-                existing_answers = Answer.objects.filter(
-                    house=detail['house'],
-                    year=detail['year'],
-                    )
-
-                if detail['oral_number']:
-                    existing_answers = existing_answers.filter(oral_number=detail['oral_number'])
-                if detail['written_number']:
-                    existing_answers = existing_answers.filter(written_number=detail['written_number'])
-
-                if existing_answers.exists():
-                    # import pdb;pdb.set_trace()
-                    # FIXME - We should work out which answer to keep rather than
-                    # just keeping what we already have.
-                    self.stdout.write(
-                        'DUPLICATE: answer for {0} O{1} W{2} {3} already exists\n'.format(
-                            detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
-                            )
-                        )
-                else:
-                    # self.stdout.write('Adding answer for {0}\n'.format(url))
-                    Answer.objects.create(**detail)
+                self.stdout.write('Adding answer for {0}\n'.format(detail['url']))
+                Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
                 break
 
     def process_answers(self, *args, **options):
+        scraper = question_scraper.AnswerScraper()
         answers = Answer.objects.exclude(url=None)
         unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
 
@@ -273,7 +249,7 @@ class Command(BaseCommand):
                     continue
 
             try:
-                text = question_scraper.extract_answer_text_from_word_document(filename)
+                text = scraper.extract_answer_text_from_word_document(filename)
                 row.processed_code = Answer.PROCESSED_OK
                 row.text = text
                 row.save()

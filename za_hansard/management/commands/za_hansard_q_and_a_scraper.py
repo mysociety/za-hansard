@@ -80,6 +80,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Run all of the steps',
         ),
+        make_option('--import-answer',
+            default=False,
+            action='store_true',
+            help='Import a Question and Answser from an answer .doc file',
+        ),
         make_option('--correct-existing-sayit-import',
             default=False,
             action='store_true',
@@ -134,6 +139,8 @@ class Command(BaseCommand):
             self.match_answers(*args, **options)
             self.qa_to_json(*args, **options)
             self.import_into_sayit(*args, **options)
+        elif options['import_answer']:
+            self.import_answer(*args, **options)
         elif options['correct_existing_sayit_import']:
             self.correct_existing_sayit_import(*args, **options)
         else:
@@ -787,3 +794,11 @@ class Command(BaseCommand):
         minister_title = corrections.get(minister_title, minister_title)
 
         return minister_title
+
+    def import_answer(self, *filenames, **options):
+        """ Import Question and Answer pairs from single Anwser Word .doc documents
+        """
+        scraper = question_scraper.AnswerScraper()
+
+        for fname in filenames:
+            scraper.import_question_answer_from_file(fname)

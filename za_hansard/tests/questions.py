@@ -169,6 +169,20 @@ class ZAAnswerIteratorTests(ZAIteratorBaseMixin, TestCase):
     penultimate_expected_number = 6
 
 
+class TestAnswerScraper(TestCase):
+    def test_details_from_name(self):
+        details = question_scraper.AnswerScraper().details_from_name('RNW1647-150513.doc')
+        self.assertEqual(details, {
+            'date': datetime.date(2015, 5, 13),
+            'year': 2015,
+            'document_name': 'RNW1647-150513',
+            'house': 'N',
+            'oral_number': None,
+            'type': 'doc',
+            'written_number': '1647',
+        })
+
+
 class ZAQuestionParsing(TestCase):
     test_data = (
         ('559662_1', 'http://www.parliament.gov.za/live/commonrepository/Processed/20140113/559662_1.pdf', 'National Council of Provinces', '13 December 2013'),

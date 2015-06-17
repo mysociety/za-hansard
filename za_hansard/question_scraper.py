@@ -152,6 +152,7 @@ class QuestionDetailIterator(BaseDetailIterator):
                 self.next_list_url = next_url
                 break
 
+
 class AnswerDetailIterator(BaseDetailIterator):
     answer_parsing_rules = {
         "papers(table.tableOrange_sep tr)" : [{"cell(td)":[{"contents":".","url(a)":"@href"}]}],
@@ -187,9 +188,8 @@ class AnswerDetailIterator(BaseDetailIterator):
     'RNW1920-13823',
     )
 
-    document_name_regex = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})$')
-
     def get_details(self):
+        scraper = AnswerScraper()
         sys.stdout.write('Answers {0}\n'.format(self.next_list_url))
 
         contents = self.url_get(self.next_list_url)
@@ -198,7 +198,6 @@ class AnswerDetailIterator(BaseDetailIterator):
         for row in page['papers']:
             if len(row['cell']) == 11:
                 url = row['cell'][8]['url']
-                types = url.partition(".")
                 date_published = row['cell'][2]['contents'].strip()
                 try:
                     date_published = datetime.datetime.strptime(date_published, '%d %B %Y').date()
@@ -210,11 +209,10 @@ class AnswerDetailIterator(BaseDetailIterator):
                 document_name = row['cell'][0]['contents'].strip().upper()
 
                 try:
-                    document_data = self.document_name_regex.match(document_name).groupdict()
-                except:
+                    document_data = scraper.details_from_name(document_name)
+                except Exception as e:
                     if document_name not in self.known_bad_document_names:
-                        sys.stdout.write('SKIPPING bad document_name {0}\n'
-                                         .format(document_name))
+                        sys.stdout.write('SKIPPING bad document {0}: {1}\n'.format(document_name, e.message))
                     continue
 
                 # FIXME - Temporary fix for launch
@@ -222,40 +220,16 @@ class AnswerDetailIterator(BaseDetailIterator):
                 if not document_data['written_number']:
                     continue
 
-                # The President and vice Deputy President have their own
-                # oral question sequences.
-                president = document_data.pop('president')
-
-                if president == 'P':
-                    document_data['president_number'] = document_data.pop('oral_number')
-                if president == 'DP':
-                    document_data['dp_number'] = document_data.pop('oral_number')
-
-                document_data.update(dict(
-                    document_name=document_name,
-                    date_published=date_published,
-                    language=row['cell'][6]['contents'],
-                    url=self.base_url + url,
-                    type=types[2],
-                    ))
-
-                try:
-                    document_data['date'] = datetime.datetime.strptime(
-                        document_data.pop('date_string'),
-                        '%y%m%d',
-                        ).date()
-                except:
-                    sys.stdout.write(
-                        "BAILING on {0} - problem converting date\n"
-                        .format(document_name)
-                        )
-                    continue
-
                 # We don't want anything from before the 2009 election.
                 if document_data['date'] < datetime.date(2009, 4, 22):
                     continue
 
-                document_data['year'] = document_data['date'].year
+                document_data.update(dict(
+                    date_published=date_published,
+                    language=row['cell'][6]['contents'],
+                    url=self.base_url + url,
+                    type=url.partition(".")[2],
+                    ))
 
                 self.details.append(document_data)
 
@@ -270,6 +244,60 @@ class AnswerDetailIterator(BaseDetailIterator):
 
                 self.next_list_url = next_url
                 break
+
+
+class AnswerScraper(object):
+    """ Parsers answer documents.
+    """
+
+    DOCUMENT_NAME_REGEX = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})(\.(?P<type>\w+)?)$')
+
+    def import_question_answer_from_file(self, filename):
+        """ Import a questiond and its answer from a file.
+        """
+        details = self.details_from_name(os.path.basename(filename))
+        # TODO: extract/lookup question
+        # TODO: extract/lookup answer
+        # TODO: match them
+        # TODO: save them
+        print details
+
+    def details_from_name(self, name):
+        """ Return a map with details from the document name (or filename):
+
+        - document_name
+        - date
+        - type
+        - house
+        - oral_number
+        - written_number
+        - president_number
+        - dp_number
+        """
+        match = self.DOCUMENT_NAME_REGEX.match(name)
+        if not match:
+            raise ValueError("bad document name")
+        document_data = match.groupdict()
+
+        document_data['document_name'] = os.path.splitext(name)[0]
+
+        # The President and vice Deputy President have their own
+        # oral question sequences.
+        president = document_data.pop('president')
+        if president == 'P':
+            document_data['president_number'] = document_data.pop('oral_number')
+        if president == 'DP':
+            document_data['dp_number'] = document_data.pop('oral_number')
+
+        date = document_data.pop('date_string')
+        try:
+            document_data['date'] = datetime.datetime.strptime(date, '%y%m%d').date()
+        except:
+            raise ValueError("problem converting date %s" % date)
+
+        document_data['year'] = document_data['date'].year
+
+        return document_data
 
 
 page_header_regex = re.compile(ur"\s*(?:{0}|{1})\s*".format(

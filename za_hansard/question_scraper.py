@@ -18,17 +18,18 @@ from django.conf import settings
 
 from za_hansard.models import Question, QuestionPaper, Answer
 
-# from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
-# Copied rather than included as the scraperwiki __init__.py was having trouble
-# loading the sqlite code, which is something we don't actually need.
 
 def ensure_executable_found(name):
     if not distutils.spawn.find_executable(name):
         raise ImproperlyConfigured("Can't find executable '{0}' which is needed by this code".format(name))
 
 ensure_executable_found("antiword")
-
 ensure_executable_found("pdftohtml")
+
+
+# from https://github.com/scraperwiki/scraperwiki-python/blob/a96582f6c20cc1897f410d522e2a5bf37d301220/scraperwiki/utils.py#L38-L54
+# Copied rather than included as the scraperwiki __init__.py was having trouble
+# loading the sqlite code, which is something we don't actually need.
 def pdftoxml(pdfdata):
     """converts pdf file to xml file"""
     pdffout = tempfile.NamedTemporaryFile(suffix='.pdf')
@@ -36,13 +37,12 @@ def pdftoxml(pdfdata):
     pdffout.flush()
 
     xmlin = tempfile.NamedTemporaryFile(mode='r', suffix='.xml')
-    tmpxml = xmlin.name # "temph.xml"
+    tmpxml = xmlin.name  # "temph.xml"
     cmd = 'pdftohtml -xml -nodrm -zoom 1.5 -enc UTF-8 -noframes "%s" "%s"' % (pdffout.name, os.path.splitext(tmpxml)[0])
-    cmd = cmd + " >/dev/null 2>&1" # can't turn off output, so throw away even stderr yeuch
+    cmd = cmd + " >/dev/null 2>&1"  # can't turn off output, so throw away even stderr yeuch
     os.system(cmd)
 
     pdffout.close()
-    #xmlfin = open(tmpxml)
     xmldata = xmlin.read()
     xmlin.close()
 
@@ -53,7 +53,6 @@ def pdftoxml(pdfdata):
     xmldata = re.sub(r'</?i>', '', xmldata)
 
     return xmldata
-
 
 
 def check_output_wrapper(*args, **kwargs):
@@ -115,6 +114,7 @@ class BaseDetailIterator(object):
     def url_get(self, url):
         """Super simple method to retrieve url and return content. Intended to be easily mocked in tests"""
         return requests.get(url).text
+
 
 class QuestionDetailIterator(BaseDetailIterator):
 
@@ -191,9 +191,9 @@ class AnswerDetailIterator(BaseDetailIterator):
     # RNODP05-130424
 
     known_bad_document_names = (
-    # Bad Dates
-    'RNW2949-1311114',
-    'RNW1920-13823',
+        # Bad Dates
+        'RNW2949-1311114',
+        'RNW1920-13823',
     )
 
     def get_details(self):
@@ -356,10 +356,10 @@ class AnswerScraper(object):
 
 
 page_header_regex = re.compile(ur"\s*(?:{0}|{1})\s*".format(
-        ur'(?:\d+ \[)?[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4}(?:\] \d+)? INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+[─-]\d{4}',
-        ur'[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4} INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+\s*[─-]\s*\d{4} \d+',
-        )
-                               )
+    ur'(?:\d+ \[)?[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4}(?:\] \d+)? INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+[─-]\d{4}',
+    ur'[A-Z][a-z]+day, \d+ [A-Z][a-z]+ \d{4} INTERNAL QUESTION PAPER: (?:NATIONAL ASSEMBLY|NATIONAL COUNCIL OF PROVINCES) NO \d+\s*[─-]\s*\d{4} \d+',
+))
+
 
 def remove_headers_from_page(page):
     ur"""Remove unwanted headers at top of page.
@@ -436,9 +436,9 @@ class QuestionPaperParser(object):
             sys.stdout.write(' SKIPPING - Got no XML data\n')
             return
 
-        #self.stderr.write("URL %s\n" % url)
-        #self.stderr.write("PDF len %d\n" % len(pdfdata))
-        #self.stderr.write("XML %s\n" % xmldata)
+        # self.stderr.write("URL %s\n" % url)
+        # self.stderr.write("PDF len %d\n" % len(pdfdata))
+        # self.stderr.write("XML %s\n" % xmldata)
 
         self.create_questions_from_xml(xmldata, url)
 
@@ -468,7 +468,6 @@ class QuestionPaperParser(object):
 
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)
-
 
     session_re = re.compile(
         ur"\[No\s*(?P<issue_number>\d+)\s*[\u2013\u2014]\s*(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
@@ -637,7 +636,6 @@ class QuestionPaperParser(object):
 
         return questions
 
-
     # FIXME - can this be replaced with a call to dateutil?
     date_re = re.compile(ur"\s*<b>\s*(?P<day_of_week>MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY),\s*(?P<day>\d{1,2})\s*(?P<month>JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s*(?P<year>\d{4})\s*</b>\s*")
 
@@ -691,7 +689,6 @@ class QuestionPaperParser(object):
         intro_chunk = chunks.pop(0)[1]
 
         return intro_chunk, chunks
-
 
     def create_questions_from_xml(self, xmldata, url):
         # Sanity check on number of questions

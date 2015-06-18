@@ -270,12 +270,13 @@ class AnswerScraper(object):
 
         if answer:
             try:
-                # it already exists and has been answered
-                return answer.question
+                if answer.question:
+                    # it already exists and has been answered
+                    return answer
             except Question.DoesNotExist:
                 pass
         else:
-            answer = Answer.create(**detail)
+            answer = Answer.objects.create(**detail)
 
         return self.process_answer_file(answer, filename)
 
@@ -318,7 +319,7 @@ class AnswerScraper(object):
         """
         match = self.DOCUMENT_NAME_REGEX.match(name)
         if not match:
-            raise ValueError("bad document name")
+            raise ValueError("bad document name %s" % name)
         document_data = match.groupdict()
 
         document_data['document_name'] = os.path.splitext(name)[0]
@@ -336,8 +337,8 @@ class AnswerScraper(object):
             document_data['date'] = datetime.datetime.strptime(date, '%y%m%d').date()
         except:
             raise ValueError("problem converting date %s" % date)
-
         document_data['year'] = document_data['date'].year
+        document_data['date_published'] = document_data['date']
 
         document_data = strip_dict(document_data)
         return document_data
@@ -441,8 +442,13 @@ class QuestionPaperParser(object):
     # FIXME - can this be replaced with a call to dateutil?
     DATE_RE = re.compile(ur"\s*<b>\s*(?P<day_of_week>MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY),\s*(?P<day>\d{1,2})\s*(?P<month>JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s*(?P<year>\d{4})\s*</b>\s*")
 
+    SESSION_RE = re.compile(
+        ur"\[No\s*(?P<issue_number>\d+)\s*[\u2013\u2014]\s*(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
+        re.UNICODE | re.IGNORECASE)
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
+        self.question_paper = None
 
     def get_questions(self):
         url = self.kwargs['url']
@@ -491,19 +497,15 @@ class QuestionPaperParser(object):
     def get_question_xml_from_pdf(self, pdfdata):
         return pdftoxml(pdfdata)
 
-    session_re = re.compile(
-        ur"\[No\s*(?P<issue_number>\d+)\s*[\u2013\u2014]\s*(?P<year>\d{4})\]\s+(?P<session>[a-zA-Z]+)\s+SESSION,\s+(?P<parliament>[a-zA-Z]+)\s+PARLIAMENT",
-        re.UNICODE | re.IGNORECASE)
-
     def get_question_paper(self, chunk):
         """
-        # Checks for session_re
+        # Checks for SESSION_RE
         >>> session_string = u'[No 37\u20142013] FIFTH SESSION, FOURTH PARLIAMENT'
-        >>> match = QuestionPaperParser.session_re.match(session_string)
+        >>> match = QuestionPaperParser.SESSION_RE.match(session_string)
         >>> match.groups()
         (u'37', u'2013', u'FIFTH', u'FOURTH')
         >>> session_string = u'[No 20 \u2013 2009] First Session, Fourth Parliament'
-        >>> match = QuestionPaperParser.session_re.match(session_string)
+        >>> match = QuestionPaperParser.SESSION_RE.match(session_string)
         >>> match.groups()
         (u'20', u'2009', u'First', u'Fourth')
         """
@@ -535,7 +537,7 @@ class QuestionPaperParser(object):
             text='', #lxml.etree.tostring(chunk, pretty_print=True),
             )
 
-        session_match = self.session_re.search(chunk)
+        session_match = self.SESSION_RE.search(chunk)
 
         if session_match:
             question_paper.session_number = text_to_int.get(session_match.group('session').upper())
@@ -570,59 +572,59 @@ class QuestionPaperParser(object):
             question_paper.save()
             return question_paper
 
-    question_re = re.compile(
+    QUESTION_RE = re.compile(
         ur"""
           (?P<intro>
-            (?P<number1>\d+)\.?\s+ # Question number
+            (?P<number1>\d+)\.?\s+              # Question number
             [-a-zA-z]+\s+(?P<askedby>[-\w\s]+?) # Name of question asker, dropping the title
             \s*\((?P<party>[-\w\s]+)\)?
             \s+to\s+ask\s+the\s+
             (?P<questionto>[-\w\s(),:.]+)[:.]
             [-\u2013\w\s(),\[\]/]*?
-          ) # Intro
-          (?P<translated>\u2020)?\s*</b>\s*
-          (?P<question>.*?)\s* # The question itself.
+          )                                     # Intro
+          (?P<translated>\u2020)?\s*(</b>|\n)\s*
+          (?P<question>.*?)\s*                  # The question itself.
           (?P<identifier>(?P<house>[NC])(?P<answer_type>[WO])(?P<id_number>\d+)E) # Number 2
         """,
-        re.UNICODE | re.VERBOSE)
+        re.UNICODE | re.VERBOSE | re.DOTALL)
 
     def get_questions_from_chunk(self, date, chunk):
         """
-        # Checks for question_re
+        # Checks for QUESTION_RE
 
         # Shows the need for - in the party
         >>> qn = u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans: </b>Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details? CW187E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match = QuestionPaperParser.QUESTION_RE.match(qn)
         >>> match.groups()
-        (u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', u'144', u'D B Feldman', u'COPE-Gauteng', u'Minister of Defence and Military Veterans', None, u'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', u'CW187E', u'C', u'W', u'187')
+        (u'144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:', u'144', u'D B Feldman', u'COPE-Gauteng', u'Minister of Defence and Military Veterans', None, u'</b>', u'Whether the deployment of the SA National Defence Force soldiers to the Central African Republic and the Democratic Republic of Congo is in line with our international policy with regard to (a) upholding international peace, (b) the promotion of constitutional democracy and (c) the respect for parliamentary democracy; if not, why not; if so, what are the (i) policies which underpin South African foreign policy and (ii) further relevant details?', u'CW187E', u'C', u'W', u'187')
 
         # Shows the need for \u2013 (en-dash) and / (in the date) in latter part of the intro
         >>> qn = u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11) </b>(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery? CW603E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match = QuestionPaperParser.QUESTION_RE.match(qn)
         >>> match.groups()
-        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'DA-WC', u'Minister of Public Works', None, u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E', u'C', u'W', u'603')
+        (u'409. Mr M J R de Villiers (DA-WC) to ask the Minister of Public Works: [215] (Interdepartmental transfer \u2013 01/11)', u'409', u'M J R de Villiers', u'DA-WC', u'Minister of Public Works', None, u'</b>', u'(a) What were the reasons for a cut back on the allocation for the Expanded Public Works Programme to municipalities in the 2013-14 financial year and (b) what effect will this have on (i) job creation and (ii) service delivery?', u'CW603E', u'C', u'W', u'603')
 
         # Cope with missing close bracket
         >>> qn = u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:</b> Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009? NW1922E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match = QuestionPaperParser.QUESTION_RE.match(qn)
         >>> match.groups()
-        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E', u'N', u'W', u'1922')
+        (u'1517. Mr W P Doman (DA to ask the Minister of Cooperative Governance and Traditional Affairs:', u'1517', u'W P Doman', u'DA', u'Minister of Cooperative Governance and Traditional Affairs', None, u'</b>', u'Which approximately 31 municipalities experienced service delivery protests as referred to in his reply to oral question 57 on 10 September 2009?', u'NW1922E', u'N', u'W', u'1922')
 
         # Check we cope with no space before party in parentheses
         >>> qn = u'1569. Mr M Swart(DA) to ask the Minister of Finance: </b>Test question? NW1975E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match = QuestionPaperParser.QUESTION_RE.match(qn)
         >>> match.groups()
-        (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'Test question?', u'NW1975E', u'N', u'W', u'1975')
+        (u'1569. Mr M Swart(DA) to ask the Minister of Finance:', u'1569', u'M Swart', u'DA', u'Minister of Finance', None, u'</b>', u'Test question?', u'NW1975E', u'N', u'W', u'1975')
 
         # Check we cope with a dot after the askee instead of a colon.
         >>> qn = u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning </b>Test question? NW2224E'
-        >>> match = QuestionPaperParser.question_re.match(qn)
+        >>> match = QuestionPaperParser.QUESTION_RE.match(qn)
         >>> match.groups()
-        (u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning', u'1875', u'G G Hill-Lewis', u'DA', u'Minister in the Presidency', None, u'Test question?', u'NW2224E', u'N', u'W', u'2224')
+        (u'1875. Mr G G Hill-Lewis (DA) to ask the Minister in the Presidency. National Planning', u'1875', u'G G Hill-Lewis', u'DA', u'Minister in the Presidency', None, u'</b>', u'Test question?', u'NW2224E', u'N', u'W', u'2224')
         """
         questions = []
 
-        for match in self.question_re.finditer(chunk):
+        for match in self.QUESTION_RE.finditer(chunk):
             match_dict = match.groupdict()
 
             answer_type = match_dict[u'answer_type']

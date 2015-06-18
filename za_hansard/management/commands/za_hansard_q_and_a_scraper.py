@@ -209,7 +209,7 @@ class Command(BaseCommand):
                         answer.id,
                     ))
             else:
-                self.stdout.write('Adding answer for {0}\n'.format(detail['url']))
+                self.stdout.write('Adding answer for {0} - {1}\n'.format(detail['document_name'], detail['url']))
                 Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
@@ -749,4 +749,11 @@ class Command(BaseCommand):
         scraper = question_scraper.AnswerScraper()
 
         for fname in filenames:
-            scraper.import_question_answer_from_file(fname)
+            answer = scraper.import_question_answer_from_file(fname)
+            if answer:
+                print "Answer {0}".format(answer.document_name)
+                if answer.question:
+                    print "Question {0}".format(answer.question.id_number)
+
+            else:
+                print "Nothing to add"

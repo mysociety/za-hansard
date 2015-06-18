@@ -18,9 +18,17 @@ from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScrape
 from ..models import QuestionPaper, Answer, Question
 
 
-def sample_file(filename):
+def sample_file(type, filename):
     tests_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(tests_dir, 'test_inputs', 'questions', filename)
+    return os.path.join(tests_dir, 'test_inputs', type, filename)
+
+
+def sample_question(filename):
+    return sample_file("questions", filename)
+
+
+def sample_answer(filename):
+    return sample_file("answers", filename)
 
 
 class ZAIteratorBaseMixin(object):
@@ -160,6 +168,7 @@ class TestAnswerScraper(TestCase):
         details = self.scraper.details_from_name('RNW1647-150513.doc')
         self.assertEqual(details, {
             'date': datetime.date(2015, 5, 13),
+            'date_published': datetime.date(2015, 5, 13),
             'year': 2015,
             'document_name': 'RNW1647-150513',
             'house': 'N',
@@ -171,6 +180,7 @@ class TestAnswerScraper(TestCase):
         details = self.scraper.details_from_name('RNW1647-150513')
         self.assertEqual(details, {
             'date': datetime.date(2015, 5, 13),
+            'date_published': datetime.date(2015, 5, 13),
             'year': 2015,
             'document_name': 'RNW1647-150513',
             'house': 'N',
@@ -180,8 +190,8 @@ class TestAnswerScraper(TestCase):
         })
 
     def test_answer_parsing(self):
-        input_doc_file       = sample_file('answer_1.doc')
-        expected_output_file = sample_file('answer_1_expected.txt')
+        input_doc_file       = sample_question('answer_1.doc')
+        expected_output_file = sample_question('answer_1_expected.txt')
 
         text = self.scraper.extract_answer_text_from_word_document(input_doc_file)
         expected = open(expected_output_file).read().decode('UTF-8')
@@ -192,6 +202,14 @@ class TestAnswerScraper(TestCase):
         # out.close()
 
         self.assertEqual(text, expected)
+
+    def test_import_from_file(self):
+        answer = self.scraper.import_question_answer_from_file(sample_answer('RNW98-150302.doc'))
+        self.assertEqual(answer.house, 'N')
+        self.assertEqual(answer.year, 2015)
+        self.assertEqual(answer.written_number, '98')
+        self.assertEqual(answer.question.written_number, '98')
+        self.assertEqual(answer.question.id_number, '100')
 
 
 class TestAnswer(TestCase):
@@ -258,8 +276,8 @@ class ZAQuestionParsing(TestCase):
     )
     def test_pdf_to_xml(self):
         for filename_root, source_url, house, date_published in self.test_data:
-            pdfdata = open(sample_file(filename_root + ".pdf")).read()
-            expected_xml = open(sample_file(filename_root + ".xml")).read()
+            pdfdata = open(sample_question(filename_root + ".pdf")).read()
+            expected_xml = open(sample_question(filename_root + ".xml")).read()
 
             qp_parser = question_scraper.QuestionPaperParser(
                 name='TEST NAME',
@@ -277,7 +295,7 @@ class ZAQuestionParsing(TestCase):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.
 
         for filename_root, source_url, house, date_published in self.test_data:
-            xmldata = open(sample_file(filename_root + ".xml")).read()
+            xmldata = open(sample_question(filename_root + ".xml")).read()
 
             qp_parser = question_scraper.QuestionPaperParser(
                 name='TEST NAME',
@@ -301,7 +319,7 @@ class ZAQuestionParsing(TestCase):
                 question_as_data = command.question_to_json_data(question)
                 questions.append(question_as_data)
 
-            expected_file = sample_file('expected_json_data_for_{0}.json'.format(filename_root))
+            expected_file = sample_question('expected_json_data_for_{0}.json'.format(filename_root))
             # Uncomment to write out to the expected JSON file.
             # with open(expected_file, 'w') as writeto:
             #     json_to_write = json.dumps(questions, indent=1, sort_keys=True)
@@ -316,7 +334,7 @@ class ZAQuestionParsing(TestCase):
 
             self.maxDiff = None
             for a, b in izip(questions, expected_data):
-                self.assertEqual(a, b, "mismatch in %s" % expected_file)
+                self.assertEqual(a, b) #, "mismatch in %s" % expected_file)
 
     def test_page_header_removal(self):
         tests = [
@@ -438,5 +456,46 @@ class ZAQuestionParsing(TestCase):
 
             self.assertEqual(lxml.etree.tostring(page, encoding='unicode'), expected)
 
-# 517147_1
+    def test_get_questions_from_chunk(self):
+        chunk = """
+36/1/4/1/201500003
+                              NATIONAL ASSEMBLY
 
+FOR WRITTEN REPLY
+
+QUESTION 98
+
+      DATE OF PUBLICATION IN INTERNAL QUESTION PAPER: 12 FEBRUARY 2015
+                     (INTERNAL QUESTION PAPER NO 1-2015)
+
+98. Mr D J Stubbe (DA) to ask the Minister of Police:
+With reference to his reply to question 1817 on 20  October,  (a)  how  many
+vehicles does the Boksburg North police  station  currently  have;  (b)  how
+many vehicles are currently at the mechanical workshop;  and  (c)  how  long
+has each vehicle been at the mechanical workshop?
+                                                                      NW100E
+REPLY:
+   a) There are currently 51 vehicles at Boksburg North Police Station.
+
+
+   b) There are currently 3 vehicles at the Mechanical workshop
+
+
+   c) Please see the table below.
+ SAP Nr |Division |Job Nr |Workshop |Vehicle make Model |Received Date |Type
+      of Work |Days | |BPR128B |MECH B |201502121958 |BENONI |TOYOTA COROLLA
+|2015/02/04 |R000   FOR INSPECTION
+R003   BRAKE SYSTEM - MINOR
+R012   ELEC. ACCESSORIES AND WIRING
+R086   WHEEL BEARINGS FRONT         |7 | | BSM839B |RT46-OUT | 201412121062
+|BENONI |NISSAN NP200 |2014/12/17 |R003  - BRAKE SYSTEM - MINOR & R025  -
+STEERING - OVERHAUL & R027  - SUSPENSION - OVERHAUL & R029  - WHEEL
+    ALIGNMENT |42 | | BSW236B |RT46-PAN | 201502121902 |BENONI |CHEV UTILITY
+|2015/02/02 |ACCIDENT: BONNET, FRONT BUMPER, HEAD LAMP |9 | |
+"""
+        date = datetime.date(2015, 2, 10)
+        questions = question_scraper.QuestionPaperParser().get_questions_from_chunk(date, chunk)
+        q = questions[0]
+        self.assertEqual(q.questionto, 'Minister of Police')
+        self.assertEqual(q.written_number, '98')
+        self.assertEqual(q.question, 'With reference to his reply to question 1817 on 20  October,  (a)  how  many\nvehicles does the Boksburg North police  station  currently  have;  (b)  how\nmany vehicles are currently at the mechanical workshop;  and  (c)  how  long\nhas each vehicle been at the mechanical workshop?')

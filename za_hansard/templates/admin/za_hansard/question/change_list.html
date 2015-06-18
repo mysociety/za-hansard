@@ -1,0 +1,39 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="#" class="addlink upload-answer">Upload answered question</a>
+  </li>
+  {{ block.super }}
+
+  <form action="/admin/za_hansard/question/upload/" method="post" style="display: none" class="upload-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".doc,.docx">
+  </form>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+
+<script type="text/javascript">
+(function($) {
+  var setup = function() {
+    $('.upload-answer').on('click', function(e) {
+      e.preventDefault();
+      // prompt the user to choose a file
+      $('.upload-form [name=file]').click();
+    });
+
+    $('.upload-form [name=file]').on('change', function(e) {
+      if (this.files.length > 0) {
+        this.form.submit();
+      }
+    });
+  };
+
+  $(setup);
+})(django.jQuery);
+</script>
+
+{% endblock %}

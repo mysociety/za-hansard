@@ -233,7 +233,7 @@ class Answer(models.Model):
 
     PROCESSED_CHOICES = (
         (PROCESSED_PENDING, 'pending'),
-        (PROCESSED_OK, 'OK' ),
+        (PROCESSED_OK, 'OK'),
         (PROCESSED_HTTP_ERROR, 'HTTP error'),
     )
 

@@ -262,10 +262,12 @@ class AnswerScraper(object):
     DOCUMENT_NAME_REGEX = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})(\.(?P<type>\w+))?$')
     BAR_REGEX = re.compile(r'^_+$', re.MULTILINE)
 
-    def import_question_answer_from_file(self, filename):
+    def import_question_answer_from_file(self, filename, name=None):
         """ Import a question and its answer from a file.
         """
-        detail = self.details_from_name(os.path.basename(filename))
+        name = name or os.path.basename(filename)
+
+        detail = self.details_from_name(name)
         answer = self.find_answer(detail)
 
         if answer:

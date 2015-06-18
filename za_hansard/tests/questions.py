@@ -15,7 +15,7 @@ from django.utils.unittest import skipUnless
 
 from .. import question_scraper
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
-from ..models import QuestionPaper
+from ..models import QuestionPaper, Answer, Question
 
 
 def sample_file(filename):
@@ -192,6 +192,43 @@ class TestAnswerScraper(TestCase):
         # out.close()
 
         self.assertEqual(text, expected)
+
+
+class TestAnswer(TestCase):
+    def setUp(self):
+        self.date = datetime.date(2015, 1, 2)
+
+    def q(self, **kwargs):
+        args = {
+            'translated': False,
+            'date': self.date,
+            'year': 2015,
+        }
+        args.update(kwargs)
+
+        return Question.objects.create(**args)
+
+    def test_lookup_question(self):
+        today = datetime.date(2015, 1, 2)
+        answer_w_n = Answer.objects.create(date=today, date_published=today, year=2015, written_number=5, house='N')
+        self.assertIsNone(answer_w_n.find_question())
+
+        # not questions
+        self.q(id_number=5, written_number=5, house='C')
+        self.q(id_number=7, oral_number=7, house='N')
+
+        # question
+        question = self.q(id_number=5, written_number=5, house='N')
+        self.assertEqual(answer_w_n.find_question(), question)
+
+    def test_lookup_oral_and_written_question(self):
+        answer_w_n = Answer.objects.create(year=2015, date_published=self.date, date=self.date, written_number=5, oral_number=7, house='N')
+        self.assertIsNone(answer_w_n.find_question())
+
+        # not questions
+        self.q(id_number=5, written_number=5, house='C')
+        question = self.q(id_number=7, oral_number=7, house='N')
+        self.assertEqual(answer_w_n.find_question(), question)
 
 
 class ZAQuestionParsing(TestCase):

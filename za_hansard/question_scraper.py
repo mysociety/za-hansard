@@ -256,32 +256,51 @@ class AnswerDetailIterator(BaseDetailIterator):
 
 
 class AnswerScraper(object):
-    """ Parsers answer documents.
+    """ Parses answer documents.
     """
 
     DOCUMENT_NAME_REGEX = re.compile(r'^R(?P<house>[NC])(?:O(?P<president>D?P)?(?P<oral_number>\d+))?(?:W(?P<written_number>\d+))?-+(?P<date_string>\d{6})(\.(?P<type>\w+))?$')
     BAR_REGEX = re.compile(r'^_+$', re.MULTILINE)
 
     def import_question_answer_from_file(self, filename):
-        """ Import a questiond and its answer from a file.
+        """ Import a question and its answer from a file.
         """
         detail = self.details_from_name(os.path.basename(filename))
-        answer = self.lookup_answer(detail)
+        answer = self.find_answer(detail)
 
-        if answer and answer.question:
-            # it already exists and has been answered
-            return answer
-
-        if not answer:
+        if answer:
+            try:
+                # it already exists and has been answered
+                return answer.question
+            except Question.DoesNotExist:
+                pass
+        else:
             answer = Answer.create(**detail)
-            answer.text = self.extract_answer_text_from_word_document(filename)
-            answer.processed_code = Answer.PROCESSED_OK
-            answer.save()
 
-        if not answer.question:
-            # TODO: extract/lookup question
-            # TODO: always do this, even when pulling from downloaded documents
-            pass
+        return self.process_answer_file(answer, filename)
+
+    def process_answer_file(self, answer, filename):
+        """ Import and process text from +filename+ for +answer+, and try
+        to link it to an existing question, or create a new one.
+        """
+        answer.text = self.extract_answer_text_from_word_document(filename)
+        answer.processed_code = Answer.PROCESSED_OK
+        answer.save()
+
+        # lookup or create the question
+        question = answer.find_question()
+
+        if not question:
+            qparser = QuestionPaperParser()
+            questions = qparser.get_questions_from_chunk(answer.date, answer.text)
+            if questions:
+                # match up to an existing question, or create a new one
+                question = qparser.process_new_question(questions[0])
+            else:
+                raise ValueError("Couldn't find a question in the answer text.")
+
+        question.answer = answer
+        question.save()
 
         return answer
 
@@ -331,10 +350,10 @@ class AnswerScraper(object):
 
         return text
 
-    def lookup_answer(self, detail):
+    def find_answer(self, detail):
         """ Try to find an Answer instance matching these details.
         """
-        url = detail['url']
+        url = detail.get('url')
         if url:
             answer = Answer.objects.filter(url=url).first()
             if answer:
@@ -346,10 +365,10 @@ class AnswerScraper(object):
             year=detail['year'],
         )
 
-        if detail['oral_number']:
+        if detail.get('oral_number'):
             query = query.filter(oral_number=detail['oral_number'])
 
-        if detail['written_number']:
+        if detail.get('written_number'):
             query = query.filter(written_number=detail['written_number'])
 
         return query.first()
@@ -419,6 +438,9 @@ def remove_headers_from_page(page):
 
 
 class QuestionPaperParser(object):
+    # FIXME - can this be replaced with a call to dateutil?
+    DATE_RE = re.compile(ur"\s*<b>\s*(?P<day_of_week>MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY),\s*(?P<day>\d{1,2})\s*(?P<month>JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s*(?P<year>\d{4})\s*</b>\s*")
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -636,13 +658,10 @@ class QuestionPaperParser(object):
 
         return questions
 
-    # FIXME - can this be replaced with a call to dateutil?
-    date_re = re.compile(ur"\s*<b>\s*(?P<day_of_week>MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY),\s*(?P<day>\d{1,2})\s*(?P<month>JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s*(?P<year>\d{4})\s*</b>\s*")
-
     def chunkify(self, root):
         """
         >>> date_str = ur'<b>FRIDAY, 2 AUGUST 2013 </b>'
-        >>> match = QuestionPaperParser.date_re.match(date_str)
+        >>> match = QuestionPaperParser.DATE_RE.match(date_str)
         >>> match.groups()
         (u'FRIDAY', u'2', u'AUGUST', u'2013')
 
@@ -660,7 +679,7 @@ class QuestionPaperParser(object):
 
         while text_bits:
             text_bit = text_bits.pop(0)
-            date_match = self.date_re.match(text_bit)
+            date_match = self.DATE_RE.match(text_bit)
 
             if not date_match:
                 chunk.append(text_bit)
@@ -693,16 +712,12 @@ class QuestionPaperParser(object):
     def create_questions_from_xml(self, xmldata, url):
         # Sanity check on number of questions
         expected_question_count = len(re.findall(r'[NC][OW]\d+E', xmldata))
-
         text = lxml.etree.fromstring(xmldata)
 
-        pages = text.iter('page')
-
-        for page in pages:
+        for page in text.iter('page'):
             remove_headers_from_page(page)
 
         intro_chunk, chunks = self.chunkify(text)
-
         self.question_paper = self.get_question_paper(intro_chunk)
 
         # Bail out if we didn't get a question paper
@@ -710,60 +725,70 @@ class QuestionPaperParser(object):
             return
 
         questions = []
-
         for date, chunk in chunks:
             questions.extend(self.get_questions_from_chunk(date, chunk))
 
         sys.stdout.write(' found {0} questions'.format(len(questions)))
-
         if len(questions) != expected_question_count:
             sys.stdout.write(" expected {0} - SUSPICIOUS".format(expected_question_count))
-
         sys.stdout.write('\n')
 
-        # Question.objects.bulk_create(questions)
         for question in questions:
-            # FIXME - As a temporary fix, let's ignore any questions which aren't for written
-            # answer.
-            if not question.written_number:
-                continue
+            self.process_new_question(question)
 
-            # FIXME - Another temporary fix - disregard any question which was written and is
-            # becoming oral
-            if re.search(r'\[Written Question No', question.intro, re.IGNORECASE):
-                continue
+    def process_new_question(self, question):
+        """ Check if we should save a new question, check for duplicates, etc.
+        Returns the saved question if saved (or a duplicate), else None.
+        """
+        # FIXME - As a temporary fix, let's ignore any questions which aren't for written
+        # answer.
+        if not question.written_number:
+            return
 
-            try:
-                existing_question = Question.objects.get(
-                    id_number=question.id_number,
-                    house=question.house,
-                    year=question.year,
-                )
-                if existing_question.paper.date_published > question.paper.date_published:
-                    # FIXME - in future real life, these duplicates will be bad.
-                    # we need to be able to cope with a revised question or a question
-                    # changing from oral to written, etc.
-                    if question.identifier != existing_question.identifier:
-                        sys.stdout.write("IDENTIFIER CHANGE: {0} already exists as {1} - keeping original version\n".format(question.identifier, existing_question.identifier))
-                    else:
-                        sys.stdout.write("DUPLICATE: {0} already exists - keeping original version\n".format(question.identifier))
+        # FIXME - Another temporary fix - disregard any question which was written and is
+        # becoming oral
+        if re.search(r'\[Written Question No', question.intro, re.IGNORECASE):
+            return
 
+        try:
+            # does it already exist?
+            # TODO: filter by session, too
+            existing_question = Question.objects.get(
+                id_number=question.id_number,
+                house=question.house,
+                year=question.year,
+            )
+            if existing_question.paper.date_published > question.paper.date_published:
+                # FIXME - in future real life, these duplicates will be bad.
+                # we need to be able to cope with a revised question or a question
+                # changing from oral to written, etc.
+                if question.identifier != existing_question.identifier:
+                    sys.stdout.write("IDENTIFIER CHANGE: {0} already exists as {1} - keeping original version\n".format(question.identifier, existing_question.identifier))
                 else:
-                    sys.stdout.write("BAD DUPLICATE: {0} already exists as {1} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
-            except Question.DoesNotExist:
-                if Question.objects.filter(
-                    written_number=question.written_number,
-                    house=question.house,
-                    year=question.year,
-                    ).exists():
-                    sys.stdout.write(
-                        "DUPLICATE written_number {0} {1} {2} - SKIPPING\n"
-                        .format(question.written_number, question.house, question.year)
-                        )
+                    sys.stdout.write("DUPLICATE: {0} already exists - keeping original version\n".format(question.identifier))
 
-                    # Interesting failures here:
-                    # 998 - a typo, should have been 898
-                    # 3641 - number repeated for questions with two identifiers by the same person NW4421E NW4422E
-                    continue
+            else:
+                sys.stdout.write("BAD DUPLICATE: {0} already exists as {1} - keeping OLD VERSION\n".format(question.identifier, existing_question.identifier))
 
+            return existing_question
+
+        except Question.DoesNotExist:
+            # check for question by written number, rather than ID
+            existing_question = Question.objects.filter(
+                written_number=question.written_number,
+                house=question.house,
+                year=question.year,
+            ).first()
+
+            if existing_question:
+                # Interesting failures here:
+                # 998 - a typo, should have been 898
+                # 3641 - number repeated for questions with two identifiers by the same person NW4421E NW4422E
+
+                sys.stdout.write(
+                    "DUPLICATE written_number {0} {1} {2} - SKIPPING\n"
+                    .format(question.written_number, question.house, question.year))
+                return existing_question
+            else:
                 question.save()
+                return question

@@ -193,7 +193,7 @@ class Command(BaseCommand):
         for detail in details:
             count += 1
 
-            answer = scraper.lookup_answer(detail)
+            answer = scraper.find_answer(detail)
             if answer and answer.url and answer.url == detail['url']:
                 self.stdout.write('Answer {0} already exists\n'.format(answer.url))
                 if not options['fetch_to_limit']:
@@ -217,24 +217,23 @@ class Command(BaseCommand):
 
     def process_answers(self, *args, **options):
         scraper = question_scraper.AnswerScraper()
-        answers = Answer.objects.exclude(url=None)
-        unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
+        unprocessed = Answer.objects\
+            .exclude(url=None)\
+            .exclude(processed_code=Answer.PROCESSED_OK)
 
         self.stdout.write("Processing %d records" % len(unprocessed))
 
         for row in unprocessed:
-            filename = os.path.join(
-                settings.ANSWER_CACHE,
-                '%d.%s' % (row.id, row.type))
+            filename = os.path.join(settings.ANSWER_CACHE, '%d.%s' % (row.id, row.type))
 
             if os.path.exists(filename):
                 self.stdout.write('-')
             else:
+                # download it
                 self.stdout.write('.')
 
                 try:
                     download = urllib2.urlopen(row.url)
-
                     with open(filename, 'wb') as save:
                         save.write(download.read())
 
@@ -249,45 +248,18 @@ class Command(BaseCommand):
                     continue
 
             try:
-                text = scraper.extract_answer_text_from_word_document(filename)
-                row.processed_code = Answer.PROCESSED_OK
-                row.text = text
-                row.save()
+                scraper.process_answer_file(self, row, filename)
             except subprocess.CalledProcessError:
                 self.stdout.write('ERROR in antiword processing %d\n' % row.id)
             except UnicodeDecodeError:
                 self.stdout.write('ERROR in antiword processing (UnicodeDecodeError) %d\n' % row.id)
 
     def match_answers(self, *args, **options):
-        # FIXME - should change to a subset of all answers.
-        for answer in Answer.objects.all():
-            written_q = Q(written_number=answer.written_number)
-            oral_q = Q(oral_number=answer.oral_number)
-
-            if answer.written_number and answer.oral_number:
-                query = written_q | oral_q
-            elif answer.written_number:
-                query = written_q
-            elif answer.oral_number:
-                query = oral_q
-            else:
-                sys.stdout.write(
-                    "Answer {0} {1} has no written or oral number - SKIPPING\n"
-                    .format(answer.id, answer.document_name)
-                    )
-                continue
-
-            try:
-                question = Question.objects.get(
-                    query,
-                    year=answer.year,
-                    house=answer.house,
-                    )
-            except Question.DoesNotExist:
-                sys.stdout.write(
-                    "No question found for {0} {1}\n"
-                    .format(answer.id, answer.document_name)
-                    )
+        """ Match unanswered questions to answers. """
+        for answer in Answer.objects.filter(question=None):
+            question = answer.find_question()
+            if not question:
+                sys.stdout.write("No question found for {0} {1}\n".format(answer.id, answer.document_name))
                 continue
 
             question.answer = answer

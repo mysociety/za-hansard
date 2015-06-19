@@ -233,7 +233,7 @@ class Answer(models.Model):
 
     PROCESSED_CHOICES = (
         (PROCESSED_PENDING, 'pending'),
-        (PROCESSED_OK, 'OK' ),
+        (PROCESSED_OK, 'OK'),
         (PROCESSED_HTTP_ERROR, 'HTTP error'),
     )
 
@@ -357,12 +357,14 @@ class Question(models.Model):
         QuestionPaper,
         null=True,  # FIXME - eventually, this should not be nullable.
         on_delete=models.SET_NULL,
+        blank=True,
     )
     answer = models.OneToOneField(
         Answer,
         null=True,
         on_delete=models.CASCADE,
         related_name='question',
+        blank=True,
     )
 
     # number1 - order questions published
@@ -376,13 +378,13 @@ class Question(models.Model):
     # At least one of these four numbers should be non-null, and it's possible
     # for more than one to be non-null if a question is transferred from oral to written
     # or vice-versa.
-    written_number = models.IntegerField(null=True, db_index=True)
-    oral_number = models.IntegerField(null=True, db_index=True)
+    written_number = models.IntegerField(null=True, blank=True, db_index=True)
+    oral_number = models.IntegerField(null=True, blank=True, db_index=True)
 
     # The president and vice president get their own question number sequences for
     # oral questions.
-    president_number = models.IntegerField(null=True, db_index=True)
-    dp_number = models.IntegerField(null=True, db_index=True)
+    president_number = models.IntegerField(null=True, blank=True, db_index=True)
+    dp_number = models.IntegerField(null=True, blank=True, db_index=True)
 
     # Questions are also referred to by an identifier of the form
     # [NC][OW]\d+[AEX]
@@ -427,7 +429,7 @@ class Question(models.Model):
     year = models.IntegerField(db_index=True)
 
     # FIXME - is this useful to store/easy to get?
-    date_transferred = models.DateField(null=True)
+    date_transferred = models.DateField(null=True, blank=True)
 
     # FIXME - was this the title for the question asker?
     # title = models.TextField()

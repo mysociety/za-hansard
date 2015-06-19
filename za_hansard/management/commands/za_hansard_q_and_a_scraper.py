@@ -228,6 +228,9 @@ class Command(BaseCommand):
 
             if os.path.exists(filename):
                 self.stdout.write('-')
+            elif not row.url:
+                self.stdout.write('No URL for unprocessed answer %s' % (row.id,))
+                continue
             else:
                 # download it
                 self.stdout.write('.')
@@ -248,11 +251,13 @@ class Command(BaseCommand):
                     continue
 
             try:
-                scraper.process_answer_file(self, row, filename)
+                scraper.process_answer_file(row, filename)
             except subprocess.CalledProcessError:
                 self.stdout.write('ERROR in antiword processing %d\n' % row.id)
             except UnicodeDecodeError:
                 self.stdout.write('ERROR in antiword processing (UnicodeDecodeError) %d\n' % row.id)
+            except ValueError as e:
+                self.stdout.write('ERROR processing answer %d: %s\n' % (row.id, e.message))
 
     def match_answers(self, *args, **options):
         """ Match unanswered questions to answers. """

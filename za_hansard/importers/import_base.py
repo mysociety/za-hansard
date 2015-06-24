@@ -8,11 +8,12 @@ from speeches.models import Speaker
 logger = logging.getLogger(__name__)
 
 class ImportZAMixin(object):
-    def __init__(self, instance=None, commit=True, popit_url=None, **kwargs):
+    def __init__(self, instance=None, commit=True, popit_url=None, popit_id_blacklist=None, **kwargs):
         self.instance = instance
         self.commit = commit
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_url)
         self.person_cache = {}
+        self.popit_id_blacklist = set(popit_id_blacklist or ())
 
     def set_resolver_for_date(self, date_string='', date=None):
         self.resolver = ResolvePopitName(date=date, date_string=date_string)
@@ -30,6 +31,10 @@ class ImportZAMixin(object):
         if name:
             popit_person = self.resolver.get_person(display_name, party)
             if popit_person:
+                if popit_person.popit_id in self.popit_id_blacklist:
+                    message = u" - Ignoring blacklisted popit_id {0}"
+                    logger.info(message.format(popit_person.popit_id))
+                    return None
                 try:
                     speaker = Speaker.objects.get(
                         instance = self.instance,

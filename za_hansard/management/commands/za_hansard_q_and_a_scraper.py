@@ -1,15 +1,11 @@
 import urllib2
 import sys
-import re, os
-import dateutil.parser
-import string
-import parslepy
+import os
 import json
-import time
 
 import subprocess
 
-from datetime import datetime, date, timedelta
+from datetime import datetime
 
 from optparse import make_option
 
@@ -23,7 +19,6 @@ from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
 from speeches.models import Section, Speaker, Speech
-from pombola.slug_helpers.models import SlugRedirect
 from django.contrib.contenttypes.models import ContentType
 
 # ideally almost all of the parsing code would be removed from this management
@@ -31,18 +26,6 @@ from django.contrib.contenttypes.models import ContentType
 # separated. This is the start of that process.
 from ... import question_scraper
 
-def strip_dict(d):
-    """
-    Return a new dictionary, like d, but with any string value stripped
-
-    >>> d = {'a': ' foo   ', 'b': 3, 'c': '   bar'}
-    >>> result = strip_dict(d)
-    >>> type(result)
-    <type 'dict'>
-    >>> sorted(result.items())
-    [('a', 'foo'), ('b', 3), ('c', 'bar')]
-    """
-    return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
 
 class Command(BaseCommand):
 
@@ -83,6 +66,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Run all of the steps',
         ),
+        make_option('--import-answer',
+            default=False,
+            action='store_true',
+            help='Import a Question and Answser from an answer .doc file',
+        ),
         make_option('--correct-existing-sayit-import',
             default=False,
             action='store_true',
@@ -119,7 +107,7 @@ class Command(BaseCommand):
         if options['scrape_questions']:
             self.scrape_questions(*args, **options)
         elif options['scrape_answers']:
-            self.scrape_answers(self.art_url_a_na, *args, **options)
+            self.scrape_answers(self.start_url_a_na, *args, **options)
             self.scrape_answers(self.start_url_a_ncop, *args, **options)
         elif options['process_answers']:
             self.process_answers(*args, **options)
@@ -137,6 +125,8 @@ class Command(BaseCommand):
             self.match_answers(*args, **options)
             self.qa_to_json(*args, **options)
             self.import_into_sayit(*args, **options)
+        elif options['import_answer']:
+            self.import_answer(*args, **options)
         elif options['correct_existing_sayit_import']:
             self.correct_existing_sayit_import(*args, **options)
         else:
@@ -161,7 +151,7 @@ class Command(BaseCommand):
         # }
 
         for detail in details:
-            count+=1
+            count += 1
 
             source_url = detail['url']
             sys.stdout.write(
@@ -191,10 +181,10 @@ class Command(BaseCommand):
             if options['limit'] and count >= options['limit']:
                 break
 
-        self.stdout.write( "Processed %d documents (%d errors)\n" % (count, errors) )
-
+        self.stdout.write("Processed %d documents (%d errors)\n" % (count, errors))
 
     def scrape_answers(self, start_url_a, *args, **options):
+        scraper = question_scraper.AnswerScraper()
         start_url = start_url_a[0] + start_url_a[1]
         details = question_scraper.AnswerDetailIterator(start_url)
 
@@ -202,60 +192,51 @@ class Command(BaseCommand):
 
         for detail in details:
             count += 1
-            detail = strip_dict(detail)
 
-            url = detail['url']
-            if Answer.objects.filter(url=url).exists():
-                self.stdout.write('Answer {0} already exists\n'.format(url))
+            answer = scraper.find_answer(detail)
+            if answer and answer.url and answer.url == detail['url']:
+                self.stdout.write('Answer {0} already exists\n'.format(answer.url))
                 if not options['fetch_to_limit']:
                     self.stdout.write("Stopping as '--fetch-to-limit' not given\n")
                     break
+
+            elif answer:
+                # FIXME - We should work out which answer to keep rather than
+                # just keeping what we already have.
+                self.stdout.write(
+                    'DUPLICATE: answer for {0} O{1} W{2} {3} already exists: {4}\n'.format(
+                        detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
+                        answer.id,
+                    ))
             else:
-                existing_answers = Answer.objects.filter(
-                    house=detail['house'],
-                    year=detail['year'],
-                    )
-
-                if detail['oral_number']:
-                    existing_answers = existing_answers.filter(oral_number=detail['oral_number'])
-                if detail['written_number']:
-                    existing_answers = existing_answers.filter(written_number=detail['written_number'])
-
-                if existing_answers.exists():
-                    # import pdb;pdb.set_trace()
-                    # FIXME - We should work out which answer to keep rather than
-                    # just keeping what we already have.
-                    self.stdout.write(
-                        'DUPLICATE: answer for {0} O{1} W{2} {3} already exists\n'.format(
-                            detail['house'], detail['oral_number'], detail['written_number'], detail['year'],
-                            )
-                        )
-                else:
-                    # self.stdout.write('Adding answer for {0}\n'.format(url))
-                    answer = Answer.objects.create(**detail)
+                self.stdout.write('Adding answer for {0} - {1}\n'.format(detail['document_name'], detail['url']))
+                Answer.objects.create(**detail)
 
             if options['limit'] and count >= options['limit']:
                 break
 
     def process_answers(self, *args, **options):
-        answers = Answer.objects.exclude(url=None)
-        unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
+        scraper = question_scraper.AnswerScraper()
+        unprocessed = Answer.objects\
+            .exclude(url=None)\
+            .exclude(processed_code=Answer.PROCESSED_OK)
 
         self.stdout.write("Processing %d records" % len(unprocessed))
 
         for row in unprocessed:
-            filename = os.path.join(
-                settings.ANSWER_CACHE,
-                '%d.%s' % (row.id, row.type))
+            filename = os.path.join(settings.ANSWER_CACHE, '%d.%s' % (row.id, row.type))
 
             if os.path.exists(filename):
                 self.stdout.write('-')
+            elif not row.url:
+                self.stdout.write('No URL for unprocessed answer %s' % (row.id,))
+                continue
             else:
+                # download it
                 self.stdout.write('.')
 
                 try:
                     download = urllib2.urlopen(row.url)
-
                     with open(filename, 'wb') as save:
                         save.write(download.read())
 
@@ -270,46 +251,20 @@ class Command(BaseCommand):
                     continue
 
             try:
-                text = question_scraper.extract_answer_text_from_word_document(filename)
-                row.processed_code = Answer.PROCESSED_OK
-                row.text = text
-                row.save()
+                scraper.process_answer_file(row, filename)
             except subprocess.CalledProcessError:
                 self.stdout.write('ERROR in antiword processing %d\n' % row.id)
             except UnicodeDecodeError:
                 self.stdout.write('ERROR in antiword processing (UnicodeDecodeError) %d\n' % row.id)
-
+            except ValueError as e:
+                self.stdout.write('ERROR processing answer %d: %s\n' % (row.id, e.message))
 
     def match_answers(self, *args, **options):
-        # FIXME - should change to a subset of all answers.
-        for answer in Answer.objects.all():
-            written_q = Q(written_number=answer.written_number)
-            oral_q = Q(oral_number=answer.oral_number)
-
-            if answer.written_number and answer.oral_number:
-                query = written_q | oral_q
-            elif answer.written_number:
-                query = written_q
-            elif answer.oral_number:
-                query = oral_q
-            else:
-                sys.stdout.write(
-                    "Answer {0} {1} has no written or oral number - SKIPPING\n"
-                    .format(answer.id, answer.document_name)
-                    )
-                continue
-
-            try:
-                question = Question.objects.get(
-                    query,
-                    year=answer.year,
-                    house=answer.house,
-                    )
-            except Question.DoesNotExist:
-                sys.stdout.write(
-                    "No question found for {0} {1}\n"
-                    .format(answer.id, answer.document_name)
-                    )
+        """ Match unanswered questions to answers. """
+        for answer in Answer.objects.filter(question=None):
+            question = answer.find_question()
+            if not question:
+                sys.stdout.write("No question found for {0} {1}\n".format(answer.id, answer.document_name))
                 continue
 
             question.answer = answer
@@ -511,11 +466,10 @@ class Command(BaseCommand):
             if not os.path.exists(path):
                 continue
 
-            importer = ImportJson(instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+            importer = ImportJson(instance=instance, popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
             self.stderr.write("TRYING %s\n" % path)
-            #limit to 2 speeches per section to avoid duplicating speeches
-            #added prior to the addition of the answer sayit_section field
+            # limit to 2 speeches per section to avoid duplicating speeches
+            # added prior to the addition of the answer sayit_section field
             section = importer.import_document(path, 2)
             section_ids.append(section.id)
             answer.sayit_section = section
@@ -526,10 +480,10 @@ class Command(BaseCommand):
         self.stdout.write('Answers:\n')
         self.stdout.write(str(section_ids))
         self.stdout.write('\n')
-        self.stdout.write('Answers: Imported %d / %d sections\n' %
-            (len(section_ids), len(answers)))
+        self.stdout.write('Answers: Imported %d / %d sections\n' % (len(section_ids), len(answers)))
 
     def correct_existing_sayit_import(self, *args, **options):
+        from pombola.slug_helpers.models import SlugRedirect
         instance = None
         try:
             instance = Instance.objects.get(label=options['instance'])
@@ -537,7 +491,7 @@ class Command(BaseCommand):
             raise CommandError("Instance specified not found (%s)" %
                                options['instance'])
 
-        #check that sections are correctly named
+        # check that sections are correctly named
         sections = Section.objects.filter(parent__title='Questions')
 
         for section in sections:
@@ -545,9 +499,9 @@ class Command(BaseCommand):
             new_minister = self.correct_minister_title(minister)
 
             if minister != new_minister:
-                #the name needs to be corrected. this is achieved by moving
-                #children to the correct section and deleting the current one
-                #and by changing the relevant speakers
+                # the name needs to be corrected. this is achieved by moving
+                # children to the correct section and deleting the current one
+                # and by changing the relevant speakers
 
                 if options['commit']:
                     new_section = Section.objects.get_or_create_with_parents(
@@ -581,9 +535,9 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write('Correcting %s to %s' % (minister, new_minister))
 
-        #check that answer dates and source urls are correct (previously,
-        #answer dates were set to those of their question and source_urls
-        #were not set - requiring checking and correction)
+        # check that answer dates and source urls are correct (previously,
+        # answer dates were set to those of their question and source_urls
+        # were not set - requiring checking and correction)
         answers = Answer.objects.exclude(sayit_section=None)
 
         for answer in answers:
@@ -620,14 +574,14 @@ class Command(BaseCommand):
                         speech.save()
 
             except MultipleObjectsReturned:
-                #only one answer should be returned - requires investigation
+                # only one answer should be returned - requires investigation
                 self.stdout.write(
                     'MultipleObjectsReturned %s - id %s' % (
                         answer.document_name,
                         answer.id
                     ) )
 
-        #check that question source_urls are correct
+        # check that question source_urls are correct
         questions = Question.objects.exclude( sayit_section = None )
 
         for question in questions:
@@ -649,12 +603,12 @@ class Command(BaseCommand):
                         speech.save()
 
             except MultipleObjectsReturned:
-                #only one answer should be returned - requires investigation
+                # only one answer should be returned - requires investigation
                 self.stdout.write(
                     'MultipleObjectsReturned question %s - id %s' % (
                         question.identifier,
                         question.id
-                    ) )
+                    ))
 
         if not options['commit']:
             self.stdout.write('Corrections not saved. Use --commit.')
@@ -774,23 +728,37 @@ class Command(BaseCommand):
                 "Minister of Arts and Culture",
         }
 
-        #the most common error is the inclusion of a hyphen (presumably due to
-        #line breaks in the original document). No ministers have a hyphen in
-        #their title so we can do a simple replace.
+        # the most common error is the inclusion of a hyphen (presumably due to
+        # line breaks in the original document). No ministers have a hyphen in
+        # their title so we can do a simple replace.
         minister_title = minister_title.replace('-', '')
 
-        #correct mispellings of 'minister'
+        # correct mispellings of 'minister'
         minister_title = minister_title.replace('Minster', 'Minister')
 
-        #it is also common for a minister to be labelled "minister for" instead
-        #of "minister of"
+        # it is also common for a minister to be labelled "minister for" instead
+        # of "minister of"
         minister_title = minister_title.replace('Minister for', 'Minister of')
 
-        #remove any whitespace
+        # remove any whitespace
         minister_title = minister_title.strip()
 
-        #apply manual corrections
+        # apply manual corrections
         minister_title = corrections.get(minister_title, minister_title)
 
         return minister_title
 
+    def import_answer(self, *filenames, **options):
+        """ Import Question and Answer pairs from single Anwser Word .doc documents
+        """
+        scraper = question_scraper.AnswerScraper()
+
+        for fname in filenames:
+            answer = scraper.import_question_answer_from_file(fname)
+            if answer:
+                print "Answer {0}".format(answer.document_name)
+                if answer.question:
+                    print "Question {0}".format(answer.question.id_number)
+
+            else:
+                print "Nothing to add"

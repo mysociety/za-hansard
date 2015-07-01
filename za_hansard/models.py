@@ -1,9 +1,10 @@
-import os, sys
-import re
+import os
+import sys
 import httplib2
 import calendar
 
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from speeches.models import Section
@@ -223,19 +224,20 @@ house_choices = (
     ('C', 'National Council of Provinces'),
     )
 
-class Answer (models.Model):
+
+class Answer(models.Model):
     # Various values that the processed_code can have
     PROCESSED_PENDING = 0
     PROCESSED_OK = 1
     PROCESSED_HTTP_ERROR = 2
 
     PROCESSED_CHOICES = (
-        ( PROCESSED_PENDING, 'pending'),
-        ( PROCESSED_OK, 'OK' ),
-        ( PROCESSED_HTTP_ERROR, 'HTTP error'),
+        (PROCESSED_PENDING, 'pending'),
+        (PROCESSED_OK, 'OK'),
+        (PROCESSED_HTTP_ERROR, 'HTTP error'),
     )
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     document_name = models.TextField()
 
     # The next few fields are all inferred from document_name
@@ -253,7 +255,7 @@ class Answer (models.Model):
     date = models.DateField()
     year = models.IntegerField(db_index=True)
     house = models.CharField(max_length=1, choices=house_choices, db_index=True)
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
 
     text = models.TextField()
     processed_code = models.IntegerField(null=False, default=PROCESSED_PENDING, choices=PROCESSED_CHOICES, db_index=True)
@@ -266,8 +268,7 @@ class Answer (models.Model):
     last_sayit_import = models.DateTimeField(blank=True, null=True)
     sayit_section = models.ForeignKey(
         Section, blank=True, null=True, on_delete=models.PROTECT,
-        help_text='Associated Sayit section object, if imported',
-        )
+        help_text='Associated Sayit section object, if imported')
 
     class Meta:
         unique_together = (
@@ -275,13 +276,41 @@ class Answer (models.Model):
             ('written_number', 'house', 'year'),
             ('president_number', 'house', 'year'),
             ('dp_number', 'house', 'year'),
-            )
+        )
 
         # FIXME - When we have Django 1.5 we can have these indices...
         # index_together = (
         #     ('oral_number', 'house', 'year'),
         #     ('written_number', 'house', 'year'),
         #     )
+
+    def find_question(self):
+        """ Try to find the question that is (or should be) linked to this
+        answer.
+        """
+        try:
+            return self.question
+        except Question.DoesNotExist:
+            pass
+
+        written_q = Q(written_number=self.written_number)
+        oral_q = Q(oral_number=self.oral_number)
+
+        if self.written_number and self.oral_number:
+            query = written_q | oral_q
+        elif self.written_number:
+            query = written_q
+        elif self.oral_number:
+            query = oral_q
+        else:
+            # nothing to lookup up on
+            return None
+
+        # TODO: filter by session
+        return Question.objects\
+            .filter(query, year=self.year, house=self.house)\
+            .first()
+
 
 class QuestionPaper(models.Model):
     """Models a group of questions.
@@ -322,19 +351,21 @@ int_to_text = {
     10: 'TENTH',
     }
 
+
 class Question(models.Model):
     paper = models.ForeignKey(
         QuestionPaper,
-        null=True, # FIXME - eventually, this should not be nullable.
+        null=True,  # FIXME - eventually, this should not be nullable.
         on_delete=models.SET_NULL,
-        )
-    answer = models.ForeignKey(
+        blank=True,
+    )
+    answer = models.OneToOneField(
         Answer,
         null=True,
         on_delete=models.CASCADE,
         related_name='question',
-        )
-
+        blank=True,
+    )
 
     # number1 - order questions published
     # Strts at 1 for calendar year, separate sequences for oral, written for both NA and NCOP
@@ -347,13 +378,13 @@ class Question(models.Model):
     # At least one of these four numbers should be non-null, and it's possible
     # for more than one to be non-null if a question is transferred from oral to written
     # or vice-versa.
-    written_number = models.IntegerField(null=True, db_index=True)
-    oral_number = models.IntegerField(null=True, db_index=True)
+    written_number = models.IntegerField(null=True, blank=True, db_index=True)
+    oral_number = models.IntegerField(null=True, blank=True, db_index=True)
 
     # The president and vice president get their own question number sequences for
     # oral questions.
-    president_number = models.IntegerField(null=True, db_index=True)
-    dp_number = models.IntegerField(null=True, db_index=True)
+    president_number = models.IntegerField(null=True, blank=True, db_index=True)
+    dp_number = models.IntegerField(null=True, blank=True, db_index=True)
 
     # Questions are also referred to by an identifier of the form
     # [NC][OW]\d+[AEX]
@@ -398,7 +429,7 @@ class Question(models.Model):
     year = models.IntegerField(db_index=True)
 
     # FIXME - is this useful to store/easy to get?
-    date_transferred = models.DateField(null=True)
+    date_transferred = models.DateField(null=True, blank=True)
 
     # FIXME - was this the title for the question asker?
     # title = models.TextField()

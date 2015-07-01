@@ -29,7 +29,9 @@ ADMINS = (
 HANSARD_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/')
 COMMITTEE_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/committee/')
 ANSWER_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/answers/')
+ANSWER_JSON_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/answers/')
 QUESTION_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/questions/')
+QUESTION_JSON_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/questions/')
 
 HTTPLIB2_CACHE_DIR = os.path.join(PROJECT_ROOT, 'httplib2_cache/')
 
@@ -147,7 +149,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'south',
@@ -159,7 +161,7 @@ INSTALLED_APPS = (
     'popit_resolver',
     'haystack',
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

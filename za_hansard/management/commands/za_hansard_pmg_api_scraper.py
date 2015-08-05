@@ -615,7 +615,11 @@ class Command(BaseCommand):
                     delete_existing=options['delete_existing'],
                     popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',
                     commit=options['commit'],
-                    popit_id_blacklist=('core_person:5421',),
+                    popit_id_blacklist=(
+                        'core_person:3739',
+                        'core_person:4555',
+                        'core_person:5421',
+                        ),
                 )
                 try:
                     message = "Importing {0} ({1})\n"

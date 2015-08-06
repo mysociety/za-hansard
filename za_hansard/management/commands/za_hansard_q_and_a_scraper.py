@@ -23,7 +23,6 @@ from za_hansard.importers.import_json import ImportJson
 from instances.models import Instance
 
 from speeches.models import Section, Speaker, Speech
-from pombola.slug_helpers.models import SlugRedirect
 from django.contrib.contenttypes.models import ContentType
 
 # ideally almost all of the parsing code would be removed from this management
@@ -570,6 +569,10 @@ class Command(BaseCommand):
                             speech.speaker = new_speaker
                             speech.save()
 
+                    # If this is a top level import, it will break the
+                    # za-hansard tests when run in isolation (i.e. not
+                    # as part of Pombola)
+                    from pombola.slug_helpers.models import SlugRedirect
                     SlugRedirect.objects.create(
                         content_type=ContentType.objects.get_for_model(Section),
                         old_object_slug=section.get_path,

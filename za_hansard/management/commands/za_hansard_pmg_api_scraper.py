@@ -619,6 +619,7 @@ class Command(BaseCommand):
                         'core_person:3739',
                         'core_person:4555',
                         'core_person:5421',
+                        'core_person:8277',
                         ),
                 )
                 try:

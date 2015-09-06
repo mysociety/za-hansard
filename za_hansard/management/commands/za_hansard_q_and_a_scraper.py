@@ -529,6 +529,7 @@ class Command(BaseCommand):
             (len(section_ids), len(answers)))
 
     def correct_existing_sayit_import(self, *args, **options):
+        from pombola.slug_helpers.models import SlugRedirect
         instance = None
         try:
             instance = Instance.objects.get(label=options['instance'])

@@ -4,14 +4,14 @@ from mock import patch
 import os
 import re
 import requests
-import shutil
 import datetime
 import json
 import lxml.etree
-from django.utils.unittest import skipUnless
+from itertools import izip
 
 from django.test import TestCase
 from django.template.defaultfilters import slugify
+from django.utils.unittest import skipUnless
 
 from .. import question_scraper
 from ..management.commands.za_hansard_q_and_a_scraper import Command as QAScraperCommand
@@ -232,26 +232,29 @@ class ZAQuestionParsing(TestCase):
 
             # Turn questions in database into JSON. Order by id as that should
             # reflect the processing order.
-            all_questions_as_data = []
+            questions = []
             question_paper = QuestionPaper.objects.get(source_url=source_url)
 
             for question in question_paper.question_set.all():
                 question_as_data = command.question_to_json_data(question)
-                all_questions_as_data.append(question_as_data)
+                questions.append(question_as_data)
 
             expected_file = sample_file('expected_json_data_for_{0}.json'.format(filename_root))
             # Uncomment to write out to the expected JSON file.
             # with open(expected_file, 'w') as writeto:
-            #     json_to_write = json.dumps(all_questions_as_data, indent=1, sort_keys=True)
+            #     json_to_write = json.dumps(questions, indent=1, sort_keys=True)
             #     writeto.write(re.sub(r'(?m) +$', '', json_to_write) + "\n")
 
             expected_json = open(expected_file).read()
             expected_data = json.loads(expected_json)
-
-            all_questions_as_data.sort()
             expected_data.sort()
 
-            self.assertEqual(all_questions_as_data, expected_data)
+            questions.sort()
+            questions = json.loads(json.dumps(questions))
+
+            self.maxDiff = None
+            for a, b in izip(questions, expected_data):
+                self.assertEqual(a, b, "mismatch in %s" % expected_file)
 
     def test_page_header_removal(self):
         tests = [

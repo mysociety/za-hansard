@@ -16,7 +16,7 @@
     "date": "2013-04-19", 
     "intro": "718. Dr A Lotriet (DA) to ask the Minister of Higher Education and Training:", 
     "personname": "A Lotriet", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -45,7 +45,7 @@
     "date": "2013-04-19", 
     "intro": "719. Dr A Lotriet (DA) to ask the Minister of Higher Education and Training:", 
     "personname": "A Lotriet", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -74,7 +74,7 @@
     "date": "2013-04-19", 
     "intro": "724. Ms A M Dreyer (DA) to ask the Minister of Public Works:", 
     "personname": "A M Dreyer", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -103,7 +103,7 @@
     "date": "2013-04-19", 
     "intro": "750. Ms A M Dreyer (DA) to ask the Minister of Public Works:", 
     "personname": "A M Dreyer", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -132,7 +132,7 @@
     "date": "2013-04-19", 
     "intro": "751. Ms A M Dreyer (DA) to ask the Minister of Public Works:", 
     "personname": "A M Dreyer", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -161,7 +161,7 @@
     "date": "2013-04-19", 
     "intro": "736. Mr A P van der Westhuizen (DA) to ask the Minister of Labour:", 
     "personname": "A P van der Westhuizen", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -181,7 +181,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -190,7 +190,7 @@
     "date": "2013-04-19", 
     "intro": "706. Mr A R Ainslie (ANC) to ask the Minister for the Public Service and Administration: [137] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "A R Ainslie", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -219,7 +219,7 @@
     "date": "2013-04-19", 
     "intro": "746. Mrs A Steyn (DA) to ask the Minister of Agriculture, Forestry and Fisheries:", 
     "personname": "A Steyn", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -248,7 +248,7 @@
     "date": "2013-04-19", 
     "intro": "747. Mrs A Steyn (DA) to ask the Minister of Agriculture, Forestry and Fisheries:", 
     "personname": "A Steyn", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -277,7 +277,7 @@
     "date": "2013-04-19", 
     "intro": "721. Mrs A T Lovemore (DA) to ask the Minister of Basic Education:", 
     "personname": "A T Lovemore", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -306,7 +306,7 @@
     "date": "2013-04-19", 
     "intro": "722. Mrs A T Lovemore (DA) to ask the Minister of Basic Education:", 
     "personname": "A T Lovemore", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -335,7 +335,7 @@
     "date": "2013-04-19", 
     "intro": "723. Mrs A T Lovemore (DA) to ask the Minister of Basic Education:", 
     "personname": "A T Lovemore", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -364,7 +364,7 @@
     "date": "2013-04-19", 
     "intro": "731. Mr A Watson (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "A Watson", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -393,7 +393,7 @@
     "date": "2013-04-19", 
     "intro": "675. Adv A de W Alberts (FF Plus) to ask the Minister of Public Enterprises:", 
     "personname": "A de W Alberts", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -422,7 +422,7 @@
     "date": "2013-04-19", 
     "intro": "708. Adv A de W Alberts (FF Plus) to ask the Minister of Transport:", 
     "personname": "A de W Alberts", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -442,7 +442,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency"
+   "Questions asked to the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency"
   ], 
   "parliament": 4, 
   "questionto": "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency", 
@@ -451,7 +451,7 @@
     "date": "2013-04-19", 
     "intro": "709. Adv A de W Alberts (FF Plus) to ask the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the Presidency:", 
     "personname": "A de W Alberts", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -480,7 +480,7 @@
     "date": "2013-04-19", 
     "intro": "767. Mr B M Bhanga (Cope) to ask the Minister of Higher Education and Training:", 
     "personname": "B M Bhanga", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -509,7 +509,7 @@
     "date": "2013-04-19", 
     "intro": "683. Mrs C Dudley (ACDP) to ask the Minister of Basic Education:", 
     "personname": "C Dudley", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -538,7 +538,7 @@
     "date": "2013-04-19", 
     "intro": "684. Mrs C Dudley (ACDP) to ask the Minister of Basic Education:", 
     "personname": "C Dudley", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -567,7 +567,7 @@
     "date": "2013-04-19", 
     "intro": "774. Mrs C Dudley (ACDP) to ask the Minister of Basic Education:", 
     "personname": "C Dudley", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -587,7 +587,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -596,7 +596,7 @@
     "date": "2013-04-19", 
     "intro": "696. Ms C K K Mosimane (Cope) to ask the Minister for Cooperative Governance and Traditional Affairs: [124] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "C K K Mosimane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -625,7 +625,7 @@
     "date": "2013-04-19", 
     "intro": "702. Ms C K K Mosimane (Cope) to ask the Minister of Women, Children and People with Disabilities:", 
     "personname": "C K K Mosimane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -654,7 +654,7 @@
     "date": "2013-04-19", 
     "intro": "703. Ms C K K Mosimane (Cope) to ask the Minister of Women, Children and People with Disabilities:", 
     "personname": "C K K Mosimane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -674,7 +674,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -683,7 +683,7 @@
     "date": "2013-04-19", 
     "intro": "704. Ms C K K Mosimane (Cope) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "C K K Mosimane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -712,7 +712,7 @@
     "date": "2013-04-19", 
     "intro": "676. Dr C P Mulder (FF Plus) to ask the Minister of Basic Education:", 
     "personname": "C P Mulder", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -732,7 +732,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency"
+   "Questions asked to the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency"
   ], 
   "parliament": 4, 
   "questionto": "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency", 
@@ -741,7 +741,7 @@
     "date": "2013-04-19", 
     "intro": "707. Dr C P Mulder (FF Plus) to ask the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the Presidency:", 
     "personname": "C P Mulder", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -770,7 +770,7 @@
     "date": "2013-04-19", 
     "intro": "773. Dr C P Mulder (FF Plus) to ask the Minister of Agriculture, Forestry and Fisheries:", 
     "personname": "C P Mulder", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -799,7 +799,7 @@
     "date": "2013-04-19", 
     "intro": "759. Mr D A Kganare (Cope) to ask the Minister of Health:", 
     "personname": "D A Kganare", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -828,7 +828,7 @@
     "date": "2013-04-19", 
     "intro": "760. Mr D A Kganare (Cope) to ask the Minister of Labour:", 
     "personname": "D A Kganare", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -857,7 +857,7 @@
     "date": "2013-04-19", 
     "intro": "720. Mrs D A Sch\u00e4fer (DA) to ask the Minister of Police:", 
     "personname": "D A Sch\u00e4fer", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -886,7 +886,7 @@
     "date": "2013-04-19", 
     "intro": "717. Mr D C Smiles (DA) to ask the Minister of Basic Education:", 
     "personname": "D C Smiles", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -915,7 +915,7 @@
     "date": "2013-04-19", 
     "intro": "732. Mr D J Maynier (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "D J Maynier", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -944,7 +944,7 @@
     "date": "2013-04-19", 
     "intro": "740. Mr D J Maynier (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "D J Maynier", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -973,7 +973,7 @@
     "date": "2013-04-19", 
     "intro": "741. Mr D J Maynier (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "D J Maynier", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1002,7 +1002,7 @@
     "date": "2013-04-19", 
     "intro": "713. Ms D Kohler-Barnard (DA) to ask the Minister of Police:", 
     "personname": "D Kohler-Barnard", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1022,7 +1022,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1031,7 +1031,7 @@
     "date": "2013-04-19", 
     "intro": "689. Mrs D M Ramodibe (ANC) to ask the Minister for the Public Service and Administration:", 
     "personname": "D M Ramodibe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1051,7 +1051,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1060,7 +1060,7 @@
     "date": "2013-04-19", 
     "intro": "690. Mrs D M Ramodibe (ANC) to ask the Minister for the Public Service and Administration:", 
     "personname": "D M Ramodibe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1080,7 +1080,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1089,7 +1089,7 @@
     "date": "2013-04-19", 
     "intro": "691. Mrs D M Ramodibe (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "D M Ramodibe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1109,7 +1109,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1118,7 +1118,7 @@
     "date": "2013-04-19", 
     "intro": "692. Mrs D M Ramodibe (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs: [105] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "D M Ramodibe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1147,7 +1147,7 @@
     "date": "2013-04-19", 
     "intro": "714. Mrs D Robinson (DA) to ask the Minister of Health:", 
     "personname": "D Robinson", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1176,7 +1176,7 @@
     "date": "2013-04-19", 
     "intro": "715. Mrs D Robinson (DA) to ask the Minister of Health:", 
     "personname": "D Robinson", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1205,7 +1205,7 @@
     "date": "2013-04-19", 
     "intro": "716. Mrs D Robinson (DA) to ask the Minister of Health:", 
     "personname": "D Robinson", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1225,7 +1225,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1234,7 +1234,7 @@
     "date": "2013-04-19", 
     "intro": "699. Mr D W Mavunda (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs: [129] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "D W Mavunda", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1254,7 +1254,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1263,7 +1263,7 @@
     "date": "2013-04-19", 
     "intro": "742. Mr G G Boinamo (DA) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "G G Boinamo", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1283,7 +1283,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1292,7 +1292,7 @@
     "date": "2013-04-19", 
     "intro": "743. Mr G G Boinamo (DA) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "G G Boinamo", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1321,7 +1321,7 @@
     "date": "2013-04-19", 
     "intro": "754. Mr G G Hill-Lewis (DA) to ask the Minister of Trade and Industry:", 
     "personname": "G G Hill-Lewis", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1350,7 +1350,7 @@
     "date": "2013-04-19", 
     "intro": "737. Mr I M Ollis (DA) to ask the Minister of Transport:", 
     "personname": "I M Ollis", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1370,7 +1370,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1379,7 +1379,7 @@
     "date": "2013-04-19", 
     "intro": "686. Mrs J C Moloi-Moropa (ANC) to ask the Minister for the Public Service and Administration:", 
     "personname": "J C Moloi-Moropa", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1399,7 +1399,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1408,7 +1408,7 @@
     "date": "2013-04-19", 
     "intro": "687. Mrs J C Moloi-Moropa (ANC) to ask the Minister for the Public Service and Administration:", 
     "personname": "J C Moloi-Moropa", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1428,7 +1428,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency"
+   "Questions asked to the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency"
   ], 
   "parliament": 4, 
   "questionto": "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency", 
@@ -1437,7 +1437,7 @@
     "date": "2013-04-19", 
     "intro": "688. Mrs J C Moloi-Moropa (ANC) to ask the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the Presidency:", 
     "personname": "J C Moloi-Moropa", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1457,7 +1457,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1466,7 +1466,7 @@
     "date": "2013-04-19", 
     "intro": "693. Mrs J C Moloi-Moropa (ANC) to ask the Minister for the Public Service and Administration: [108] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "J C Moloi-Moropa", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1486,7 +1486,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1495,7 +1495,7 @@
     "date": "2013-04-19", 
     "intro": "705. Mrs J D Kilian (Cope) to ask the Minister for the Public Service and Administration: [132] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "J D Kilian", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1524,7 +1524,7 @@
     "date": "2013-04-19", 
     "intro": "764. Mrs J D Kilian (Cope) to ask the Minister of Public Enterprises:", 
     "personname": "J D Kilian", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1553,7 +1553,7 @@
     "date": "2013-04-19", 
     "intro": "765. Mrs J D Kilian (Cope) to ask the Minister of Communications:", 
     "personname": "J D Kilian", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1573,7 +1573,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Public Enterprises"
+   "Questions asked to the Minister of Public Enterprises"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Public Enterprises", 
@@ -1582,7 +1582,7 @@
     "date": "2013-04-19", 
     "intro": "685. Mr J F Smalle (DA) to ask the Minister for Public Enterprises:", 
     "personname": "J F Smalle", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1611,7 +1611,7 @@
     "date": "2013-04-19", 
     "intro": "738. Mr J F Smalle (DA) to ask the Minister of Public Enterprises:", 
     "personname": "J F Smalle", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1640,7 +1640,7 @@
     "date": "2013-04-19", 
     "intro": "739. Mr J F Smalle (DA) to ask the Minister of Energy:", 
     "personname": "J F Smalle", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1669,7 +1669,7 @@
     "date": "2013-04-19", 
     "intro": "674. Mrs J F Terblance (DA) to ask the Minister of Transport:", 
     "personname": "J F Terblance", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1689,7 +1689,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1698,7 +1698,7 @@
     "date": "2013-04-19", 
     "intro": "697. Mr J M Matshoba (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs: [125] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "J M Matshoba", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1727,7 +1727,7 @@
     "date": "2013-04-19", 
     "intro": "694. Mr L Ramatlakane (Cope) to ask the Minister of Justice and Constitutional Development:", 
     "personname": "L Ramatlakane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1747,7 +1747,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency"
+   "Questions asked to the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency"
   ], 
   "parliament": 4, 
   "questionto": "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency", 
@@ -1756,7 +1756,7 @@
     "date": "2013-04-19", 
     "intro": "695. Mr L Ramatlakane (Cope) to ask the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the Presidency:", 
     "personname": "L Ramatlakane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1776,7 +1776,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for the Public Service and Administration"
+   "Questions asked to the Minister of Public Service and Administration"
   ], 
   "parliament": 4, 
   "questionto": "Minister for the Public Service and Administration", 
@@ -1785,7 +1785,7 @@
     "date": "2013-04-19", 
     "intro": "701. Mr L Ramatlakane (Cope) to ask the Minister for the Public Service and Administration:", 
     "personname": "L Ramatlakane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1814,7 +1814,7 @@
     "date": "2013-04-19", 
     "intro": "757. Mr L S Ngonyama (Cope) to ask the Minister of Finance:", 
     "personname": "L S Ngonyama", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1843,7 +1843,7 @@
     "date": "2013-04-19", 
     "intro": "758. Mr L S Ngonyama (Cope) to ask the President of the Republic:", 
     "personname": "L S Ngonyama", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1872,7 +1872,7 @@
     "date": "2013-04-19", 
     "intro": "771. Mr M E George (Cope) to ask the Minister of Police:", 
     "personname": "M E George", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1901,7 +1901,7 @@
     "date": "2013-04-19", 
     "intro": "761. Mr M G P Lekota (Cope) to ask the Minister of Trade and Industry:", 
     "personname": "M G P Lekota", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1921,7 +1921,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1930,7 +1930,7 @@
     "date": "2013-04-19", 
     "intro": "762. Mr M G P Lekota (Cope) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "M G P Lekota", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1959,7 +1959,7 @@
     "date": "2013-04-19", 
     "intro": "763. Mr M G P Lekota (Cope) to ask the Minister of Defence and Military Veterans:", 
     "personname": "M G P Lekota", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -1979,7 +1979,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -1988,7 +1988,7 @@
     "date": "2013-04-19", 
     "intro": "700. Ms M J Segale-Diswai (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs: [130] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "M J Segale-Diswai", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2008,7 +2008,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister of Public Work"
+   "Questions asked to the Minister of Public Works"
   ], 
   "parliament": 4, 
   "questionto": "Minister of Public Work", 
@@ -2017,7 +2017,7 @@
     "date": "2013-03-28", 
     "intro": "670. Mr M M Swathe (DA) to ask the Minister of Public Work: (Interdepartmental transfer on 19 April 2013)", 
     "personname": "M M Swathe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2037,7 +2037,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister of Public Work"
+   "Questions asked to the Minister of Public Works"
   ], 
   "parliament": 4, 
   "questionto": "Minister of Public Work", 
@@ -2046,7 +2046,7 @@
     "date": "2013-03-28", 
     "intro": "671. Mr M M Swathe (DA) to ask the Minister of Public Work: (Interdepartmental transfer on 19 April 2013)", 
     "personname": "M M Swathe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2066,7 +2066,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -2075,7 +2075,7 @@
     "date": "2013-04-19", 
     "intro": "679. Mr M M Swathe (DA) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "M M Swathe", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2104,7 +2104,7 @@
     "date": "2013-04-19", 
     "intro": "710. Mr M S F de Freitas (DA) to ask the Minister of Home Affairs:", 
     "personname": "M S F de Freitas", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2133,7 +2133,7 @@
     "date": "2013-04-19", 
     "intro": "711. Mr M S F de Freitas (DA) to ask the Minister of Home Affairs:", 
     "personname": "M S F de Freitas", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2162,7 +2162,7 @@
     "date": "2013-04-19", 
     "intro": "712. Mr M S F de Freitas (DA) to ask the Minister of Home Affairs:", 
     "personname": "M S F de Freitas", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2182,7 +2182,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency"
+   "Questions asked to the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the in the Presidency"
   ], 
   "parliament": 4, 
   "questionto": "Minister in the Presidency Performance Monitoring and Evaluation as well as Administration in the Presidency", 
@@ -2191,7 +2191,7 @@
     "date": "2013-04-19", 
     "intro": "752. Mr M Swart (DA) to ask the Minister in the Presidency: Performance Monitoring and Evaluation as well as Administration in the Presidency:", 
     "personname": "M Swart", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2220,7 +2220,7 @@
     "date": "2013-04-19", 
     "intro": "672. Mr M Waters (DA) to ask the Minister of Justice and Constitutional Development:", 
     "personname": "M Waters", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2249,7 +2249,7 @@
     "date": "2013-04-19", 
     "intro": "673. Mr M Waters (DA) to ask the Minister of Social Development:", 
     "personname": "M Waters", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2278,7 +2278,7 @@
     "date": "2013-04-19", 
     "intro": "725. Mr M Waters (DA) to ask the Minister of Social Development:", 
     "personname": "M Waters", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2307,7 +2307,7 @@
     "date": "2013-04-19", 
     "intro": "677. Mr N J J van R Koornhof (Cope) to ask the Minister of Basic Education:", 
     "personname": "N J J van R Koornhof", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2336,7 +2336,7 @@
     "date": "2013-04-19", 
     "intro": "678. Mr N J J van R Koornhof (Cope) to ask the Minister of Higher Education and Training:", 
     "personname": "N J J van R Koornhof", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2365,7 +2365,7 @@
     "date": "2013-04-19", 
     "intro": "755. Mr N J J van R Koornhof (Cope) to ask the Minister of Justice and Constitutional Development:", 
     "personname": "N J J van R Koornhof", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2394,7 +2394,7 @@
     "date": "2013-04-19", 
     "intro": "769. Ms N P Gcume (Cope) to ask the Minister of Social Development:", 
     "personname": "N P Gcume", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2423,7 +2423,7 @@
     "date": "2013-04-19", 
     "intro": "770. Ms N P Gcume (Cope) to ask the Minister of Social Development:", 
     "personname": "N P Gcume", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2452,7 +2452,7 @@
     "date": "2013-04-19", 
     "intro": "727. Mrs N W A Michael (DA) to ask the Minister of Public Enterprises:", 
     "personname": "N W A Michael", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2481,7 +2481,7 @@
     "date": "2013-04-19", 
     "intro": "735. Mrs N W A Michael (DA) to ask the Deputy President:", 
     "personname": "N W A Michael", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2510,7 +2510,7 @@
     "date": "2013-04-19", 
     "intro": "756. Mr P B Mnguni (Cope) to ask the Minister of Correctional Services:", 
     "personname": "P B Mnguni", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2530,7 +2530,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -2539,7 +2539,7 @@
     "date": "2013-04-19", 
     "intro": "680. Mr P J Groenewald (FF Plus) to ask the Minister for Cooperative Governance and Traditional Affairs:", 
     "personname": "P J Groenewald", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2568,7 +2568,7 @@
     "date": "2013-04-19", 
     "intro": "768. Mr P Ntshiqela (Cope) to ask the Minister of Labour:", 
     "personname": "P Ntshiqela", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2597,7 +2597,7 @@
     "date": "2013-04-19", 
     "intro": "748. Mr R A P Trollip (DA) to ask the Minister of Rural Development and Land Reform:", 
     "personname": "R A P Trollip", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2626,7 +2626,7 @@
     "date": "2013-04-19", 
     "intro": "749. Mr R A P Trollip (DA) to ask the Minister of Rural Development and Land Reform:", 
     "personname": "R A P Trollip", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2655,7 +2655,7 @@
     "date": "2013-04-19", 
     "intro": "681. Mr R B Bhoola (MF) to ask the Minister of Social Development:", 
     "personname": "R B Bhoola", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2684,7 +2684,7 @@
     "date": "2013-04-19", 
     "intro": "682. Mr R B Bhoola (MF) to ask the Minister of Social Development:", 
     "personname": "R B Bhoola", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2713,7 +2713,7 @@
     "date": "2013-04-19", 
     "intro": "733. Mr S C Motau (DA) to ask the Minister of Labour:", 
     "personname": "S C Motau", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2742,7 +2742,7 @@
     "date": "2013-04-19", 
     "intro": "734. Mr S C Motau (DA) to ask the Minister of Labour:", 
     "personname": "S C Motau", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2771,7 +2771,7 @@
     "date": "2013-04-19", 
     "intro": "729. Mr S Esau (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "S Esau", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2800,7 +2800,7 @@
     "date": "2013-04-19", 
     "intro": "730. Mr S Esau (DA) to ask the Minister of Defence and Military Veterans:", 
     "personname": "S Esau", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2829,7 +2829,7 @@
     "date": "2013-04-19", 
     "intro": "766. Ms S K Plaatjie (Cope) to ask the Minister of Science and Technology:", 
     "personname": "S K Plaatjie", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2858,7 +2858,7 @@
     "date": "2013-04-19", 
     "intro": "726. Mrs S P Kopane (DA) to ask the Minister of Health:", 
     "personname": "S P Kopane", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2887,7 +2887,7 @@
     "date": "2013-04-19", 
     "intro": "753. Mr T D Harris (DA) to ask the Minister of Finance:", 
     "personname": "T D Harris", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2916,7 +2916,7 @@
     "date": "2013-04-19", 
     "intro": "728. Mr T W Coetzee (DA) to ask the Minister of Health:", 
     "personname": "T W Coetzee", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2945,7 +2945,7 @@
     "date": "2013-04-19", 
     "intro": "744. Dr W G James (DA) to ask the Minister of Trade and Industry:", 
     "personname": "W G James", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -2974,7 +2974,7 @@
     "date": "2013-04-19", 
     "intro": "745. Dr W G James (DA) to ask the Minister of Agriculture, Forestry and Fisheries:", 
     "personname": "W G James", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -3003,7 +3003,7 @@
     "date": "2013-04-19", 
     "intro": "772. Dr W G James (DA) to ask the Minister of Health:", 
     "personname": "W G James", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 
@@ -3023,7 +3023,7 @@
   "oral_number": null, 
   "parent_section_titles": [
    "Questions", 
-   "Questions asked to the Minister for Cooperative Governance and Traditional Affairs"
+   "Questions asked to the Minister of Cooperative Governance and Traditional Affairs"
   ], 
   "parliament": 4, 
   "questionto": "Minister for Cooperative Governance and Traditional Affairs", 
@@ -3032,7 +3032,7 @@
     "date": "2013-04-19", 
     "intro": "698. Nkosi Z M D Mandela (ANC) to ask the Minister for Cooperative Governance and Traditional Affairs: [127] [Question submitted for oral reply now placed for written reply because in excess of quota [Rule 108(8)]]", 
     "personname": "Z M D Mandela", 
-    "source": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
+    "source_url": "http://www.parliament.gov.za/live/commonrepository/Processed/20130529/517147_1.pdf", 
     "tags": [
      "question"
     ], 

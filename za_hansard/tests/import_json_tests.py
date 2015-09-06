@@ -2,6 +2,7 @@ import os
 from datetime import date
 
 from django.core.management import call_command
+from django.utils.unittest import skip
 
 from instances.tests import InstanceTestCase
 from popit.models import ApiInstance
@@ -20,6 +21,9 @@ class ImportJsonTests(InstanceTestCase):
         call_command('clear_index', interactive=False, verbosity=0)
 
         if not EntityName.objects.count():
+            return
+            # XXX: disabled, because calling remote APIs during unittests
+            # is a bad idea: it makes them non-repeatable and slow
             SetupEntities(popit_url).init_popit_data()
             call_command('update_index', verbosity=0)
 
@@ -29,11 +33,13 @@ class ImportJsonTests(InstanceTestCase):
         ApiInstance.objects.all().delete()
         call_command('clear_index', interactive=False, verbosity=0)
 
+    @skip("Relies on external API")
     def test_resolve(self):
         resolver = ResolvePopitName(date=date(2013, 06, 21))
         person = resolver.get_person('Mrs A Steyn', None)
-        self.assertTrue( person )
+        self.assertTrue(person)
 
+    @skip("Relies on external API")
     def test_import(self):
         expecteds = [
             {

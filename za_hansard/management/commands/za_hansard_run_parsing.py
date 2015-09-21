@@ -73,7 +73,7 @@ class Command(BaseCommand):
         for s in (sources[:limit] if limit else sources):
         # for s in sources[:limit].iterator():
             if s.language != 'English':
-                self.stdout.write("Skipping non-English for now...\n") # fails date parsing, hehehe
+                # self.stdout.write("Skipping non-English for now...\n") # fails date parsing, hehehe
                 continue
             s.last_processing_attempt = datetime.datetime.now().date()
             s.save()

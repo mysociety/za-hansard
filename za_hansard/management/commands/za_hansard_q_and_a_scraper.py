@@ -248,6 +248,10 @@ class Command(BaseCommand):
                 settings.ANSWER_CACHE,
                 '%d.%s' % (row.id, row.type))
 
+            if row.type == 'pdf':
+                self.stdout.write('P')
+                continue
+
             if os.path.exists(filename):
                 self.stdout.write('-')
             else:

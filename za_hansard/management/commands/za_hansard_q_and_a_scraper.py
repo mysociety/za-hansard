@@ -1,3 +1,4 @@
+import httplib
 import urllib2
 import sys
 import re, os
@@ -266,6 +267,10 @@ class Command(BaseCommand):
 
                 except urllib2.URLError:
                     self.stderr.write('ERROR URLError while processing %d\n' % row.id)
+                    continue
+
+                except httplib.BadStatusLine:
+                    self.stderr.write('ERROR BadStatusLine while processing %d\n' % row.id)
                     continue
 
             try:

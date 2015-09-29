@@ -30,6 +30,8 @@ HANSARD_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/')
 COMMITTEE_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/committee/')
 ANSWER_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/answers/')
 QUESTION_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/questions/')
+ANSWER_JSON_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/answers_json/')
+QUESTION_JSON_CACHE = os.path.join(PROJECT_ROOT, 'hansard_cache/questions_json/')
 
 HTTPLIB2_CACHE_DIR = os.path.join(PROJECT_ROOT, 'httplib2_cache/')
 

@@ -14,6 +14,10 @@ class ImportZAMixin(object):
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_url)
         self.person_cache = {}
         self.popit_id_blacklist = set(popit_id_blacklist or ())
+        # Make sure that there are no speakers associated with
+        # blacklisted PopIt IDs:
+        Speaker.objects.filter(person__popit_id__in=self.popit_id_blacklist) \
+            .update(person=None)
 
     def set_resolver_for_date(self, date_string='', date=None):
         self.resolver = ResolvePopitName(date=date, date_string=date_string)

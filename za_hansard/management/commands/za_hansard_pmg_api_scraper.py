@@ -18,7 +18,7 @@ from instances.models import Instance
 import za_hansard.chairperson as chair
 from za_hansard.chairperson import strip_tags_from_html
 from za_hansard.datejson import DateEncoder
-from za_hansard.importers.import_json import ImportJson
+from za_hansard.importers.import_json_za_committee import ImportJsonZACommittee
 from za_hansard.models import PMGCommitteeAppearance, PMGCommitteeReport
 
 # This scraper relies on certain conventions in the text that's
@@ -610,7 +610,7 @@ class Command(BaseCommand):
                     self.stdout.write(message.format(report.id))
                     continue
 
-                importer = ImportJson(
+                importer = ImportJsonZACommittee(
                     instance=sayit_instance,
                     delete_existing=options['delete_existing'],
                     popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',

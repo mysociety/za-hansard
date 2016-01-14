@@ -18,7 +18,7 @@ from instances.models import Instance
 import za_hansard.chairperson as chair
 from za_hansard.chairperson import strip_tags_from_html
 from za_hansard.datejson import DateEncoder
-from za_hansard.importers.import_json_za_committee import ImportJsonZACommittee
+from za_hansard.importers.import_json import ImportJson
 from za_hansard.models import PMGCommitteeAppearance, PMGCommitteeReport
 
 # This scraper relies on certain conventions in the text that's
@@ -251,6 +251,29 @@ class TimezoneOffset(StaticTzInfo):
             raise Exception, u"Unknown sign {0}".format(offset_sign)
         minutes = int(offset_minutes, 10)
         self._utcoffset = timedelta(hours=hours, minutes=minutes)
+
+
+def person_accept_check(popit_person, date):
+    """Check that the popit_person was a member of the NA on date.
+
+    We only want to associate committee appearances with people who
+    were members of the National Assembly on the date of the meeting
+    in question.
+    """
+    from pombola.core.models import Position
+
+    person_id = int(popit_person.popit_id.rsplit(':', 1)[1])
+
+    qs = (Position.objects
+          .filter(
+            person__id=person_id,
+            title__slug='member',
+            organisation__slug='national-assembly',
+            )
+          .currently_active(date)
+          )
+
+    return qs.exists()
 
 
 class Command(BaseCommand):
@@ -610,7 +633,7 @@ class Command(BaseCommand):
                     self.stdout.write(message.format(report.id))
                     continue
 
-                importer = ImportJsonZACommittee(
+                importer = ImportJson(
                     instance=sayit_instance,
                     delete_existing=options['delete_existing'],
                     popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',
@@ -621,6 +644,7 @@ class Command(BaseCommand):
                         'core_person:5421',
                         'core_person:8277',
                         ),
+                    person_accept_check=person_accept_check,
                 )
                 try:
                     message = "Importing {0} ({1})\n"

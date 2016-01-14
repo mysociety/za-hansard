@@ -49,9 +49,9 @@ class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
 
         section = self.make(Section, title=self.title, parent=parent)
 
-        start_date = preface.p.docDate.get('date')
-        self.set_resolver_for_date(date_string = start_date)
-        self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        self.set_start_date(
+            datetime.strptime(preface.p.docDate.get('date'), '%Y-%m-%d')
+            )
 
         self.visit(mainSection, section)
         return section

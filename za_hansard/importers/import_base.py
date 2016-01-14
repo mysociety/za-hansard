@@ -29,8 +29,9 @@ class ImportZAMixin(object):
         Speaker.objects.filter(person__popit_id__in=self.popit_id_blacklist) \
             .update(person=None)
 
-    def set_resolver_for_date(self, date_string='', date=None):
-        self.resolver = ResolvePopitName(date=date, date_string=date_string)
+    def set_start_date(self, date=None):
+        self.start_date=date
+        self.resolver = ResolvePopitName(date=date)
 
     def get_person(self, name, party):
         cached = self.person_cache.get(name)

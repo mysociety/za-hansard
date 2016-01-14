@@ -36,12 +36,10 @@ class ImportJson (ImportZAMixin, ImporterBase):
 
         data = json.load( open(document_path, 'r') )
 
-        start_date_string = data.get( 'date', None )
-        start_date = None
-        if start_date_string:
-            start_date = self.format_date(start_date_string)
-
-        self.set_resolver_for_date(date=start_date)
+        start_date_string = data.get('date')
+        start_date = (self.format_date(start_date_string)
+                      if start_date_string else None)
+        self.set_start_date(date=start_date)
 
         self.title = data.get( 'title', data.get('organization', '') )
 

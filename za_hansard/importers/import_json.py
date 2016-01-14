@@ -76,10 +76,11 @@ class ImportJson (ImportZAMixin, ImporterBase):
             if limit and section.speech_set.count() >= limit:
                 break
 
-            speech_start_date_string = s.get('date', None)
-            speech_start_date = start_date
-            if speech_start_date_string:
-                speech_start_date = self.format_date(start_date_string)
+            speech_start_date_string = s.get('date')
+            speech_start_date = (
+                self.format_date(speech_start_date_string)
+                if speech_start_date_string
+                else start_date)
 
             speech = self.make(Speech,
                     text = s['text'],

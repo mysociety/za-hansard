@@ -253,29 +253,6 @@ class TimezoneOffset(StaticTzInfo):
         self._utcoffset = timedelta(hours=hours, minutes=minutes)
 
 
-def person_accept_check(popit_person, date):
-    """Check that the popit_person was a member of the NA on date.
-
-    We only want to associate committee appearances with people who
-    were members of the National Assembly on the date of the meeting
-    in question.
-    """
-    from pombola.core.models import Position
-
-    person_id = int(popit_person.popit_id.rsplit(':', 1)[1])
-
-    qs = (Position.objects
-          .filter(
-            person__id=person_id,
-            title__slug='member',
-            organisation__slug='national-assembly',
-            )
-          .currently_active(date)
-          )
-
-    return qs.exists()
-
-
 class Command(BaseCommand):
 
     help = 'Find committee appearances from the PMG API'
@@ -644,7 +621,6 @@ class Command(BaseCommand):
                         'core_person:5421',
                         'core_person:8277',
                         ),
-                    person_accept_check=person_accept_check,
                 )
                 try:
                     message = "Importing {0} ({1})\n"

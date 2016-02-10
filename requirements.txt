@@ -19,13 +19,20 @@ parslepy==0.2.0
 requests==2.6.0
 lxml==3.3.5
 
-# For some reasons these dependencies aren't being picked up correctly
-# from popit-resolver's requirements.txt, so pin them explicitly here:
-pyelasticsearch==0.6.1
-django-haystack==2.1.0
-
 # mySoc modules
 django-subdomain-instances==0.1
--e git+git://github.com/mysociety/sayit.git@55a4bba537ada6b822c1b01a904c9452e86de13d#egg=django-sayit
+-e git+git://github.com/mysociety/sayit.git@b9b5d803178303b2aa3feadcc912766cf4a25673#egg=django-sayit
+mysociety-django-popolo==0.0.2
+-e git+git://github.com/mysociety/popolo-name-resolver@d733d98e0e950cbc8e6f9fb32d3d13e0f7a7d6c3#egg=popolo-name-resolver
+
+# It seems that pip's dependency handling isn't smart enough to
+# figure out from mysociety-django-popolo requiring
+# django-model-utils (any version) and popolo-name-resolver
+# requiring django-model-utils (== 2.3.1) that
+# django-model-utils==2.4 (what it actually installed) isn't a
+# good choice.  So tell it what version to install explicitly.
+django-model-utils==2.3.1
+
+# Although it's not actually used any more, we still need popit-django
+# in the requirements so that the older migrations work.
 -e git+git://github.com/mysociety/popit-django@a11ef97919f2ae35ef1ef1e2a3f0553ad1ba1e6d#egg=popit-django
--e git+git://github.com/mysociety/popit-resolver@76c2e89dd673b601a295edbb0ccbde1feb108c72#egg=popit-resolver

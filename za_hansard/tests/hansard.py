@@ -24,8 +24,8 @@ class ZAHansardParsingTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        if 'popit_resolver' not in settings.INSTALLED_APPS:
-            raise ImproperlyConfigured("django_resolver is not in INSTALLED_APPS")
+        if 'popolo_name_resolver' not in settings.INSTALLED_APPS:
+            raise ImproperlyConfigured("popolo_name_resolver is not in INSTALLED_APPS")
 
         tests_dir = os.path.dirname(os.path.abspath(__file__))
         cls._in_fixtures = os.path.join(tests_dir, 'test_inputs','hansard')

@@ -1,4 +1,4 @@
-from za_hansard.management.import_commands import ImportCommand
+from speeches.management.import_commands import ImportCommand
 from za_hansard.importers.import_za_akomantoso import ImportZAAkomaNtoso
 
 class Command(ImportCommand):

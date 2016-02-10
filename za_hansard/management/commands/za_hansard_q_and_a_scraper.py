@@ -483,8 +483,7 @@ class Command(BaseCommand):
             if not os.path.exists(path):
                 continue
 
-            importer = ImportJson( instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+            importer = ImportJson(instance=instance)
             #try:
             self.stderr.write("TRYING %s\n" % path)
             section = importer.import_document(path)
@@ -515,8 +514,7 @@ class Command(BaseCommand):
             if not os.path.exists(path):
                 continue
 
-            importer = ImportJson(instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/')
+            importer = ImportJson(instance=instance)
             self.stderr.write("TRYING %s\n" % path)
             #limit to 2 speeches per section to avoid duplicating speeches
             #added prior to the addition of the answer sayit_section field

@@ -154,11 +154,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'django_nose',
+    # Although it's not actually used any more, we still need popit-django
+    # in the requirements so that the older migrations work.
+    'popit',
     'za_hansard',
     'speeches',
     'instances',
-    'popit',
-    'popit_resolver',
+    'popolo',
+    'popolo_name_resolver',
     'haystack',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
@@ -215,8 +218,7 @@ LOGGING = {
     },
 }
 
-
-# Haystack config, needed by popit-resolver
+# Haystack config, needed by popolo-name-resolver
 SEARCH_INDEX_NAME = DATABASES['default']['NAME']
 if 'test' in sys.argv:
     SEARCH_INDEX_NAME += '_test'
@@ -227,5 +229,3 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': SEARCH_INDEX_NAME,
     },
 }
-
-POPIT_API_URL = config.get('POPIT_API_URL')

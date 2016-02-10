@@ -5,37 +5,28 @@ from django.core.management import call_command
 from django.utils.unittest import skip
 
 from instances.tests import InstanceTestCase
-from popit.models import ApiInstance
-from popit_resolver.resolve import SetupEntities, ResolvePopitName, EntityName
+from popolo_name_resolver.resolve import (
+    EntityName, ResolvePopoloName, recreate_entities
+)
 
 from za_hansard.importers.import_json import ImportJson
 
-popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/'
 
 class ImportJsonTests(InstanceTestCase):
 
     @classmethod
     def setUpClass(cls):
         cls._in_fixtures = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test_inputs', 'committee')
-
-        call_command('clear_index', interactive=False, verbosity=0)
-
-        if not EntityName.objects.count():
-            return
-            # XXX: disabled, because calling remote APIs during unittests
-            # is a bad idea: it makes them non-repeatable and slow
-            SetupEntities(popit_url).init_popit_data()
-            call_command('update_index', verbosity=0)
+        call_command('update_index', interactive=False, verbosity=0)
+        recreate_entities()
 
     @classmethod
     def tearDownClass(cls):
         EntityName.objects.all().delete()
-        ApiInstance.objects.all().delete()
-        call_command('clear_index', interactive=False, verbosity=0)
 
     @skip("Relies on external API")
     def test_resolve(self):
-        resolver = ResolvePopitName(date=date(2013, 06, 21))
+        resolver = ResolvePopoloName(date=date(2013, 06, 21))
         person = resolver.get_person('Mrs A Steyn', None)
         self.assertTrue(person)
 
@@ -80,7 +71,7 @@ class ImportJsonTests(InstanceTestCase):
         for expected in expecteds:
             document_path = os.path.join(self._in_fixtures, expected["filename"])
 
-            aj = ImportJson(instance=self.instance, category_field="title", popit_url=popit_url, commit=True)
+            aj = ImportJson(instance=self.instance, category_field="title", commit=True)
             section = aj.import_document(document_path)
 
             sections.append(section)

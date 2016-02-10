@@ -613,14 +613,13 @@ class Command(BaseCommand):
                 importer = ImportJson(
                     instance=sayit_instance,
                     delete_existing=options['delete_existing'],
-                    popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',
                     commit=options['commit'],
-                    popit_id_blacklist=(
-                        'core_person:3739',
-                        'core_person:4555',
-                        'core_person:5421',
-                        'core_person:8277',
-                        ),
+                    pombola_id_blacklist=(
+                        '3739',
+                        '4555',
+                        '5421',
+                        '8277',
+                    )
                 )
                 try:
                     message = "Importing {0} ({1})\n"

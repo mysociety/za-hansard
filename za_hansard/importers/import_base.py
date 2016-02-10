@@ -1,26 +1,43 @@
 import logging
 
-from popit_resolver.resolve import ResolvePopitName
+from django.core.exceptions import ObjectDoesNotExist
 
-from popit.models import ApiInstance
+from popolo_name_resolver.resolve import ResolvePopoloName
 from speeches.models import Speaker
 
 logger = logging.getLogger(__name__)
 
+
+class AllowedPersonFilter(object):
+
+    def __init__(self, pombola_id_blacklist):
+        self.pombola_id_blacklist = set(pombola_id_blacklist or ())
+
+    def is_person_allowed(self, person):
+        try:
+            pombola_person = person.speaker.pombola_link.pombola_person
+        except ObjectDoesNotExist:
+            # If there's no corresponding Pombola person, allow the
+            # speaker anyway - there may be an existing
+            # non-Pombola-associated person for this name.
+            return True
+        pombola_person_id = pombola_person.id
+        return pombola_person_id not in self.pombola_id_blacklist
+
+
 class ImportZAMixin(object):
-    def __init__(self, instance=None, commit=True, popit_url=None, popit_id_blacklist=None, **kwargs):
+    def __init__(self, instance=None, commit=True, pombola_id_blacklist=None, **kwargs):
         self.instance = instance
         self.commit = commit
-        self.ai, _ = ApiInstance.objects.get_or_create(url=popit_url)
         self.person_cache = {}
-        self.popit_id_blacklist = set(popit_id_blacklist or ())
-        # Make sure that there are no speakers associated with
-        # blacklisted PopIt IDs:
-        Speaker.objects.filter(person__popit_id__in=self.popit_id_blacklist) \
-            .update(person=None)
+        self.pombola_id_blacklist = pombola_id_blacklist
 
     def set_resolver_for_date(self, date_string='', date=None):
-        self.resolver = ResolvePopitName(date=date, date_string=date_string)
+        self.resolver = ResolvePopoloName(
+            date=date,
+            date_string=date_string,
+            person_filter=AllowedPersonFilter(self.pombola_id_blacklist),
+        )
 
     def get_person(self, name, party):
         cached = self.person_cache.get(name, None)
@@ -30,34 +47,18 @@ class ImportZAMixin(object):
         display_name = name or '(narrative)'
 
         speaker = None
-        popit_person = None
+        person = None
 
         if name:
-            popit_person = self.resolver.get_person(display_name, party)
-            if popit_person:
-                if popit_person.popit_id in self.popit_id_blacklist:
-                    message = u" - Ignoring blacklisted popit_id {0}"
-                    logger.info(message.format(popit_person.popit_id))
-                    return None
-                try:
-                    speaker = Speaker.objects.get(
-                        instance = self.instance,
-                        person = popit_person)
-                except Speaker.DoesNotExist:
-                    pass
-            else:
-                logger.info(" - Failed to get user %s" % display_name)
+            person = self.resolver.get_person(display_name, party)
+            if person:
+                speaker = person.speaker
 
         if not speaker:
             try:
                 speaker = Speaker.objects.get(instance=self.instance, name=display_name)
             except Speaker.DoesNotExist:
                 speaker = Speaker(instance=self.instance, name=display_name)
-                if self.commit:
-                    speaker.save()
-
-            if popit_person:
-                speaker.person = popit_person
                 if self.commit:
                     speaker.save()
 

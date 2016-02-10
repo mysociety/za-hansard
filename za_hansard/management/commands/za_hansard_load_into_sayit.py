@@ -7,7 +7,6 @@ import sys
 from za_hansard.importers.import_za_akomantoso import ImportZAAkomaNtoso
 from speeches.models import Section, Tag, Speech
 from za_hansard.models import Source
-from popit.models import ApiInstance
 from instances.models import Instance
 
 from django.conf import settings
@@ -75,7 +74,6 @@ class Command(BaseCommand):
                 continue
 
             importer = ImportZAAkomaNtoso( instance=instance,
-                popit_url='http://za-new-import.popit.mysociety.org/api/v0.1/',
                 section_parent_titles=s.section_parent_titles)
             try:
                 self.stdout.write("TRYING %s\n" % path)

@@ -14,8 +14,7 @@ from za_hansard.models import Source
 from za_hansard.parse import ZAHansardParser
 from lxml import etree
 
-import itertools
-import sys, os
+import os
 
 class ZAHansardParsingTests(TestCase):
 

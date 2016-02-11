@@ -27,8 +27,11 @@ class AllowedPersonFilter(object):
 
 class ImportZAMixin(object):
     def __init__(self, instance=None, commit=True, pombola_id_blacklist=None, **kwargs):
-        self.instance = instance
-        self.commit = commit
+        super(ImportZAMixin, self).__init__(
+            instance=instance,
+            commit=commit,
+            **kwargs
+        )
         self.person_cache = {}
         self.pombola_id_blacklist = pombola_id_blacklist
 

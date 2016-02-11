@@ -16,7 +16,7 @@ def title_case_heading(heading):
     titled = titled.replace("'S", "'s").replace("’S", "’s")
     return titled
 
-class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
+class ImportZAAkomaNtoso(ImportZAMixin, ImportAkomaNtoso):
     def __init__(self, section_parent_headings=[], **kwargs):
         self.section_parent_headings = section_parent_headings
         super(ImportZAAkomaNtoso, self).__init__(**kwargs)

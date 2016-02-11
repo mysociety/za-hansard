@@ -35,6 +35,8 @@ class ImportZAAkomaNtoso(ImportZAMixin, ImportAkomaNtoso):
         """We know we only have one top level section, which we want to
         deal with differently, so do that here"""
 
+        self.imported_section_ids = set()
+
         debate = self.xml.debate
         preface = debate.preface
         debateBody = debate.debateBody
@@ -54,6 +56,7 @@ class ImportZAAkomaNtoso(ImportZAMixin, ImportAkomaNtoso):
         self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
 
         self.visit(mainSection, section)
+        self.imported_section_ids.add(section.id)
         return section
 
     def name_display(self, name):

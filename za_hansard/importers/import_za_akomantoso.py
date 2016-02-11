@@ -17,8 +17,8 @@ def title_case_heading(heading):
     return titled
 
 class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
-    def __init__(self, section_parent_titles=[], **kwargs):
-        self.section_parent_titles = section_parent_titles
+    def __init__(self, section_parent_headings=[], **kwargs):
+        self.section_parent_headings = section_parent_headings
         super(ImportZAAkomaNtoso, self).__init__(**kwargs)
 
     def construct_title(self, node):
@@ -45,9 +45,9 @@ class ImportZAAkomaNtoso (ImportZAMixin, ImportAkomaNtoso):
                 etree.tostring(preface.p, method='text'))
 
         # Get or create the sections above the one we just created and put it in there
-        parent = Section.objects.get_or_create_with_parents(instance=self.instance, titles=self.section_parent_titles)
+        parent = Section.objects.get_or_create_with_parents(instance=self.instance, headings=self.section_parent_headings)
 
-        section = self.make(Section, title=self.title, parent=parent)
+        section = self.make(Section, heading=self.title, parent=parent)
 
         start_date = preface.p.docDate.get('date')
         self.set_resolver_for_date(date_string = start_date)

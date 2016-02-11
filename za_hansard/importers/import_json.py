@@ -51,13 +51,13 @@ class ImportJson (ImportZAMixin, ImporterBase):
 
         report_url = data.get('report_url', '')
 
-        # Create parents as needed using parent_section_titles
-        parent_section_titles = data.get('parent_section_titles', [])
-        parent_section_titles.append(self.title)
+        # Create parents as needed using parent_section_headings
+        parent_section_headings = data.get('parent_section_titles', [])
+        parent_section_headings.append(self.title)
         if self.commit:
             section = Section.objects.get_or_create_with_parents(
                 instance=self.instance,
-                titles=parent_section_titles
+                headings=parent_section_headings
             )
 
         if self.delete_existing and self.commit:
@@ -91,7 +91,7 @@ class ImportJson (ImportZAMixin, ImporterBase):
                     public = speeches_public,
 
                     location = s.get('location', ''),
-                    title    = s.get('title', ''),
+                    heading  = s.get('title', ''),
                     event    = s.get('event', ''),
                     source_url = s.get('source_url', report_url),
 

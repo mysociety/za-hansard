@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = 'Restructure the hansard section hierarchy'
 
     mapping = (
-        # Section title, tag name
+        # Section heading, tag name
         ('Hansard', 'hansard'),
         ('Committee Minutes', 'committee'),
         ('Questions', 'question'),
@@ -24,13 +24,13 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        for section_title, tag_name in self.mapping:
+        for section_heading, tag_name in self.mapping:
 
             # Get the top level section with the matching name
             try:
-                section = Section.objects.get(title=section_title, parent=None)
+                section = Section.objects.get(heading=section_heading, parent=None)
             except Section.DoesNotExist:
-                sys.stderr.write("Can't find top level section '%s'\n" % section_title )
+                sys.stderr.write("Can't find top level section '%s'\n" % section_heading )
                 continue
 
             # Get or create the tag

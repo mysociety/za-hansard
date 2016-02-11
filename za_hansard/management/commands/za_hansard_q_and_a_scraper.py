@@ -555,7 +555,7 @@ class Command(BaseCommand):
                 if options['commit']:
                     new_section = Section.objects.get_or_create_with_parents(
                         instance=instance,
-                        titles=[
+                        headings=[
                             u'Questions',
                             u'Questions asked to the ' + new_minister,
                         ])

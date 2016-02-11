@@ -26,7 +26,7 @@ class Command(BaseCommand):
             print section
 
             # create the parents
-            parent = Section.objects.get_or_create_with_parents(instance=section.instance, titles=source.section_parent_titles)
+            parent = Section.objects.get_or_create_with_parents(instance=section.instance, headings=source.section_parent_headings)
 
             # assign to the new section
             section.parent = parent

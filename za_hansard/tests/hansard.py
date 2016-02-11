@@ -166,9 +166,9 @@ class ZAHansardSayitLoadingTests(TestCase):
             last_processing_success = datetime(2013, 10, 15, 23, 0, 0, tzinfo=pytz.utc),
         )
 
-    def test_source_section_parent_titles(self):
+    def test_source_section_parent_headings(self):
         self.assertEqual(
-            self.source.section_parent_titles,
+            self.source.section_parent_headings,
             [
                 "Hansard",
                 "2013",
@@ -189,7 +189,7 @@ class ZAHansardSayitLoadingTests(TestCase):
         # Test section created as expected
         sayit_section = source.sayit_section
         self.assertTrue(sayit_section)
-        self.assertEqual(sayit_section.parent.title, "08") # Hansards -> 2013 -> 05 -> *08* -> sayit_section
+        self.assertEqual(sayit_section.parent.heading, "08") # Hansards -> 2013 -> 05 -> *08* -> sayit_section
 
         # Test that speeches are tagged
         speech = sayit_section.descendant_speeches().all()[0]

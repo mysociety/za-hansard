@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 continue
 
             importer = ImportZAAkomaNtoso( instance=instance,
-                section_parent_titles=s.section_parent_titles)
+                section_parent_headings=s.section_parent_headings)
             try:
                 self.stdout.write("TRYING %s\n" % path)
                 section = importer.import_document(path)

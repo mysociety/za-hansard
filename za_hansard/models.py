@@ -146,7 +146,7 @@ class Source(models.Model):
         return cache_file_path
 
     @property
-    def section_parent_titles(self):
+    def section_parent_headings(self):
         return [
             "Hansard",
             str(self.date.year),

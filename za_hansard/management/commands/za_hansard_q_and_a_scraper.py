@@ -31,6 +31,8 @@ from django.contrib.contenttypes.models import ContentType
 # separated. This is the start of that process.
 from ... import question_scraper
 
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4'
+
 def strip_dict(d):
     """
     Return a new dictionary, like d, but with any string value stripped
@@ -254,7 +256,13 @@ class Command(BaseCommand):
                 self.stdout.write('.')
 
                 try:
-                    download = urllib2.urlopen(row.url)
+                    request = urllib2.Request(
+                        row.url,
+                        headers={
+                            'User-Agent': USER_AGENT
+                        }
+                    )
+                    download = urllib2.urlopen(request)
 
                     with open(filename, 'wb') as save:
                         save.write(download.read())

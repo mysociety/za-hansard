@@ -8,6 +8,9 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from speeches.models import Section
 
+HTTPLIB2_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4'
+}
 
 # check that the cache is setup and the directory exists
 for setting_name in ('HANSARD_CACHE',
@@ -118,7 +121,7 @@ class Source(models.Model):
         def request_url(url):
             if debug:
                 print >> sys.stderr, 'Requesting %s' % url
-            (response, content) = h.request(url)
+            (response, content) = h.request(url, headers=HTTPLIB2_HEADERS)
             if response.status != 200:
                 raise SourceUrlCouldNotBeRetrieved("status code: %s, url: %s" % (response.status, self.url) )
             self.is404 = False

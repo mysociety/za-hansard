@@ -69,8 +69,10 @@ class Command(BaseCommand):
             url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119&DocumentStart=%d' % (start or 0)
             self.stdout.write("Retrieving %s\n" % url)
             h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
-            response, content = h.request(url)
-            assert response.status == 200
+            response, content = h.request(url, headers=HTTPLIB2_HEADERS)
+            if response.status != 200:
+                msg = "Status code was {0} when fetching {1}"
+                raise Exception(msg.format(response.status, url))
             self.stdout.write("OK\n")
             # content = open('test.html').read()
 

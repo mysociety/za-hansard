@@ -267,18 +267,18 @@ class Command(BaseCommand):
                     with open(filename, 'wb') as save:
                         save.write(download.read())
 
-                except urllib2.HTTPError:
+                except urllib2.HTTPError as e:
                     row.processed_code = Answer.PROCESSED_HTTP_ERROR
                     row.save()
-                    self.stderr.write('ERROR HTTPError while processing %d\n' % row.id)
+                    self.stderr.write('ERROR HTTPError while processing %d (%s)\n' % (row.id, e))
                     continue
 
-                except urllib2.URLError:
-                    self.stderr.write('ERROR URLError while processing %d\n' % row.id)
+                except urllib2.URLError as e:
+                    self.stderr.write('ERROR URLError while processing %d (%s)\n' % (row.id, e))
                     continue
 
-                except httplib.BadStatusLine:
-                    self.stderr.write('ERROR BadStatusLine while processing %d\n' % row.id)
+                except httplib.BadStatusLine as e:
+                    self.stderr.write('ERROR BadStatusLine while processing %d (%s)\n' % (row.id, e))
                     continue
 
             try:

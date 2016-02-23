@@ -152,7 +152,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'south',
     'django_nose',
     # Although it's not actually used any more, we still need popit-django
     # in the requirements so that the older migrations work.

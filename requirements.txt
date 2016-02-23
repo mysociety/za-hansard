@@ -1,5 +1,4 @@
 # Packages required for Django:
-South==1.0.1
 django==1.7.11
 psycopg2==2.5.4
 

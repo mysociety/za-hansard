@@ -43,10 +43,6 @@ mysociety-django-popolo==0.0.2
 # good choice.  So tell it what version to install explicitly.
 django-model-utils==2.3.1
 
-# Although it's not actually used any more, we still need popit-django
-# in the requirements so that the older migrations work.
--e git+git://github.com/mysociety/popit-django@a11ef97919f2ae35ef1ef1e2a3f0553ad1ba1e6d#egg=popit-django
-
 # Selenium isn't actually used by the za-hansard tests, but
 # we import create_sections from the SayIt test helpers, and
 # that module has an import from Selenium.

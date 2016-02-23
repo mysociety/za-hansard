@@ -153,9 +153,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_nose',
-    # Although it's not actually used any more, we still need popit-django
-    # in the requirements so that the older migrations work.
-    'popit',
     'za_hansard',
     'speeches',
     'instances',

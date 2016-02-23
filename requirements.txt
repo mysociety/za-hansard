@@ -33,7 +33,7 @@ django-haystack==2.3.1
 django-subdomain-instances==0.1
 -e git+git://github.com/mysociety/sayit.git@b9b5d803178303b2aa3feadcc912766cf4a25673#egg=django-sayit
 mysociety-django-popolo==0.0.2
--e git+git://github.com/mysociety/popolo-name-resolver@d733d98e0e950cbc8e6f9fb32d3d13e0f7a7d6c3#egg=popolo-name-resolver
+-e git+git://github.com/mysociety/popolo-name-resolver@f20646ae0d8ccbc719e19c9ed070827be0efb1b1#egg=popolo-name-resolver
 
 # It seems that pip's dependency handling isn't smart enough to
 # figure out from mysociety-django-popolo requiring

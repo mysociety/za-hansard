@@ -188,8 +188,8 @@ class PMGCommitteeReport(models.Model):
     """
     Committe reports, scraped from PMG site
     """
-    premium         = models.BooleanField()
-    processed       = models.BooleanField()
+    premium         = models.BooleanField(default=None)
+    processed       = models.BooleanField(default=None)
     meeting_url     = models.TextField()
     meeting_name = models.TextField(blank=True, null=True)
     committee_url = models.URLField(blank=True, null=True)
@@ -414,7 +414,7 @@ class Question(models.Model):
 
     # Is the question a translation of one originally asked in another language.
     # Currently we are only storing questions in English.
-    translated = models.BooleanField()
+    translated = models.BooleanField(default=None)
 
     # oral/written number, asker and askee as as string, for example:
     # '144. Mr D B Feldman (COPE-Gauteng) to ask the Minister of Defence and Military Veterans:'

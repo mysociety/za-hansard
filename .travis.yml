@@ -12,7 +12,7 @@ install:
 
 before_script:
   - psql -c 'create database "za-hansard";' -U postgres
-  - ./manage.py syncdb --noinput --migrate
+  - ./manage.py migrate --noinput
   -  pdftohtml -v || true
 
 script:

@@ -9,6 +9,8 @@ from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
+from instances.models import Instance
+
 from za_hansard.models import Source
 
 from za_hansard.parse import ZAHansardParser
@@ -151,6 +153,8 @@ class ZAHansardSayitLoadingTests(TestCase):
     test_hansard_cache_dir = os.path.join(tests_dir, 'test_inputs','hansard')
 
     def setUp(self):
+        Instance.objects.get_or_create(label='default')
+
         # create a source to test with
         self.source = Source.objects.create(
             id                      = 10, # Needed to create the correct path in cache_file_path

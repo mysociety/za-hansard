@@ -46,11 +46,6 @@ class SourceQuerySet(models.query.QuerySet):
         return objects
 
 
-class SourceManager(models.Manager):
-    def get_queryset(self):
-        return SourceQuerySet(self.model)
-
-
 class Source(models.Model):
     """
     Sources of the hansard transcripts
@@ -74,7 +69,7 @@ class Source(models.Model):
     sayit_section = models.ForeignKey(Section, blank=True, null=True, on_delete=models.PROTECT,
         help_text='Associated Sayit section object, if imported')
 
-    objects = SourceManager()
+    objects = SourceQuerySet.as_manager()
 
     class Meta:
         ordering = [ '-date', 'document_name' ]

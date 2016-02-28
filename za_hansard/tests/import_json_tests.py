@@ -17,12 +17,14 @@ class ImportJsonTests(InstanceTestCase):
     @classmethod
     def setUpClass(cls):
         cls._in_fixtures = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test_inputs', 'committee')
+        super(ImportJsonTests, cls).setUpClass()
         call_command('update_index', interactive=False, verbosity=0)
         recreate_entities()
 
     @classmethod
     def tearDownClass(cls):
         EntityName.objects.all().delete()
+        super(ImportJsonTests, cls).tearDownClass()
 
     @skip("Relies on external API")
     def test_resolve(self):

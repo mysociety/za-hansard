@@ -30,6 +30,7 @@ class ZAHansardParsingTests(TestCase):
 
         tests_dir = os.path.dirname(os.path.abspath(__file__))
         cls._in_fixtures = os.path.join(tests_dir, 'test_inputs','hansard')
+        super(ZAHansardParsingTests, cls).setUpClass()
 
         def process(docname):
             filename = os.path.join( cls._in_fixtures, '%s.%s' % (docname, 'doc') )

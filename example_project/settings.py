@@ -186,11 +186,6 @@ LOGGING = {
         }
     },
     'loggers': {
-        'south': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
         'django.request': {
             'handlers': ['console'],
             'level': 'ERROR',

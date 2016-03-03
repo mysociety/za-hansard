@@ -21,11 +21,6 @@ class ImportJsonTests(InstanceTestCase):
         call_command('update_index', interactive=False, verbosity=0)
         recreate_entities()
 
-    @classmethod
-    def tearDownClass(cls):
-        EntityName.objects.all().delete()
-        super(ImportJsonTests, cls).tearDownClass()
-
     @skip("Relies on external API")
     def test_resolve(self):
         resolver = ResolvePopoloName(date=date(2013, 06, 21))

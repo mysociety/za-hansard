@@ -24,11 +24,6 @@ class ImportZAAkomaNtosoTests(InstanceTestCase):
         call_command('update_index', interactive=False, verbosity=0)
         recreate_entities()
 
-    @classmethod
-    def tearDownClass(cls):
-        EntityName.objects.all().delete()
-        super(ImportZAAkomaNtosoTests, cls).tearDownClass()
-
     @skip("Depends on external API data")
     def test_import(self):
         return

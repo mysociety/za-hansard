@@ -31,6 +31,7 @@ class ImportJson (ImportZAMixin, ImporterBase):
     def __init__(self, **kwargs):
         super(ImportJson, self).__init__(**kwargs)
         self.delete_existing = kwargs.get('delete_existing', False)
+        self.do_not_import_duplicate = kwargs.get('do_not_import_duplicate', False)
 
     def import_document(self, document_path, limit=0):
 
@@ -64,6 +65,10 @@ class ImportJson (ImportZAMixin, ImporterBase):
             section.speech_set.all().delete()
 
         for s in data.get( 'speeches', [] ):
+
+            if self.do_not_import_duplicate:
+                if section.speech_set.filter( text = s['text'] ).count():
+                    continue
 
             display_name = s['personname']
             party = s.get('party', '')

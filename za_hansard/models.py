@@ -12,19 +12,20 @@ HTTPLIB2_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4'
 }
 
-# check that the cache is setup and the directory exists
-for setting_name in ('HANSARD_CACHE',
-                     'COMMITTEE_CACHE',
-                     'ANSWER_CACHE',
-                     'QUESTION_CACHE',
-                     'ANSWER_JSON_CACHE',
-                     'QUESTION_JSON_CACHE'):
-    try:
-        directory = os.path.join(getattr(settings, setting_name))
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-    except AttributeError:
-        raise ImproperlyConfigured("Could not find {0} setting - please set it".format(setting_name))
+if 'ON_HEROKU' not in os.environ:
+    # check that the cache is setup and the directory exists
+    for setting_name in ('HANSARD_CACHE',
+                         'COMMITTEE_CACHE',
+                         'ANSWER_CACHE',
+                         'QUESTION_CACHE',
+                         'ANSWER_JSON_CACHE',
+                         'QUESTION_JSON_CACHE'):
+        try:
+            directory = os.path.join(getattr(settings, setting_name))
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+        except AttributeError:
+            raise ImproperlyConfigured("Could not find {0} setting - please set it".format(setting_name))
 
 # EXCEPTIONS
 

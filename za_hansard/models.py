@@ -268,6 +268,12 @@ class Answer (models.Model):
         help_text='Associated Sayit section object, if imported',
         )
 
+    # For answer that we fetch from the PMG API, we should store the
+    # API URL; we also set it if we discover that an answer originally
+    # from the original scraper is (should be!) the same as one from
+    # the PMG API.
+    pmg_api_url = models.URLField(max_length=1000, blank=True, null=True)
+
     class Meta:
         unique_together = (
             ('oral_number', 'house', 'year'),
@@ -427,13 +433,20 @@ class Question(models.Model):
         help_text='Associated Sayit section object, if imported',
         )
 
+    # For questions that we fetch from the PMG API, we should store
+    # the API URL and the speaker's People's Aseembly URL:
+    pmg_api_url = models.URLField(max_length=1000, blank=True, null=True)
+    pmg_api_member_pa_url = models.URLField(
+        max_length=1000, blank=True, null=True)
+    pmg_api_source_file_url = models.URLField(
+        max_length=1000, blank=True, null=True)
+
     class Meta:
         unique_together = (
             ('written_number', 'house', 'year'),
             ('oral_number', 'house', 'year'),
             ('president_number', 'house', 'year'),
             ('dp_number', 'house', 'year'),
-            ('id_number', 'house', 'year'),
             )
         # index_together(
         #     ('written_number', 'house', 'year'),

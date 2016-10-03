@@ -60,6 +60,22 @@ def all_from_api(start_url):
             yield member
         next_url = data['next']
 
+def get_identifier_for_title(question_or_answer):
+    if question_or_answer.identifier:
+        return str(question_or_answer.identifier)
+    # If there's no correct identifer (as with those from the PMG
+    # API), synthesize one from the written_number (etc.) and the
+    # year:
+    if question_or_answer.written_number:
+        number = 'w' + str(question_or_answer.written_number)
+    elif question_or_answer.oral_number:
+        number = 'o' + str(question_or_answer.oral_number)
+    elif question_or_answer.president_number:
+        number = 'p' + str(question_or_answer.president_number)
+    elif question_or_answer.dp_number:
+        number = 'd' + str(question_or_answer.dp_number)
+    return "{0}-{1}".format(question_or_answer.year, number)
+
 
 class Command(BaseCommand):
 
@@ -602,7 +618,7 @@ class Command(BaseCommand):
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
-                question.identifier,
+                get_identifier_for_title(question),
                 question.date.strftime(u'%d %B %Y'),
                 ),
             u'date': self.format_date_for_json(question.date),
@@ -649,7 +665,7 @@ class Command(BaseCommand):
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
-                question.identifier,
+                get_identifier_for_title(question),
                 question.date.strftime(u'%d %B %Y'),
                 ),
             u'date': self.format_date_for_json(question.date),

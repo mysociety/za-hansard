@@ -241,3 +241,67 @@ class PMGAPITests(TestCase):
         self.assertEqual(answer.written_number, 12345)
         self.assertEqual(answer.date, date(2016, 9, 1))
         self.assertEqual(answer.pmg_api_url, 'http://api.pmg.org.za/example-question/5678/')
+
+    @patch('za_hansard.management.commands.za_hansard_q_and_a_scraper.all_from_api')
+    def test_question_created_if_answer_exists(self, fake_all_from_api):
+        def api_one_question_and_answer(url):
+            if url == 'https://api.pmg.org.za/minister/':
+                yield {
+                    'questions_url': "http://api.pmg.org.za/minister/2/questions/",
+                }
+                return
+            elif url == 'https://api.pmg.org.za/member/':
+                return
+            elif url == 'http://api.pmg.org.za/minister/2/questions/':
+                yield EXAMPLE_QUESTION
+            else:
+                raise Exception("Unfaked URL '{0}'".format(url))
+        fake_all_from_api.side_effect = api_one_question_and_answer
+        # Create an existing answer with the right year and
+        # written_number, but no corresponding existing question.
+        Answer.objects.create(
+            text='For to arrive unto the other side',
+            written_number=12345,
+            date=date(2016, 9, 1),
+            date_published=date(2016,9,6),
+            year=2016,
+            house='N',
+            processed_code=Answer.PROCESSED_OK,
+        )
+        # Run the command:
+        call_command('za_hansard_q_and_a_scraper', scrape_from_pmg=True)
+        # Check that what we expect has been created: one new answer,
+        # but there's still just the existing question:
+        self.assertEqual(Answer.objects.count(), 1)
+        self.assertEqual(Question.objects.count(), 1)
+        answer = Answer.objects.get()
+        question = Question.objects.get()
+        self.assertEqual(question.answer, answer)
+        # It should have the new question text
+        self.assertEqual(
+            question.question,
+            u'Why did the chicken cross the road?')
+        self.assertEqual(question.askedby, 'Groucho Marx')
+        self.assertEqual(question.identifier, '')
+        self.assertEqual(question.year, 2016)
+        self.assertEqual(question.date, date(2016, 9, 6))
+        # These fields of question should be as it would
+        # if this were a new import.:
+        self.assertEqual(question.answer, answer)
+        self.assertEqual(question.written_number, 12345)
+        self.assertEqual(question.oral_number, None)
+        self.assertEqual(question.dp_number, None)
+        self.assertEqual(question.president_number, None)
+        self.assertEqual(question.house, 'N')
+        self.assertEqual(question.answer_type, 'W')
+        self.assertEqual(question.date_transferred, None)
+        self.assertEqual(question.translated, False)
+        self.assertEqual(question.last_sayit_import, None)
+        self.assertEqual(question.pmg_api_url, 'http://api.pmg.org.za/example-question/5678/')
+        self.assertEqual(question.pmg_api_member_pa_url, 'http://www.pa.org.za/person/groucho-marx/')
+        self.assertEqual(question.pmg_api_source_file_url, 'http://example.org/chicken-joke.docx')
+        # Now check that the answer still has some old values:
+        self.assertEqual(answer.text, 'For to arrive unto the other side')
+        self.assertEqual(answer.written_number, 12345)
+        self.assertEqual(answer.date, date(2016, 9, 1))
+        self.assertEqual(answer.pmg_api_url, 'http://api.pmg.org.za/example-question/5678/')

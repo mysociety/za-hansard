@@ -42,6 +42,20 @@ class ImportZAMixin(object):
             person_filter=AllowedPersonFilter(self.pombola_id_blacklist),
         )
 
+    def debug_output_csv_row(self, pombola_person_slug, from_cache, our_speaker, speaker_from_slug):
+        '''A method to help produce data for analyzing name resolution results'''
+        import csv
+        with open('name-resolution.log', 'ab') as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                str(self.resolver.date),
+                '' if pombola_person_slug is None else pombola_person_slug,
+                our_speaker.id if our_speaker else '',
+                our_speaker.name.encode('utf-8') if our_speaker else '',
+                speaker_from_slug.id if speaker_from_slug else '',
+                speaker_from_slug.name.encode('utf-8') if speaker_from_slug else '',
+            ])
+
     def get_person(self, name, party):
         cached = self.person_cache.get(name, None)
         if cached:

@@ -56,7 +56,20 @@ class ImportZAMixin(object):
                 speaker_from_slug.name.encode('utf-8') if speaker_from_slug else '',
             ])
 
-    def get_person(self, name, party):
+    def get_person(self, name, party, pombola_person_slug=None):
+
+        # If we can directly find the person from the
+        # pombola_person_slug, use that - the Code4SA / PMG
+        # identification of speakers seems to be better than that from
+        # popolo_name_resolver.
+        speaker_from_slug = None
+        if pombola_person_slug is not None:
+            speaker_from_slug = Speaker.objects.filter(
+                identifiers__scheme='pombola_person_slug',
+                identifiers__identifier=pombola_person_slug).first()
+            if speaker_from_slug:
+                return speaker_from_slug
+
         cached = self.person_cache.get(name, None)
         if cached:
             return cached

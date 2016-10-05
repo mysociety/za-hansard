@@ -1,5 +1,7 @@
 from datetime import datetime
 import json
+import re
+from urlparse import urlsplit
 
 from za_hansard.importers.import_base import ImportZAMixin
 from speeches.importers.import_base import ImporterBase
@@ -61,6 +63,18 @@ class ImportJson (ImportZAMixin, ImporterBase):
                 headings=parent_section_headings
             )
 
+        # If we have the Pombola URL of the person in the document
+        # (e.g. from the Code4SA / PMG API, then extract the person's
+        # slug so that it can be used to identify the person).
+        pombola_person_slug = None
+        pa_url = data.get('pmg_api_member_pa_url')
+        if pa_url:
+            path = urlsplit(pa_url).path
+            m = re.search(r'^/person/(.*?)/', path)
+            if not m:
+                raise Exception("Failed to parse the URL: {0}".format(pa_url))
+            pombola_person_slug = m.group(1)
+
         if self.delete_existing and self.commit:
             section.speech_set.all().delete()
 
@@ -73,7 +87,7 @@ class ImportJson (ImportZAMixin, ImporterBase):
             display_name = s['personname']
             party = s.get('party', '')
 
-            speaker = self.get_person( display_name, party )
+            speaker = self.get_person(display_name, party, pombola_person_slug)
 
             if party:
                 display_name += ' (%s)' % party

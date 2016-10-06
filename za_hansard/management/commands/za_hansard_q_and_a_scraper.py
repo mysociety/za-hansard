@@ -16,8 +16,11 @@ from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.db.models import Q
 from django.core.exceptions import MultipleObjectsReturned
+
+import requests
 
 from za_hansard.models import Question, Answer, QuestionPaper
 from za_hansard.importers.import_json import ImportJson
@@ -33,6 +36,8 @@ from ... import question_scraper
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4'
 
+CODE_RE_STRING = r'R?(?P<house>[NC])(?P<answer_type>[WO])(?P<id_number>\d+)(?P<lang>[AEX])?'
+
 def strip_dict(d):
     """
     Return a new dictionary, like d, but with any string value stripped
@@ -45,6 +50,32 @@ def strip_dict(d):
     [('a', 'foo'), ('b', 3), ('c', 'bar')]
     """
     return dict((k, v.strip() if 'strip' in dir(v) else v) for k, v in d.items())
+
+def all_from_api(start_url):
+    next_url = start_url
+    while next_url:
+        r = requests.get(next_url)
+        data = r.json()
+        for member in data['results']:
+            yield member
+        next_url = data['next']
+
+def get_identifier_for_title(question_or_answer):
+    if question_or_answer.identifier:
+        return str(question_or_answer.identifier)
+    # If there's no correct identifer (as with those from the PMG
+    # API), synthesize one from the written_number (etc.) and the
+    # year:
+    if question_or_answer.written_number:
+        number = 'w' + str(question_or_answer.written_number)
+    elif question_or_answer.oral_number:
+        number = 'o' + str(question_or_answer.oral_number)
+    elif question_or_answer.president_number:
+        number = 'p' + str(question_or_answer.president_number)
+    elif question_or_answer.dp_number:
+        number = 'd' + str(question_or_answer.dp_number)
+    return "{0}-{1}".format(question_or_answer.year, number)
+
 
 class Command(BaseCommand):
 
@@ -59,6 +90,11 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help='Scrape answers (step 2)',
+        ),
+        make_option('--scrape-from-pmg',
+            default=False,
+            action='store_true',
+            help='Scrape questions and answers from PMG (step 2.5)',
         ),
         make_option('--process-answers',
             default=False,
@@ -123,6 +159,8 @@ class Command(BaseCommand):
         elif options['scrape_answers']:
             self.scrape_answers(self.art_url_a_na, *args, **options)
             self.scrape_answers(self.start_url_a_ncop, *args, **options)
+        elif options['scrape_from_pmg']:
+            self.get_qa_from_pmg_api(*args, **options)
         elif options['process_answers']:
             self.process_answers(*args, **options)
         elif options['match_answers']:
@@ -135,6 +173,7 @@ class Command(BaseCommand):
             self.scrape_questions(*args, **options)
             self.scrape_answers(self.start_url_a_na, *args, **options)
             self.scrape_answers(self.start_url_a_ncop, *args, **options)
+            self.get_qa_from_pmg_api(*args, **options)
             self.process_answers(*args, **options)
             self.match_answers(*args, **options)
             self.qa_to_json(*args, **options)
@@ -239,6 +278,175 @@ class Command(BaseCommand):
             if options['limit'] and count >= options['limit']:
                 break
 
+    def handle_api_question_and_reply(self, data):
+        if 'source_file' not in data:
+            print "Skipping {0} due to a missing source_file".format(data['url'])
+            return
+        house = {
+            'National Assembly': 'N'
+        }[data['house']['name']]
+        answer_type = {
+            'written': 'W'
+        }[data['answer_type']]
+        askedby_name = ''
+        askedby_pa_url = ''
+        if 'asked_by_member' in data:
+            askedby_name = data['asked_by_member']['name']
+            if 'pa_url' in data['asked_by_member']:
+                askedby_pa_url = data['asked_by_member']['pa_url']
+        question_text = data['question']
+        # 'code' is one of those like: "NW3847", but in the Code4SA /
+        # PMG API data that's just composed (say) of 'NW' + the
+        # written_number; they don't match with the NW codes that
+        # questions already have in our data. So we can't use the
+        # 'code' field for checking if the question already exists, so
+        # try to identify a unique question by the number + year +
+        # house. (The numbers reset each year.)
+        year = data['date'][:4]
+        # Add whatever number there is to the query:
+        number_q_kwargs = {}
+        number_found = False
+        for filter_key, api_key in (
+                ('written_number', 'written_number'),
+                ('oral_number', 'oral_number'),
+                ('president_number', 'president_number'),
+                ('dp_number', 'deputy_president_number'),
+        ):
+            if data[api_key]:
+                number_found = True
+                number_q_kwargs[filter_key] = data[api_key]
+        existing_kwargs = {'date__year': year, 'house': house}
+        existing_kwargs.update(number_q_kwargs)
+        if not number_found:
+            # We won't be able to accurately tell whether a question
+            # already exists if we don't have one of these number, so
+            # ignore the question and answer completely in that
+            # case. (This is a rare occurence.)
+            print "Skipping {0} because no number was found".format(data['url'])
+            return
+        try:
+            print "Found the existing question for", data['url']
+            question = Question.objects.get(**existing_kwargs)
+            # It might well be useful to add the corresponding PMG API
+            # URL details (e.g. using their PA link to get the PA person)
+            question.pmg_api_url = data['url']
+            question.pmg_api_member_pa_url = askedby_pa_url
+            question.pmg_api_source_file_url = data['source_file']['url']
+            question.save()
+        except Question.DoesNotExist:
+            print "No existing question found; creating a new one for", data['url']
+            # In which case, create it:
+            question = Question.objects.create(
+                # FIXME: I think this is actually the date of the
+                # answer, not the date of the question.
+                date=data['date'],
+                # paper_id= <-- FIXME: not sure what this is
+                question=question_text,
+                questionto=data['question_to_name'],
+                # The 'identifier' is the NW code; the Code4SA API
+                # doesn't have this (the one under 'code' isn't
+                # right).  The 'id_number' field is the number
+                # extracted from 'identifier', so we don't have that
+                # either. These fields are NOT NULL, however, so we
+                # have to set them to something:
+                identifier='',
+                id_number=-1,
+                intro=data['intro'],
+                askedby=askedby_name,
+                house=house,
+                answer_type=answer_type,
+                year=year,
+                # date_transferred doesn't seem to be in API data
+                translated=data['translated'],
+                written_number=data['written_number'],
+                oral_number=data['oral_number'],
+                president_number=data['president_number'],
+                dp_number=data['deputy_president_number'],
+                pmg_api_url=data['url'],
+                pmg_api_member_pa_url=askedby_pa_url,
+                pmg_api_source_file_url=data['source_file']['url'],
+            )
+        # If there's already an answer, assume it's OK, except record
+        # the PMG API URL if it hasn't got one:
+        if question.answer:
+            print "  That question already had an answer, updating it with API links"
+            answer = question.answer
+            existing_answer_pmg_api_url = answer.pmg_api_url
+            if existing_answer_pmg_api_url:
+                if existing_answer_pmg_api_url != data['url']:
+                    msg = "An existing answer's pmg_api_url conflicted "
+                    msg += "with another one from the API. In the database, "
+                    msg += "the question ID was {0}, the answer ID was {1}, "
+                    msg += "and the PMG API URL was {2}. The new PMG API URL "
+                    msg += "was {3}.  Check that in this case they're the same "
+                    msg += "question and answer, but with two API URLs and "
+                    msg += "different dates and source files"
+                    print msg.format(
+                        question.id,
+                        answer.id,
+                        existing_answer_pmg_api_url,
+                        data['url'])
+            else:
+                answer.pmg_api_url = data['url']
+                answer.save()
+            return
+        # Also check whether there's an answer that already exists for
+        # that number, house and year, but which hasn't been
+        # associated with a question. If that's the case, don't try to
+        # create the answer (the uniqueness constraint will fail
+        # anyway).  If so, then associate it with the question that we
+        # will just have created (or already existed).
+        existing_answer_qs = Answer.objects.filter(**existing_kwargs)
+        if existing_answer_qs.exists():
+            print "  Found an existing answer for that question; linking them"
+            question.answer = existing_answer_qs.get()
+            question.answer.pmg_api_url = data['url']
+            question.answer.save()
+        else:
+            print "  Creating a new answer for that question."
+            # Otherwise create the answer from the API data:
+            document_name, dot_extension = os.path.splitext(
+                data['source_file']['file_path'])
+            answer = Answer.objects.create(
+                document_name=document_name,
+                oral_number=data['oral_number'],
+                written_number=data['written_number'],
+                president_number=data['president_number'],
+                dp_number=data['deputy_president_number'],
+                date=data['date'],
+                year=data['year'],
+                house=house,
+                text=data['answer'],
+                # Mark this as processed since we've already got the text
+                # - the source file doesn't need to be parsed.
+                processed_code=Answer.PROCESSED_OK,
+                # This always seems to be empty in the existing data:
+                name='',
+                # FIXME: check that all the answers from the PMG API are
+                # in English, or whether there should be metadata for
+                # that?
+                language='English',
+                url=data['source_file']['url'],
+                date_published=data['date'],
+                type=dot_extension[1:],
+                pmg_api_url=data['url']
+            )
+            question.answer = answer
+        question.save()
+
+    def get_qa_from_pmg_api(self, *args, **options):
+        # Go through each member and minister looking for questions
+        # URLs.
+        for url in (
+                'https://api.pmg.org.za/minister/',
+                'https://api.pmg.org.za/member/',
+        ):
+            for m in all_from_api(url):
+                questions_url = m['questions_url']
+                for question in all_from_api(questions_url):
+                    with transaction.atomic():
+                        self.handle_api_question_and_reply(question)
+
     def process_answers(self, *args, **options):
         answers = Answer.objects.exclude(url=None)
         unprocessed = answers.exclude(processed_code=Answer.PROCESSED_OK)
@@ -293,8 +501,11 @@ class Command(BaseCommand):
 
 
     def match_answers(self, *args, **options):
-        # FIXME - should change to a subset of all answers.
-        for answer in Answer.objects.all():
+        # Only consider answers that aren't already associated with a
+        # question. (In particular, we have the question / answer
+        # association already for answers that have been fetched from
+        # the PMG API.)
+        for answer in Answer.objects.filter(question__isnull=True):
             written_q = Q(written_number=answer.written_number)
             oral_q = Q(oral_number=answer.oral_number)
 
@@ -389,6 +600,16 @@ class Command(BaseCommand):
         # As of Python 2.7.3, time.strftime can't be trusted to preserve
         # unicodeness, hence the extra calls to unicode.
 
+        parliament_number = ''
+        if question.paper:
+            source_url = question.paper.source_url
+            parliament_number = question.paper.parliament_number
+        elif question.pmg_api_source_file_url:
+            source_url = question.pmg_api_source_file_url
+        else:
+            msg = "No source URL found for question with ID {0}"
+            raise Exception, msg.format(question.id)
+
         question_as_json = {
             u'parent_section_titles': [
                 u'Questions',
@@ -397,7 +618,7 @@ class Command(BaseCommand):
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
-                question.identifier,
+                get_identifier_for_title(question),
                 question.date.strftime(u'%d %B %Y'),
                 ),
             u'date': self.format_date_for_json(question.date),
@@ -408,7 +629,7 @@ class Command(BaseCommand):
                     u'text': question.question,
                     u'tags': [u'question'],
                     u'date': self.format_date_for_json(question.date),
-                    u'source_url': question.paper.source_url,
+                    u'source_url': source_url,
 
                     # unused for import
                     u'type': u'question',
@@ -416,6 +637,7 @@ class Command(BaseCommand):
                     u'translated': question.translated,
                 },
             ],
+            u'pmg_api_member_pa_url': question.pmg_api_member_pa_url,
 
             # random stuff that is NOT used by the JSON import
             u'oral_number': question.oral_number,
@@ -423,13 +645,18 @@ class Command(BaseCommand):
             u'identifier': question.identifier,
             u'askedby': question.askedby,
             u'answer_type': question.answer_type,
-            u'parliament': question.paper.parliament_number,
+            u'parliament': parliament_number,
+            u'pmg_api_url': question.pmg_api_url,
+            u'pmg_api_source_file_url': question.pmg_api_source_file_url,
         }
 
         return question_as_json
 
     def answer_to_json_data(self, question):
         answer = question.answer
+        parliament_number = ''
+        if question.paper:
+            parliament_number = question.paper.parliament_number
         answer_as_json = {
             u'parent_section_titles': [
                 u'Questions',
@@ -438,7 +665,7 @@ class Command(BaseCommand):
             ],
             u'questionto': question.questionto,
             u'title': '{0} - {1}'.format(
-                question.identifier,
+                get_identifier_for_title(question),
                 question.date.strftime(u'%d %B %Y'),
                 ),
             u'date': self.format_date_for_json(question.date),
@@ -464,7 +691,8 @@ class Command(BaseCommand):
             u'identifier': question.identifier,
             u'askedby': question.askedby,
             u'answer_type': question.answer_type,
-            u'parliament': question.paper.parliament_number,
+            u'parliament': parliament_number,
+            u'pmg_api_url': answer.pmg_api_url,
         }
 
         return answer_as_json
@@ -808,4 +1036,3 @@ class Command(BaseCommand):
         minister_title = corrections.get(minister_title, minister_title)
 
         return minister_title
-

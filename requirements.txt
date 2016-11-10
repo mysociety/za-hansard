@@ -46,4 +46,4 @@ django-model-utils==2.3.1
 # Selenium isn't actually used by the za-hansard tests, but
 # we import create_sections from the SayIt test helpers, and
 # that module has an import from Selenium.
-selenium==2.51.1
+selenium>=2.51.1,<3

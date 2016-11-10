@@ -27,7 +27,7 @@ lxml==3.4
 # For some reasons these dependencies aren't being picked up correctly
 # from popit-resolver's requirements.txt, so pin them explicitly here:
 elasticsearch==0.4.5
-django-haystack==2.3.1
+django-haystack==2.4.1
 
 # mySoc modules
 django-subdomain-instances==1.0

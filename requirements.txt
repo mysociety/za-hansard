@@ -22,7 +22,7 @@ httplib2>=0.8
 beautifulsoup4==4.3.2
 parslepy==0.2.0
 requests==2.6.0
-lxml>=3.4
+lxml>=3.4,<=3.6.2
 
 # For some reasons these dependencies aren't being picked up correctly
 # from popit-resolver's requirements.txt, so pin them explicitly here:

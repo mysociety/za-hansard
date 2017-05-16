@@ -321,8 +321,8 @@ class Command(BaseCommand):
             if self.options['commit']:
                 meeting_report.save()
             # Now parse the appearances out of the event body:
-            if not event['body']:
-                self.stdout.write("Skipping an entry with an empty body\n")
+            if not event.get('body'):
+                self.stdout.write("Skipping an entry with an empty or missing body\n")
                 continue
             self.get_appearances(
                 meeting_report,

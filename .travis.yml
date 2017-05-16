@@ -1,11 +1,16 @@
+sudo: false
 language: python
 
 services:
   - elasticsearch
 
+addons:
+  apt:
+    sources:
+      antiword
+      pdftohtml
+
 install:
-  - sudo apt-get update -qq
-  - cat conf/packages | sed -r -e 's,#.*,,' | xargs sudo apt-get install -qq
   - CFLAGS="-O0" pip install -r requirements.txt
   - pip freeze
   - sed -r -e "s,(ZAH_DB_USER:) 'za-hansard',\\1 'postgres'," conf/general.yml-example > conf/general.yml

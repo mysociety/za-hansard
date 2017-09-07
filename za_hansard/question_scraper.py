@@ -106,7 +106,13 @@ class BaseDetailIterator(object):
 
     def url_get(self, url):
         """Super simple method to retrieve url and return content. Intended to be easily mocked in tests"""
-        return requests.get(url).text
+        r = requests.get(url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.RequestException:
+            print "Error while fetching", url
+            raise
+        return r.text
 
 class QuestionDetailIterator(BaseDetailIterator):
 

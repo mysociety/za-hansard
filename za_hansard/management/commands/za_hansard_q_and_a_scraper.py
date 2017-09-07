@@ -55,6 +55,11 @@ def all_from_api(start_url):
     next_url = start_url
     while next_url:
         r = requests.get(next_url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.RequestException:
+            print "Error while fetching", next_url
+            raise
         data = r.json()
         for member in data['results']:
             yield member

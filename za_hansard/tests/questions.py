@@ -75,7 +75,7 @@ class ZAIteratorBaseMixin(object):
             print "Retrieving and caching " + url
             response = requests.get( url )
             with open(full_path, 'w') as write_to:
-                write_to.write(response.text)
+                write_to.write(response.text.encode('utf-8'))
             return response.text
 
     def fetch_details(self, details, number):

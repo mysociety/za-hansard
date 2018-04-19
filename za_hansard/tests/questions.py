@@ -209,6 +209,9 @@ class ZAQuestionParsing(TestCase):
                 )
             actual_xml = qp_parser.get_question_xml_from_pdf(pdfdata)
 
+            print "actual_xml is:", actual_xml
+            print "expected_xml is:", expected_xml
+
             self.assertEqual(actual_xml, expected_xml, "Failed on {0}".format(filename_root))
 
     def test_xml_to_json(self):

@@ -23,7 +23,7 @@ before_script:
   -  pdftohtml -v || true
 
 script:
-  - ./manage.py test
+  - pytest
 
 # report results in IRC
 # notifications:

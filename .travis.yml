@@ -1,5 +1,12 @@
 language: python
 
+addons:
+  postgresql: "9.6"
+  apt:
+    packages:
+    # This is needed so that pg_config works for psycopg2's version detection
+    - postgresql-server-dev-9.6
+
 services:
   - elasticsearch
 

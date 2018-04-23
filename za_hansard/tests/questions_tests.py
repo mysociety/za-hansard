@@ -212,7 +212,7 @@ class ZAQuestionParsing(TestCase):
             print "actual_xml is:", actual_xml
             print "expected_xml is:", expected_xml
 
-            self.assertEqual(actual_xml, expected_xml, "Failed on {0}".format(filename_root))
+            assert actual_xml == expected_xml, "Failed on {0}".format(filename_root)
 
     def test_xml_to_json(self):
         # Would be nice to test the intermediate step of the data written to the database, but that is not as easy to access as the JSON. As a regression test this will work fine though.

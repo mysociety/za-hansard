@@ -81,6 +81,9 @@ def get_identifier_for_title(question_or_answer):
         number = 'd' + str(question_or_answer.dp_number)
     return "{0}-{1}".format(question_or_answer.year, number)
 
+def convert_url_to_https(url):
+    return re.sub(r'^http:', 'https:', url)
+
 
 class Command(BaseCommand):
 
@@ -378,7 +381,7 @@ class Command(BaseCommand):
             answer = question.answer
             existing_answer_pmg_api_url = answer.pmg_api_url
             if existing_answer_pmg_api_url:
-                if existing_answer_pmg_api_url != data['url']:
+                if convert_url_to_https(existing_answer_pmg_api_url) != convert_url_to_https(data['url']):
                     msg = "An existing answer's pmg_api_url conflicted "
                     msg += "with another one from the API. In the database, "
                     msg += "the question ID was {0}, the answer ID was {1}, "

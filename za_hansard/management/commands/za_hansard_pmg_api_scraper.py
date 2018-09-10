@@ -300,7 +300,7 @@ class Command(BaseCommand):
 
     def handle_committee(self, committee):
         self.stdout.write("=======================================\n")
-        self.stdout.write("handling committee: {0}\n".format(committee['name']).encode('utf-8'))
+        self.stdout.write(u"handling committee: {0}\n".format(committee['name']).encode('utf-8'))
         full_committee_results = get_authenticated_json(committee['url'])
 
         if 'events' not in full_committee_results:
@@ -310,7 +310,7 @@ class Command(BaseCommand):
         for i, event in enumerate(full_committee_results['events']):
             if not (self.process_all_meetings or self.specified_meeting(event['id'])):
                 continue
-            self.stdout.write("committee {0}\n".format(committee['name']).encode('utf-8'))
+            self.stdout.write(u"committee {0}\n".format(committee['name']).encode('utf-8'))
             msg = "api_committee_id {0} api_meeting_id {1}\n"
             self.stdout.write(msg.format(committee['id'], event['id']))
             meeting_report = self.get_meeting_report(
@@ -397,11 +397,11 @@ class Command(BaseCommand):
             )
             for name_match in chairperson_name_matches:
                 full_name = format_name_match(name_match)
-                self.stdout.write("  chair => {0}\n".format(full_name).encode('utf-8'))
+                self.stdout.write(u"  chair => {0}\n".format(full_name).encode('utf-8'))
 
         def get_appearance(text, name='', party='', chair=False, **kwargs):
             """Create a new apperance and indicate that on the console"""
-            self.stdout.write("    {0}appearance from {1} ({2})".format(
+            self.stdout.write(u"    {0}appearance from {1} ({2})".format(
                 'chairperson ' if chair else '',
                 name,
                 party,

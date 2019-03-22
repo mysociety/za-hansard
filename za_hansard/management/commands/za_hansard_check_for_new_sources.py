@@ -69,88 +69,83 @@ class Command(BaseCommand):
 
     def retrieve_sources(self, start, options):
 
-        try:
-            url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119&DocumentStart=%d' % (start or 0)
-            self.stdout.write("Retrieving %s\n" % url)
-            h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
-            response, content = h.request(url, headers=HTTPLIB2_HEADERS)
-            if response.status != 200:
-                msg = "Status code was {0} when fetching {1}"
-                raise Exception(msg.format(response.status, url))
-            self.stdout.write("OK\n")
-            # content = open('test.html').read()
+        url = 'http://www.parliament.gov.za/live/content.php?Category_ID=119&DocumentStart=%d' % (start or 0)
+        self.stdout.write("Retrieving %s\n" % url)
+        h = httplib2.Http( settings.HTTPLIB2_CACHE_DIR )
+        response, content = h.request(url, headers=HTTPLIB2_HEADERS)
+        if response.status != 200:
+            msg = "Status code was {0} when fetching {1}"
+            raise Exception(msg.format(response.status, url))
+        self.stdout.write("OK\n")
+        # content = open('test.html').read()
 
-            # parse content
-            soup = BeautifulSoup(
-                content,
-                'xml',
-            )
+        # parse content
+        soup = BeautifulSoup(
+            content,
+            'xml',
+        )
 
-            rx = re.compile(r'Displaying (\d+)  (\d+) of the most recent (\d+)')
+        rx = re.compile(r'Displaying (\d+)  (\d+) of the most recent (\d+)')
 
-            pager = soup.find('td', text=rx)
-            match = rx.search(pager.text)
-            (pstart, pend, ptotal) = [int(p) for p in match.groups()]
+        pager = soup.find('td', text=rx)
+        match = rx.search(pager.text)
+        (pstart, pend, ptotal) = [int(p) for p in match.groups()]
 
-            self.stdout.write( "Processing %d to %d\n" % (pstart, pend) )
+        self.stdout.write( "Processing %d to %d\n" % (pstart, pend) )
 
-            nodes = soup.findAll( 'a', text="View Document" )
-            def scrape(node):
-                url = node['href']
-                table = node.find_parent('table')
-                rx = re.compile(r'>([^:<]*) : ([^<]*)<')
+        nodes = soup.findAll( 'a', text="View Document" )
+        def scrape(node):
+            url = node['href']
+            table = node.find_parent('table')
+            rx = re.compile(r'>([^:<]*) : ([^<]*)<')
 
-                data = {}
-                for match in re.finditer(rx, str(table)):
-                    groups = match.groups()
-                    data[groups[0]] = groups[1]
+            data = {}
+            for match in re.finditer(rx, str(table)):
+                groups = match.groups()
+                data[groups[0]] = groups[1]
 
-                title = ''
-                try:
-                    data['Title'] = table.find('b').text
-                except:
-                    data['Title'] = data.get('Document Summary', '(unknown)')
+            title = ''
+            try:
+                data['Title'] = table.find('b').text
+            except:
+                data['Title'] = data.get('Document Summary', '(unknown)')
 
-                try:
-                    document_date = datetime.datetime.strptime(data['Date Published'], '%d %B %Y').date()
-                except Exception as e:
-                    raise CommandError( "Date could not be parsed\n%s" % str(e) )
-                    # document_date = datetime.date.today()
+            try:
+                document_date = datetime.datetime.strptime(data['Date Published'], '%d %B %Y').date()
+            except Exception as e:
+                raise CommandError( "Date could not be parsed\n%s" % str(e) )
+                # document_date = datetime.date.today()
 
-                #(obj, created) = Source.objects.get_or_create(
-                return {
-                    'document_name':   data['Document Name'],
-                    'document_number': data['Document Number'],
-                    'defaults': {
-                        'url':      url,
-                        'title':    data['Title'],
-                        'language': data.get('Language', 'English'),
-                        'house':    data.get('House', '(unknown)'),
-                        'date':     document_date,
-                    }
+            #(obj, created) = Source.objects.get_or_create(
+            return {
+                'document_name':   data['Document Name'],
+                'document_number': data['Document Number'],
+                'defaults': {
+                    'url':      url,
+                    'title':    data['Title'],
+                    'language': data.get('Language', 'English'),
+                    'house':    data.get('House', '(unknown)'),
+                    'date':     document_date,
                 }
-            scraped = []
-            for node in nodes:
-                s = scrape(node)
-                if Source.objects.filter(
-                    document_name   = s['document_name'],
-                    document_number = s['document_number']).exists():
-                    if not options['check_all']:
-                        print "Reached seen document. Stopping.\n"
-                        return scraped
-                if s['defaults']['date'] < self.historical_limit:
-                    print "Reached historical limit. Stopping.\n"
+            }
+        scraped = []
+        for node in nodes:
+            s = scrape(node)
+            if Source.objects.filter(
+                document_name   = s['document_name'],
+                document_number = s['document_number']).exists():
+                if not options['check_all']:
+                    print "Reached seen document. Stopping.\n"
                     return scraped
+            if s['defaults']['date'] < self.historical_limit:
+                print "Reached historical limit. Stopping.\n"
+                return scraped
 
-                # otherwise
-                scraped.append(s)
+            # otherwise
+            scraped.append(s)
 
-            if pend < (options['limit'] or ptotal):
-                # NB following isn't phrased as a tail call, could rewrite if
-                # that becomes important
-                scraped = scraped + self.retrieve_sources(pend, options)
-            return scraped
-
-        except Exception as e:
-            print >> sys.stderr, "ERROR: %s" % str(e)
-            return []
+        if pend < (options['limit'] or ptotal):
+            # NB following isn't phrased as a tail call, could rewrite if
+            # that becomes important
+            scraped = scraped + self.retrieve_sources(pend, options)
+        return scraped

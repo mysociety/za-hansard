@@ -56,7 +56,7 @@ class Source(models.Model):
 
     title           = models.CharField(max_length=200)
     document_name   = models.CharField(max_length=200) # bah, SHOULD be unique, but apparently isn't
-    document_number = models.IntegerField(unique=True)
+    document_number = models.CharField(unique=True, max_length=200)
     date            = models.DateField()
     url             = models.URLField(max_length=1000)
     is404           = models.BooleanField( default=False )

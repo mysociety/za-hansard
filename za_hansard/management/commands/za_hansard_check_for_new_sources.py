@@ -1,9 +1,6 @@
-import pprint
 import httplib2
 import re
 import datetime
-import time
-import sys
 
 from optparse import make_option
 from bs4 import BeautifulSoup

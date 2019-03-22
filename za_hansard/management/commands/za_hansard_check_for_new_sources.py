@@ -103,7 +103,6 @@ class Command(BaseCommand):
                 groups = match.groups()
                 data[groups[0]] = groups[1]
 
-            title = ''
             try:
                 data['Title'] = table.find('b').text
             except:

@@ -77,7 +77,6 @@ class Command(BaseCommand):
             msg = "Status code was {0} when fetching {1}"
             raise Exception(msg.format(response.status, url))
         self.stdout.write("OK\n")
-        # content = open('test.html').read()
 
         # parse content
         soup = BeautifulSoup(
@@ -114,9 +113,7 @@ class Command(BaseCommand):
                 document_date = datetime.datetime.strptime(data['Date Published'], '%d %B %Y').date()
             except Exception as e:
                 raise CommandError( "Date could not be parsed\n%s" % str(e) )
-                # document_date = datetime.date.today()
 
-            #(obj, created) = Source.objects.get_or_create(
             return {
                 'document_name':   data['Document Name'],
                 'document_number': data['Document Number'],
@@ -141,7 +138,6 @@ class Command(BaseCommand):
                 print "Reached historical limit. Stopping.\n"
                 return scraped
 
-            # otherwise
             scraped.append(s)
 
         if pend < (options['limit'] or ptotal):

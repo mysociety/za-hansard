@@ -19,9 +19,3 @@ before_script:
 
 script:
   - ./manage.py test
-
-# report results in IRC
-# notifications:
-#   irc: "irc.mysociety.org#pmo"
-#   use_notice: true
-#   skip_join: true

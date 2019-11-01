@@ -1,5 +1,5 @@
 # Packages required for Django:
-django==1.8.18
+django==1.11.23
 psycopg2==2.8.2
 
 # Other useful libraries:
